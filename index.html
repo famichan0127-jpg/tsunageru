@@ -62,6 +62,7 @@
 
   /* ローディング・エラー */
   .loading { text-align: center; padding: 2rem; color: #888; font-size: 14px; }
+  #loadingMsg { transition: opacity 0.3s ease; }
   .dot { display: inline-block; animation: bounce 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
   .dot:nth-child(3) { animation-delay: 0.4s; }
@@ -88,6 +89,37 @@
   .modal-note a { color: #3D5A3E; }
   .btn-agree { width: 100%; background: #3D5A3E; color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
   .btn-detail { width: 100%; background: transparent; color: #888; border: none; font-size: 12px; cursor: pointer; font-family: inherit; padding: 4px; }
+
+  /* デモアニメーション */
+  .demo-area { margin-bottom: 16px; }
+  .demo-label { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 8px; }
+  .demo-phone { background: #f5f2ed; border-radius: 12px; padding: 12px; }
+  .demo-input-card { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border: 0.5px solid #e0ddd8; min-height: 64px; }
+  .demo-input-label { font-size: 10px; color: #aaa; margin-bottom: 4px; }
+  .demo-input-text { font-size: 12px; color: #2C3E2D; line-height: 1.6; display: inline; }
+  .demo-cursor { display: inline-block; font-size: 12px; color: #3D5A3E; animation: blink 0.8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .demo-btn-main { background: #3D5A3E; color: #fff; border-radius: 10px; padding: 10px; font-size: 13px; text-align: center; margin-bottom: 8px; transition: opacity 0.2s; }
+  .demo-btn-main.active { opacity: 0.7; }
+  .demo-result { background: #fff; border-radius: 10px; padding: 10px 12px; border: 0.5px solid #b5d9bc; margin-bottom: 8px; animation: fadeIn 0.4s ease; }
+  .demo-result.orange { border-color: #f5c4a0; }
+  .demo-result-label { font-size: 10px; font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+  .demo-result-label.green { color: #3D5A3E; }
+  .demo-result-label.orange { color: #c8622a; }
+  .demo-result-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .demo-result-dot.green { background: #3D5A3E; }
+  .demo-result-dot.orange { background: #e07840; }
+  .demo-result-body { font-size: 11px; color: #2C3E2D; line-height: 1.6; margin-bottom: 8px; }
+  .demo-btn-copy { background: #fff; border: 0.5px solid #3D5A3E; color: #3D5A3E; border-radius: 8px; padding: 7px; font-size: 11px; text-align: center; transition: background 0.3s; margin-bottom: 4px; }
+  .demo-btn-copy.copied { background: #C8D9C0; }
+  .demo-btn-copy.orange { border-color: #f5c4a0; color: #c8622a; background: #fdf3ec; }
+  .demo-feeling { background: #fff; border-radius: 10px; padding: 10px 12px; border: 0.5px solid #e0ddd8; animation: fadeIn 0.4s ease; }
+  .demo-feeling-title { font-size: 10px; font-weight: 500; color: #444; margin-bottom: 8px; }
+  .demo-feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+  .demo-feeling-btn { background: #fafaf8; border: 1px solid #e8e5de; border-radius: 8px; padding: 8px 4px; text-align: center; font-size: 10px; color: #555; }
+  .demo-feeling-btn.selected { background: #eef5ee; border-color: #3D5A3E; }
+  .demo-feeling-msg { background: #f0f7f0; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #3D5A3E; line-height: 1.6; animation: fadeIn 0.3s ease; }
+  .demo-play-btn { width: 100%; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; padding: 10px; font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
 
   /* 今の気持ち */
   .feeling-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
@@ -193,8 +225,42 @@
       </div>
       <hr class="modal-divider">
       <div class="modal-note">詳しくは「つかいかた」をご覧ください。</div>
-      <button class="btn-agree" onclick="tsgTutorialClose()">わかった、はじめる</button>
-      <button class="btn-detail" onclick="tsgTutorialHowto()">くわしく読む</button>
+
+      <!-- デモエリア -->
+      <div class="demo-area" id="demoArea">
+        <div class="demo-label">こんなふうに使うよ</div>
+        <div class="demo-phone" id="tutorialDemoPhone">
+          <div class="demo-input-card">
+            <div class="demo-input-label">送りたい気持ち</div>
+            <div class="demo-input-text" id="demoText"></div>
+            <div class="demo-cursor" id="demoCursor">|</div>
+          </div>
+          <div class="demo-btn-main" id="demoBtnMain">言葉にしてみる</div>
+          <div id="demoResultGreen" style="display:none" class="demo-result">
+            <div class="demo-result-label green"><span class="demo-result-dot green"></span>伝える翻訳</div>
+            <div class="demo-result-body">最近ちょっと疲れてて、自分の時間が欲しいな。また元気になれると思うんだ。</div>
+            <div class="demo-btn-copy green" id="demoBtnCopy">この文章を送る</div>
+          </div>
+          <div id="demoResultOrange" style="display:none" class="demo-result orange">
+            <div class="demo-result-label orange"><span class="demo-result-dot orange"></span>解決翻訳</div>
+            <div class="demo-result-body">心に余裕がなくて、近いうちに1日だけ自分の時間をもらえたら嬉しいな。</div>
+            <div class="demo-btn-copy orange">この文章を送る</div>
+          </div>
+          <div id="demoFeeling" style="display:none" class="demo-feeling">
+            <div class="demo-feeling-title">💚 今の気持ちに近いのは？</div>
+            <div class="demo-feeling-grid">
+              <div class="demo-feeling-btn" id="demoFeelingBtn1">😌 少し落ち着いた</div>
+              <div class="demo-feeling-btn">🌿 気持ちを整理できた</div>
+              <div class="demo-feeling-btn">🩷 伝えやすくなった</div>
+              <div class="demo-feeling-btn">🌥 まだモヤモヤする</div>
+            </div>
+            <div class="demo-feeling-msg" id="demoFeelingMsg" style="display:none">よかったです 🌿 気持ちを整理するだけでも十分です。</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-agree" id="btnAgree" style="display:none" onclick="tsgTutorialClose()">わかった、はじめる</button>
+      <button class="btn-detail" id="btnDetail" style="display:none" onclick="tsgTutorialHowto()">くわしく読む</button>
     </div>
   </div>
 
@@ -221,7 +287,7 @@
       <button class="btn-retry" onclick="tsgRun()">もう一度試す</button>
     </div>
     <div id="loading" style="display:none" class="loading">
-      気持ち、受け取ったよ<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+      <span id="loadingMsg">気持ち、受け取ったよ 🌿</span>
     </div>
 
     <div id="results" style="display:none">
@@ -336,7 +402,40 @@
     </div>
 
     <div class="howto-section">
-      <div class="howto-section-label">FAQ</div>
+      <div class="howto-section-label">DEMO</div>
+      <div class="howto-section-title">操作イメージを見てみる</div>
+      <button class="demo-play-btn" onclick="tsgHowtoDemo()">▶ デモを見る</button>
+      <div class="demo-phone" id="howtoDemoPhone" style="display:none">
+        <div class="demo-input-card">
+          <div class="demo-input-label">送りたい気持ち</div>
+          <div class="demo-input-text" id="howtoDemoText"></div>
+          <div class="demo-cursor" id="howtodemoCursor">|</div>
+        </div>
+        <div class="demo-btn-main" id="howtoDemoBtnMain">言葉にしてみる</div>
+        <div id="howtoDemoResultGreen" style="display:none" class="demo-result">
+          <div class="demo-result-label green"><span class="demo-result-dot green"></span>伝える翻訳</div>
+          <div class="demo-result-body">最近ちょっと疲れてて、自分の時間が欲しいな。また元気になれると思うんだ。</div>
+          <div class="demo-btn-copy green" id="howtoDemoBtnCopy">この文章を送る</div>
+        </div>
+        <div id="howtoDemoResultOrange" style="display:none" class="demo-result orange">
+          <div class="demo-result-label orange"><span class="demo-result-dot orange"></span>解決翻訳</div>
+          <div class="demo-result-body">心に余裕がなくて、近いうちに1日だけ自分の時間をもらえたら嬉しいな。</div>
+          <div class="demo-btn-copy orange">この文章を送る</div>
+        </div>
+        <div id="howtoDemoFeeling" style="display:none" class="demo-feeling">
+          <div class="demo-feeling-title">💚 今の気持ちに近いのは？</div>
+          <div class="demo-feeling-grid">
+            <div class="demo-feeling-btn" id="howtoDemoFeelingBtn1">😌 少し落ち着いた</div>
+            <div class="demo-feeling-btn">🌿 気持ちを整理できた</div>
+            <div class="demo-feeling-btn">🩷 伝えやすくなった</div>
+            <div class="demo-feeling-btn">🌥 まだモヤモヤする</div>
+          </div>
+          <div class="demo-feeling-msg" id="howtoDemoFeelingMsg" style="display:none">よかったです 🌿 気持ちを整理するだけでも十分です。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="howto-section">
       <div class="howto-section-title">よくある質問</div>
       <div class="faq-item">
         <div class="faq-q"><span>Q.</span>入力した内容は誰かに見られますか？</div>
@@ -465,8 +564,104 @@ function tsgTutorialHowto() {
   tsgNav('howto');
   gtag('event', 'tutorial_howto');
 }
+
+// デモアニメーション共通関数
+function tsgRunDemoIn(ids, onComplete) {
+  var text = 'なんでいつも私ばっかり家事してるの？';
+  var textEl = document.getElementById(ids.text);
+  var cursorEl = document.getElementById(ids.cursor);
+  var btnMain = document.getElementById(ids.btnMain);
+  var resultGreen = document.getElementById(ids.resultGreen);
+  var resultOrange = document.getElementById(ids.resultOrange);
+  var btnCopy = document.getElementById(ids.btnCopy);
+  var feelingEl = document.getElementById(ids.feeling);
+  var feelingBtn1 = document.getElementById(ids.feelingBtn1);
+  var feelingMsg = document.getElementById(ids.feelingMsg);
+  var i = 0;
+
+  // 1. 文字を1文字ずつ入力（ゆっくり）
+  var typing = setInterval(function() {
+    textEl.textContent += text[i];
+    i++;
+    if (i >= text.length) {
+      clearInterval(typing);
+      cursorEl.style.display = 'none';
+
+      // 2. ボタンを光らせる
+      setTimeout(function() {
+        btnMain.classList.add('active');
+        setTimeout(function() {
+          btnMain.classList.remove('active');
+          btnMain.textContent = '整えています...';
+
+          // 3. 伝える翻訳を表示
+          setTimeout(function() {
+            btnMain.textContent = '言葉にしてみる';
+            resultGreen.style.display = 'block';
+
+            // 4. 解決翻訳を表示
+            setTimeout(function() {
+              resultOrange.style.display = 'block';
+
+              // 5. コピーボタンを光らせる
+              setTimeout(function() {
+                btnCopy.classList.add('copied');
+                btnCopy.textContent = 'コピーしました！';
+
+                // 6. 気持ち4択を表示
+                setTimeout(function() {
+                  feelingEl.style.display = 'block';
+
+                  // 7. 気持ちを選択
+                  setTimeout(function() {
+                    feelingBtn1.classList.add('selected');
+                    feelingMsg.style.display = 'block';
+
+                    // 8. 完了コールバック
+                    setTimeout(function() {
+                      if (onComplete) onComplete();
+                    }, 1500);
+                  }, 1800);
+                }, 1500);
+              }, 1800);
+            }, 1500);
+          }, 2000);
+        }, 700);
+      }, 800);
+    }
+  }, 150);
+}
+
+// チュートリアルデモ
+function tsgRunDemo() {
+  tsgRunDemoIn({
+    text: 'demoText', cursor: 'demoCursor', btnMain: 'demoBtnMain',
+    resultGreen: 'demoResultGreen', resultOrange: 'demoResultOrange',
+    btnCopy: 'demoBtnCopy', feeling: 'demoFeeling',
+    feelingBtn1: 'demoFeelingBtn1', feelingMsg: 'demoFeelingMsg'
+  }, function() {
+    document.getElementById('btnAgree').style.display = 'block';
+    document.getElementById('btnDetail').style.display = 'block';
+  });
+}
+
+// つかいかたデモ
+function tsgHowtoDemo() {
+  var phone = document.getElementById('howtoDemoPhone');
+  var playBtn = document.querySelector('.demo-play-btn');
+  phone.style.display = 'block';
+  playBtn.style.display = 'none';
+  tsgRunDemoIn({
+    text: 'howtoDemoText', cursor: 'howtodemoCursor', btnMain: 'howtoDemoBtnMain',
+    resultGreen: 'howtoDemoResultGreen', resultOrange: 'howtoDemoResultOrange',
+    btnCopy: 'howtoDemoBtnCopy', feeling: 'howtoDemoFeeling',
+    feelingBtn1: 'howtoDemoFeelingBtn1', feelingMsg: 'howtoDemoFeelingMsg'
+  }, null);
+}
+
 if (!localStorage.getItem('tsg_tutorial_done')) {
   document.getElementById('tutorialModal').classList.remove('hidden');
+  setTimeout(tsgRunDemo, 800);
 }
 
 // 文字数カウンター
@@ -521,6 +716,24 @@ async function tsgRun() {
   document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
   gtag('event', 'translate_start');
 
+  // ローディングメッセージ切り替え
+  var loadingMessages = [
+    '気持ち、受け取ったよ 🌿',
+    '言葉を探してるよ...',
+    'もう少しだけ待ってね 🌱'
+  ];
+  var msgIdx = 0;
+  var msgEl = document.getElementById('loadingMsg');
+  msgEl.textContent = loadingMessages[0];
+  var msgTimer = setInterval(function() {
+    msgIdx = (msgIdx + 1) % loadingMessages.length;
+    msgEl.style.opacity = '0';
+    setTimeout(function() {
+      msgEl.textContent = loadingMessages[msgIdx];
+      msgEl.style.opacity = '1';
+    }, 300);
+  }, 2500);
+
   try {
     var response = await fetch('/api/translate', {
       method: 'POST',
@@ -543,6 +756,7 @@ async function tsgRun() {
     errorEl.style.display = 'block';
     gtag('event', 'translate_error');
   } finally {
+    clearInterval(msgTimer);
     document.getElementById('mainBtn').disabled = false;
     document.getElementById('loading').style.display = 'none';
   }
