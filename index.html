@@ -229,7 +229,8 @@
       <!-- デモエリア -->
       <div class="demo-area" id="demoArea">
         <div class="demo-label">こんなふうに使うよ</div>
-        <div class="demo-phone" id="tutorialDemoPhone">
+        <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo()">▶ デモを見る</button>
+        <div class="demo-phone" id="tutorialDemoPhone" style="display:none">
           <div class="demo-input-card">
             <div class="demo-input-label">送りたい気持ち</div>
             <div class="demo-input-text" id="demoText"></div>
@@ -632,7 +633,13 @@ function tsgRunDemoIn(ids, onComplete) {
   }, 200);
 }
 
-// チュートリアルデモ
+// チュートリアルデモ（ボタン押下で開始）
+function tsgStartTutorialDemo() {
+  document.getElementById('tutorialPlayBtn').style.display = 'none';
+  document.getElementById('tutorialDemoPhone').style.display = 'block';
+  tsgRunDemo();
+}
+
 function tsgRunDemo() {
   tsgRunDemoIn({
     text: 'demoText', cursor: 'demoCursor', btnMain: 'demoBtnMain',
@@ -658,7 +665,6 @@ function tsgHowtoDemo() {
 
 if (!localStorage.getItem('tsg_tutorial_done')) {
   document.getElementById('tutorialModal').classList.remove('hidden');
-  setTimeout(tsgRunDemo, 800);
 }
 
 // 文字数カウンター
