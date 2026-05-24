@@ -207,7 +207,8 @@
   <div id="screen-home" class="screen active">
     <div class="input-card">
       <div class="input-label">送りたい気持ち</div>
-      <textarea id="userInput" placeholder="モヤモヤしてることをそのまま書いてね。うまく言えなくても大丈夫。"></textarea>
+      <textarea id="userInput" maxlength="500" oninput="tsgCount()" placeholder="モヤモヤしてることをそのまま書いてね。うまく言えなくても大丈夫。&#10;例：なんでいつも私ばっかり家事してるの？"></textarea>
+      <div style="text-align:right; font-size:11px; color:#bbb; margin-top:4px;"><span id="charCount">0</span> / 500</div>
     </div>
 
     <div class="btn-row">
@@ -220,7 +221,7 @@
       <button class="btn-retry" onclick="tsgRun()">もう一度試す</button>
     </div>
     <div id="loading" style="display:none" class="loading">
-      tsunageruが整えています<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+      気持ち、受け取ったよ<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
     </div>
 
     <div id="results" style="display:none">
@@ -331,7 +332,7 @@
     <div class="howto-section">
       <div class="howto-section-label">FEELING CHECK</div>
       <div class="howto-section-title">今の気持ち選択について</div>
-      <div class="howto-body">翻訳後に表示される4択は、送る・送らないに関係なく選べます。自分の気持ちを確認するためのものです。選んでも送信されることはありません。</div>
+      <div class="howto-body">翻訳後に表示される4択は、送る・送らないに関係なく選べます。自分の気持ちを確認するためのものです。</div>
     </div>
 
     <div class="howto-section">
@@ -466,6 +467,14 @@ function tsgTutorialHowto() {
 }
 if (!localStorage.getItem('tsg_tutorial_done')) {
   document.getElementById('tutorialModal').classList.remove('hidden');
+}
+
+// 文字数カウンター
+function tsgCount() {
+  var len = document.getElementById('userInput').value.length;
+  var el = document.getElementById('charCount');
+  el.textContent = len;
+  el.style.color = len >= 450 ? '#D85A30' : '#bbb';
 }
 
 // 時計
