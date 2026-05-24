@@ -53,7 +53,7 @@
   </div>
 
   <div class="btn-row">
-    <button class="btn-main" id="mainBtn" onclick="tsgRun()">整えてみる</button>
+    <button class="btn-main" id="mainBtn" onclick="tsgRun()">言葉にしてみる</button>
     <button class="btn-clear" onclick="tsgClear()">クリア</button>
   </div>
 
@@ -65,22 +65,22 @@
   <div id="results" style="display:none">
     <div class="divider">
       <div class="divider-line"></div>
-      <div class="divider-text">tsunageruが整えてみたよ</div>
+      <div class="divider-text">こんなふうに伝えられるかも 🌿</div>
       <div class="divider-line"></div>
     </div>
 
     <div class="result-card">
-      <div class="result-label">🌿 やわらか翻訳</div>
+      <div class="result-label">🌿 伝える翻訳</div>
       <div class="result-text" id="softResult"></div>
       <div class="result-hint" id="softHint"></div>
-      <button class="btn-copy" onclick="tsgCopy('softResult', this)">コピーして送る</button>
+      <button class="btn-copy" onclick="tsgCopy('softResult', this)">この文章を送る</button>
     </div>
 
     <div class="result-card">
       <div class="result-label">🎯 解決翻訳</div>
       <div class="result-text" id="solveResult"></div>
       <div class="result-hint" id="solveHint"></div>
-      <button class="btn-copy" onclick="tsgCopy('solveResult', this)">コピーして送る</button>
+      <button class="btn-copy" onclick="tsgCopy('solveResult', this)">この文章を送る</button>
     </div>
   </div>
 </div>
@@ -134,7 +134,7 @@ async function tsgRun() {
     document.getElementById('results').style.display = 'block';
 
   } catch(err) {
-    errorEl.textContent = 'エラー：' + err.message;
+    errorEl.textContent = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿';
     errorEl.style.display = 'block';
   } finally {
     document.getElementById('mainBtn').disabled = false;
@@ -148,7 +148,7 @@ function tsgCopy(id, btn) {
     btn.textContent = 'コピーしました！';
     btn.classList.add('copied');
     setTimeout(function() {
-      btn.textContent = 'コピーして送る';
+      btn.textContent = 'この文章を送る';
       btn.classList.remove('copied');
     }, 2000);
   });
