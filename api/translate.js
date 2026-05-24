@@ -45,6 +45,6 @@ ${userInput}
     res.status(200).json(parsed);
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 }
