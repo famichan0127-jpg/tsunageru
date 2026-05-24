@@ -26,7 +26,7 @@ ${userInput}
 {"soft":"やわらか翻訳のテキスト","soft_hint":"伝わりやすい理由20文字以内","solve":"解決翻訳のテキスト","solve_hint":"効果的な理由20文字以内"}`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
