@@ -8,11 +8,27 @@
 <link rel="icon" href="/icon.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #F5F2ED; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
-  .app { width: 100%; max-width: 440px; }
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #F5F2ED; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; }
+  .app { width: 100%; max-width: 440px; min-height: 100vh; position: relative; display: flex; flex-direction: column; }
+
+  /* ヘッダー */
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1rem 0.5rem; }
   .logo { font-size: 22px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; }
   .time { font-size: 13px; color: #888; }
+
+  /* スクロールエリア */
+  .screen { display: none; flex: 1; padding: 1rem 1rem 5rem; overflow-y: auto; }
+  .screen.active { display: block; }
+
+  /* ボトムナビ */
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; background: #fff; border-top: 0.5px solid #e0ddd8; display: flex; z-index: 100; padding: 6px 0 10px; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; background: none; border: none; font-family: inherit; }
+  .nav-icon { font-size: 22px; color: #bbb; line-height: 1; }
+  .nav-label { font-size: 10px; color: #bbb; }
+  .nav-item.active .nav-icon { color: #3D5A3E; }
+  .nav-item.active .nav-label { color: #3D5A3E; font-weight: 500; }
+
+  /* ホーム */
   .input-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
   .input-label { font-size: 12px; color: #888; margin-bottom: 8px; }
   textarea { width: 100%; border: none; background: transparent; font-size: 15px; color: #2C3E2D; resize: none; outline: none; font-family: inherit; line-height: 1.6; min-height: 100px; }
@@ -25,68 +41,352 @@
   .divider { display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; }
   .divider-line { flex: 1; height: 0.5px; background: #ddd; }
   .divider-text { font-size: 12px; color: #888; white-space: nowrap; }
+
+  /* 翻訳結果 */
   .result-card { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 1.25rem; margin-bottom: 1rem; }
-  .result-label { font-size: 12px; color: #3D5A3E; margin-bottom: 10px; font-weight: 500; }
+  .result-card.green { border-color: #b5d9bc; }
+  .result-card.orange { border-color: #f5c4a0; }
+  .result-label { font-size: 12px; margin-bottom: 10px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .result-label.green { color: #3D5A3E; }
+  .result-label.orange { color: #c8622a; }
+  .result-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .result-dot.green { background: #3D5A3E; }
+  .result-dot.orange { background: #e07840; }
   .result-text { font-size: 15px; color: #2C3E2D; line-height: 1.7; margin-bottom: 12px; }
   .result-hint { font-size: 12px; color: #888; background: #f5f2ed; padding: 8px 12px; border-radius: 8px; line-height: 1.5; margin-bottom: 12px; }
-  .btn-copy { width: 100%; padding: 11px; background: transparent; border: 0.5px solid #3D5A3E; color: #3D5A3E; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: inherit; }
-  .btn-copy:hover { background: #C8D9C0; }
-  .btn-copy.copied { background: #C8D9C0; }
+  .btn-copy { width: 100%; padding: 11px; background: transparent; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .btn-copy.green { border: 0.5px solid #3D5A3E; color: #3D5A3E; }
+  .btn-copy.green:hover, .btn-copy.green.copied { background: #C8D9C0; }
+  .btn-copy.orange { border: 0.5px solid #f5c4a0; color: #c8622a; background: #fdf3ec; }
+  .btn-copy.orange:hover, .btn-copy.orange.copied { background: #f5c4a0; }
+
+  /* ローディング・エラー */
   .loading { text-align: center; padding: 2rem; color: #888; font-size: 14px; }
   .dot { display: inline-block; animation: bounce 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
   .dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
   .error { color: #D85A30; font-size: 13px; padding: 10px 14px; background: #FAECE7; border-radius: 10px; margin-bottom: 1rem; }
+  .btn-retry { margin-top: 10px; width: 100%; padding: 10px; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
+
+  /* 今の気持ち */
+  .feeling-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
+  .feeling-title { font-size: 13px; font-weight: 500; color: #444; margin-bottom: 2px; }
+  .feeling-sub { font-size: 11px; color: #aaa; margin-bottom: 14px; }
+  .feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .feeling-btn { background: #fafaf8; border: 1px solid #e8e5de; border-radius: 12px; padding: 14px 8px; text-align: center; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+  .feeling-btn:hover { background: #eef5ee; }
+  .feeling-btn.selected { background: #eef5ee; border-color: #3D5A3E; }
+  .feeling-emoji { font-size: 24px; margin-bottom: 4px; }
+  .feeling-label { font-size: 12px; color: #555; line-height: 1.4; }
+
+  /* 履歴 */
+  .coming-soon { text-align: center; padding: 4rem 2rem; color: #aaa; }
+  .coming-soon-icon { font-size: 40px; margin-bottom: 1rem; }
+  .coming-soon-title { font-size: 16px; font-weight: 500; color: #888; margin-bottom: 6px; }
+  .coming-soon-sub { font-size: 13px; line-height: 1.7; }
+
+  /* つかいかた */
+  .howto-section { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
+  .howto-section-label { font-size: 10px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .howto-section-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 10px; }
+  .howto-body { font-size: 13px; color: #666; line-height: 1.8; }
+  .step-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+  .step-row:last-child { margin-bottom: 0; }
+  .step-num { width: 26px; height: 26px; border-radius: 50%; background: #3D5A3E; color: #fff; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
+  .step-sub { font-size: 12px; color: #888; line-height: 1.6; }
+  .step-arrow { text-align: center; color: #ccc; font-size: 14px; margin: 2px 0 10px 13px; }
+  .trans-row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .trans-row:last-child { margin-bottom: 0; }
+  .trans-badge { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; align-self: flex-start; margin-top: 1px; }
+  .trans-badge.green { background: #e8f5eb; color: #3D5A3E; }
+  .trans-badge.orange { background: #fdf0e6; color: #c8622a; }
+  .trans-text { font-size: 12px; color: #666; line-height: 1.7; }
+  .faq-item { margin-bottom: 14px; }
+  .faq-item:last-child { margin-bottom: 0; }
+  .faq-q { font-size: 12px; font-weight: 500; color: #3D5A3E; margin-bottom: 4px; display: flex; gap: 6px; }
+  .faq-a { font-size: 12px; color: #666; line-height: 1.7; padding-left: 18px; }
+
+  /* 設定 */
+  .settings-section-label { font-size: 11px; font-weight: 500; color: #3D5A3E; margin: 0 4px 6px; letter-spacing: 0.05em; }
+  .settings-section { background: #fff; border-radius: 16px; margin-bottom: 16px; border: 0.5px solid #e0ddd8; overflow: hidden; }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 0.5px solid #f0ede6; }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row.disabled { opacity: 0.4; }
+  .settings-row-left { display: flex; align-items: center; gap: 10px; }
+  .settings-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .settings-icon.green { background: #e8f5eb; }
+  .settings-icon.gray { background: #f2f0ec; }
+  .settings-icon.orange { background: #fdf0e6; }
+  .settings-title { font-size: 13px; color: #333; }
+  .settings-sub { font-size: 11px; color: #aaa; margin-top: 1px; }
+  .settings-value { font-size: 12px; color: #aaa; }
+  .badge-soon { background: #f2f0ec; color: #aaa; font-size: 10px; padding: 3px 8px; border-radius: 20px; }
+  .chevron { color: #ccc; font-size: 16px; }
+  .toggle { width: 44px; height: 26px; border-radius: 13px; background: #3D5A3E; position: relative; cursor: pointer; flex-shrink: 0; border: none; }
+  .toggle-knob { width: 20px; height: 20px; border-radius: 50%; background: #fff; position: absolute; top: 3px; right: 3px; transition: right 0.2s; }
+  .toggle.off { background: #ccc; }
+  .toggle.off .toggle-knob { right: auto; left: 3px; }
 </style>
 </head>
 <body>
 <div class="app">
+
   <div class="header">
-    <div class="logo">tsunageru</div>
+    <div class="logo">tsunageru 🌿</div>
     <div class="time" id="clock"></div>
   </div>
 
-  <div class="input-card">
-    <div class="input-label">送りたい気持ち</div>
-    <textarea id="userInput" placeholder="今感じていることを、そのまま書いてみて。&#10;例：なんでいつも私ばっかり家事してるの？"></textarea>
-  </div>
-
-  <div class="btn-row">
-    <button class="btn-main" id="mainBtn" onclick="tsgRun()">言葉にしてみる</button>
-    <button class="btn-clear" onclick="tsgClear()">クリア</button>
-  </div>
-
-  <div id="errorMsg" style="display:none" class="error"></div>
-  <div id="loading" style="display:none" class="loading">
-    tsunageruが整えています<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
-  </div>
-
-  <div id="results" style="display:none">
-    <div class="divider">
-      <div class="divider-line"></div>
-      <div class="divider-text">こんなふうに伝えられるかも 🌿</div>
-      <div class="divider-line"></div>
+  <!-- ホーム画面 -->
+  <div id="screen-home" class="screen active">
+    <div class="input-card">
+      <div class="input-label">送りたい気持ち</div>
+      <textarea id="userInput" placeholder="モヤモヤしてることをそのまま書いてね。うまく言えなくても大丈夫。"></textarea>
     </div>
 
-    <div class="result-card">
-      <div class="result-label">🌿 伝える翻訳</div>
-      <div class="result-text" id="softResult"></div>
-      <div class="result-hint" id="softHint"></div>
-      <button class="btn-copy" onclick="tsgCopy('softResult', this)">この文章を送る</button>
+    <div class="btn-row">
+      <button class="btn-main" id="mainBtn" onclick="tsgRun()">言葉にしてみる</button>
+      <button class="btn-clear" onclick="tsgClear()">クリア</button>
     </div>
 
-    <div class="result-card">
-      <div class="result-label">🎯 解決翻訳</div>
-      <div class="result-text" id="solveResult"></div>
-      <div class="result-hint" id="solveHint"></div>
-      <button class="btn-copy" onclick="tsgCopy('solveResult', this)">この文章を送る</button>
+    <div id="errorMsg" style="display:none" class="error">
+      <div>いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿</div>
+      <button class="btn-retry" onclick="tsgRun()">もう一度試す</button>
+    </div>
+    <div id="loading" style="display:none" class="loading">
+      tsunageruが整えています<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+    </div>
+
+    <div id="results" style="display:none">
+      <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-text">こんなふうに伝えられるかも 🌿</div>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="result-card green">
+        <div class="result-label green"><span class="result-dot green"></span>伝える翻訳</div>
+        <div class="result-text" id="softResult"></div>
+        <div class="result-hint" id="softHint"></div>
+        <button class="btn-copy green" onclick="tsgCopy('softResult', this)">この文章を送る</button>
+      </div>
+
+      <div class="result-card orange">
+        <div class="result-label orange"><span class="result-dot orange"></span>解決翻訳</div>
+        <div class="result-text" id="solveResult"></div>
+        <div class="result-hint" id="solveHint"></div>
+        <button class="btn-copy orange" onclick="tsgCopy('solveResult', this)">この文章を送る</button>
+      </div>
+
+      <div class="feeling-card">
+        <div class="feeling-title">💚 今の気持ちに近いのは？</div>
+        <div class="feeling-sub">選ぶだけでも、気持ちの整理になります 🌿</div>
+        <div class="feeling-grid">
+          <button class="feeling-btn" onclick="tsgFeeling(this)">
+            <div class="feeling-emoji">😌</div>
+            <div class="feeling-label">少し落ち着いた</div>
+          </button>
+          <button class="feeling-btn" onclick="tsgFeeling(this)">
+            <div class="feeling-emoji">🌿</div>
+            <div class="feeling-label">気持ちを整理できた</div>
+          </button>
+          <button class="feeling-btn" onclick="tsgFeeling(this)">
+            <div class="feeling-emoji">🩷</div>
+            <div class="feeling-label">伝えやすくなった</div>
+          </button>
+          <button class="feeling-btn" onclick="tsgFeeling(this)">
+            <div class="feeling-emoji">🌥</div>
+            <div class="feeling-label">まだモヤモヤする</div>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- 履歴画面 -->
+  <div id="screen-history" class="screen">
+    <div class="coming-soon">
+      <div class="coming-soon-icon">🕐</div>
+      <div class="coming-soon-title">履歴機能は準備中です</div>
+      <div class="coming-soon-sub">過去の翻訳や気持ちの記録を<br>振り返れるようになります 🌿</div>
+    </div>
+  </div>
+
+  <!-- つかいかた画面 -->
+  <div id="screen-howto" class="screen">
+    <div class="howto-section">
+      <div class="howto-section-label">ABOUT</div>
+      <div class="howto-section-title">tsunageruってなに？</div>
+      <div class="howto-body">モヤモヤした気持ちを、相手に伝わりやすい言葉に変えるアプリです。うまく言葉にできなくても大丈夫。あなたの気持ちをそのまま入力するだけでOKです。</div>
+    </div>
+
+    <div class="howto-section">
+      <div class="howto-section-label">HOW TO USE</div>
+      <div class="howto-section-title">使い方は3ステップ</div>
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">気持ちを入力する</div>
+          <div class="step-sub">うまく言えなくてOK。モヤモヤをそのまま書いてみてください。</div>
+        </div>
+      </div>
+      <div class="step-arrow">↓</div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">翻訳を選ぶ</div>
+          <div class="step-sub">「伝える翻訳」と「解決翻訳」の2種類から、気持ちに合うものを選んでください。</div>
+        </div>
+      </div>
+      <div class="step-arrow">↓</div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">そのまま送る</div>
+          <div class="step-sub">「この文章を送る」を押してコピーし、LINEやメッセージで送れます。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="howto-section">
+      <div class="howto-section-label">TRANSLATION</div>
+      <div class="howto-section-title">2種類の翻訳の違い</div>
+      <div class="trans-row">
+        <div class="trans-badge green">伝える翻訳</div>
+        <div class="trans-text">今の気持ちをやさしく言い換えます。まず気持ちを受け取ってほしいときに。</div>
+      </div>
+      <div class="trans-row">
+        <div class="trans-badge orange">解決翻訳</div>
+        <div class="trans-text">気持ちとお願いをセットで伝えます。具体的に動いてほしいときに。</div>
+      </div>
+    </div>
+
+    <div class="howto-section">
+      <div class="howto-section-label">FEELING CHECK</div>
+      <div class="howto-section-title">今の気持ち選択について</div>
+      <div class="howto-body">翻訳後に表示される4択は、送る・送らないに関係なく選べます。自分の気持ちを確認するためのものです。選んでも送信されることはありません。</div>
+    </div>
+
+    <div class="howto-section">
+      <div class="howto-section-label">FAQ</div>
+      <div class="howto-section-title">よくある質問</div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Q.</span>入力した内容は誰かに見られますか？</div>
+        <div class="faq-a">いいえ。入力した文章や翻訳結果は外部に送信されず、あなたのスマホの中にだけ保存されます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Q.</span>翻訳はAIがやってるの？</div>
+        <div class="faq-a">はい。AIがあなたの気持ちを読み取って、伝わりやすい言葉に変えています。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Q.</span>履歴はどこで見られますか？</div>
+        <div class="faq-a">下のメニューの「履歴」から確認できます。現在準備中です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Q.</span>うまく翻訳されなかったときは？</div>
+        <div class="faq-a">もう少し具体的に書いてみると、より気持ちに近い翻訳になります。何度でも試してみてください。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 設定画面 -->
+  <div id="screen-settings" class="screen">
+    <div class="settings-section-label">プライバシー</div>
+    <div class="settings-section">
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon green">📊</div>
+          <div>
+            <div class="settings-title">効果測定への参加</div>
+            <div class="settings-sub">気持ちの選択を匿名で活用</div>
+          </div>
+        </div>
+        <button class="toggle" id="analyticsToggle" onclick="tsgToggle()"></button>
+      </div>
+      <div class="settings-row disabled">
+        <div class="settings-row-left">
+          <div class="settings-icon gray">🗑️</div>
+          <div>
+            <div class="settings-title">データをすべて削除</div>
+            <div class="settings-sub">履歴データの削除</div>
+          </div>
+        </div>
+        <span class="badge-soon">準備中</span>
+      </div>
+    </div>
+
+    <div class="settings-section-label">相手のプロフィール</div>
+    <div class="settings-section">
+      <div class="settings-row disabled">
+        <div class="settings-row-left">
+          <div class="settings-icon orange">👤</div>
+          <div>
+            <div class="settings-title">性格・タイプを登録</div>
+            <div class="settings-sub">翻訳の精度が上がります</div>
+          </div>
+        </div>
+        <span class="badge-soon">準備中</span>
+      </div>
+    </div>
+
+    <div class="settings-section-label">通知</div>
+    <div class="settings-section">
+      <div class="settings-row disabled">
+        <div class="settings-row-left">
+          <div class="settings-icon gray">🔔</div>
+          <div>
+            <div class="settings-title">通知設定</div>
+            <div class="settings-sub">リマインダーなど</div>
+          </div>
+        </div>
+        <span class="badge-soon">準備中</span>
+      </div>
+    </div>
+
+    <div class="settings-section-label">アプリについて</div>
+    <div class="settings-section">
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon gray">✉️</div>
+          <div><div class="settings-title">お問い合わせ</div></div>
+        </div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon gray">ℹ️</div>
+          <div><div class="settings-title">バージョン</div></div>
+        </div>
+        <span class="settings-value">1.0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ボトムナビ -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="tsgNav('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">ホーム</div>
+    </button>
+    <button class="nav-item" id="nav-history" onclick="tsgNav('history')">
+      <div class="nav-icon">🕐</div>
+      <div class="nav-label">履歴</div>
+    </button>
+    <button class="nav-item" id="nav-howto" onclick="tsgNav('howto')">
+      <div class="nav-icon">🌿</div>
+      <div class="nav-label">つかいかた</div>
+    </button>
+    <button class="nav-item" id="nav-settings" onclick="tsgNav('settings')">
+      <div class="nav-icon">⚙️</div>
+      <div class="nav-label">設定</div>
+    </button>
+  </nav>
+
 </div>
 
 <script>
-
+// 時計
 function updateClock() {
   var now = new Date();
   document.getElementById('clock').textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
@@ -94,19 +394,31 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 60000);
 
+// ナビゲーション
+function tsgNav(screen) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('screen-' + screen).classList.add('active');
+  document.getElementById('nav-' + screen).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// クリア
 function tsgClear() {
   document.getElementById('userInput').value = '';
   document.getElementById('results').style.display = 'none';
   document.getElementById('errorMsg').style.display = 'none';
+  document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
 }
 
+// 翻訳実行
 async function tsgRun() {
   var userInput = document.getElementById('userInput').value.trim();
   var errorEl = document.getElementById('errorMsg');
   errorEl.style.display = 'none';
 
   if (!userInput) {
-    errorEl.textContent = '気持ちを入力してください。';
+    errorEl.innerHTML = '気持ちを入力してください。';
     errorEl.style.display = 'block';
     return;
   }
@@ -114,8 +426,7 @@ async function tsgRun() {
   document.getElementById('mainBtn').disabled = true;
   document.getElementById('loading').style.display = 'block';
   document.getElementById('results').style.display = 'none';
-
-  var prompt = 'あなたは「tsunageru」というAIです。何でも話せる親友のように、丁寧だけど堅くない言葉で接してください。\n\nユーザーが感じている気持ちを、夫や大切な人に「伝わる言葉」に整えてあげてください。\n\n【重要なルール】\n- 感情を消さない。ただ形を整える\n- 相手を悪者にしない\n- 正論で追い詰めない\n- 丁寧語だけど堅くない\n- カーネギー・アドラー・NVCの思想をベースに\n- 文頭を「ね、」や「ねえ、」から始めない\n- カギ括弧（「」）や二重カギ括弧（『』）は使わない\n- LINEで自然に送れるような話し言葉にする\n- 短めでシンプルな文章にする\n\n【入力された気持ち】\n' + userInput + '\n\n以下のJSON形式のみで返してください：\n{"soft":"やわらか翻訳のテキスト","soft_hint":"伝わりやすい理由20文字以内","solve":"解決翻訳のテキスト","solve_hint":"効果的な理由20文字以内"}';
+  document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
 
   try {
     var response = await fetch('/api/translate', {
@@ -134,7 +445,7 @@ async function tsgRun() {
     document.getElementById('results').style.display = 'block';
 
   } catch(err) {
-    errorEl.textContent = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿';
+    errorEl.innerHTML = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿<br><button class="btn-retry" onclick="tsgRun()">もう一度試す</button>';
     errorEl.style.display = 'block';
   } finally {
     document.getElementById('mainBtn').disabled = false;
@@ -142,8 +453,11 @@ async function tsgRun() {
   }
 }
 
+// コピー
 function tsgCopy(id, btn) {
   var text = document.getElementById(id).textContent;
+  var originalText = btn.textContent;
+  var colorClass = btn.classList.contains('orange') ? 'orange' : 'green';
   navigator.clipboard.writeText(text).then(function() {
     btn.textContent = 'コピーしました！';
     btn.classList.add('copied');
@@ -152,6 +466,24 @@ function tsgCopy(id, btn) {
       btn.classList.remove('copied');
     }, 2000);
   });
+}
+
+// 今の気持ち選択
+function tsgFeeling(btn) {
+  document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+}
+
+// 効果測定トグル
+var analyticsOn = true;
+function tsgToggle() {
+  analyticsOn = !analyticsOn;
+  var toggle = document.getElementById('analyticsToggle');
+  if (analyticsOn) {
+    toggle.classList.remove('off');
+  } else {
+    toggle.classList.add('off');
+  }
 }
 </script>
 </body>
