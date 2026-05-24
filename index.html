@@ -11,16 +11,13 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #F5F2ED; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; }
   .app { width: 100%; max-width: 440px; min-height: 100vh; position: relative; display: flex; flex-direction: column; }
 
-  /* ヘッダー */
   .header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1rem 0.5rem; }
   .logo { font-size: 22px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; }
   .time { font-size: 13px; color: #888; }
 
-  /* スクロールエリア */
   .screen { display: none; flex: 1; padding: 1rem 1rem 5rem; overflow-y: auto; }
   .screen.active { display: block; }
 
-  /* ボトムナビ */
   .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; background: #fff; border-top: 0.5px solid #e0ddd8; display: flex; z-index: 100; padding: 6px 0 10px; }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; background: none; border: none; font-family: inherit; }
   .nav-icon { font-size: 22px; color: #bbb; line-height: 1; }
@@ -28,7 +25,6 @@
   .nav-item.active .nav-icon { color: #3D5A3E; }
   .nav-item.active .nav-label { color: #3D5A3E; font-weight: 500; }
 
-  /* ホーム */
   .input-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
   .input-label { font-size: 12px; color: #888; margin-bottom: 8px; }
   textarea { width: 100%; border: none; background: transparent; font-size: 15px; color: #2C3E2D; resize: none; outline: none; font-family: inherit; line-height: 1.6; min-height: 100px; }
@@ -42,7 +38,6 @@
   .divider-line { flex: 1; height: 0.5px; background: #ddd; }
   .divider-text { font-size: 12px; color: #888; white-space: nowrap; }
 
-  /* 翻訳結果 */
   .result-card { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 1.25rem; margin-bottom: 1rem; }
   .result-card.green { border-color: #b5d9bc; }
   .result-card.orange { border-color: #f5c4a0; }
@@ -60,7 +55,6 @@
   .btn-copy.orange { border: 0.5px solid #f5c4a0; color: #c8622a; background: #fdf3ec; }
   .btn-copy.orange:hover, .btn-copy.orange.copied { background: #f5c4a0; }
 
-  /* ローディング・エラー */
   .loading { text-align: center; padding: 2rem; color: #888; font-size: 14px; }
   #loadingMsg { transition: opacity 0.3s ease; }
   .dot { display: inline-block; animation: bounce 1.2s infinite; }
@@ -70,7 +64,6 @@
   .error { color: #D85A30; font-size: 13px; padding: 10px 14px; background: #FAECE7; border-radius: 10px; margin-bottom: 1rem; }
   .btn-retry { margin-top: 10px; width: 100%; padding: 10px; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
 
-  /* チュートリアルモーダル */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(50,45,38,0.5); display: flex; align-items: flex-start; justify-content: center; z-index: 200; padding: 1rem; overflow-y: auto; }
   .modal-overlay.hidden { display: none; }
   .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px 20px; margin: auto; }
@@ -90,7 +83,6 @@
   .btn-agree { width: 100%; background: #3D5A3E; color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
   .btn-detail { width: 100%; background: transparent; color: #888; border: none; font-size: 12px; cursor: pointer; font-family: inherit; padding: 4px; }
 
-  /* デモアニメーション */
   .demo-area { margin-bottom: 16px; }
   .demo-label { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 8px; }
   .demo-phone { background: #f5f2ed; border-radius: 12px; padding: 12px; }
@@ -121,7 +113,6 @@
   .demo-feeling-msg { background: #f0f7f0; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #3D5A3E; line-height: 1.6; animation: fadeIn 0.3s ease; }
   .demo-play-btn { width: 100%; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; padding: 10px; font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
 
-  /* 今の気持ち */
   .feeling-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
   .feeling-title { font-size: 13px; font-weight: 500; color: #444; margin-bottom: 2px; }
   .feeling-sub { font-size: 11px; color: #aaa; margin-bottom: 14px; }
@@ -133,15 +124,19 @@
   .feeling-label { font-size: 12px; color: #555; line-height: 1.4; }
   .feeling-message { margin-top: 12px; padding: 12px 14px; background: #f0f7f0; border-radius: 12px; font-size: 13px; color: #3D5A3E; line-height: 1.7; display: none; animation: fadeIn 0.3s ease; }
   .feeling-message.show { display: block; }
+
+  /* アンケートリンク */
+  .survey-link { text-align: center; padding: 8px 0 4px; }
+  .survey-link a { font-size: 12px; color: #3D5A3E; text-decoration: none; opacity: 0.7; }
+  .survey-link a:hover { opacity: 1; }
+
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* 履歴 */
   .coming-soon { text-align: center; padding: 4rem 2rem; color: #aaa; }
   .coming-soon-icon { font-size: 40px; margin-bottom: 1rem; }
   .coming-soon-title { font-size: 16px; font-weight: 500; color: #888; margin-bottom: 6px; }
   .coming-soon-sub { font-size: 13px; line-height: 1.7; }
 
-  /* つかいかた */
   .howto-section { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
   .howto-section-label { font-size: 10px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; margin-bottom: 6px; }
   .howto-section-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 10px; }
@@ -163,7 +158,6 @@
   .faq-q { font-size: 12px; font-weight: 500; color: #3D5A3E; margin-bottom: 4px; display: flex; gap: 6px; }
   .faq-a { font-size: 12px; color: #666; line-height: 1.7; padding-left: 18px; }
 
-  /* 設定 */
   .settings-section-label { font-size: 11px; font-weight: 500; color: #3D5A3E; margin: 0 4px 6px; letter-spacing: 0.05em; }
   .settings-section { background: #fff; border-radius: 16px; margin-bottom: 16px; border: 0.5px solid #e0ddd8; overflow: hidden; }
   .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 0.5px solid #f0ede6; }
@@ -184,7 +178,6 @@
   .toggle.off { background: #ccc; }
   .toggle.off .toggle-knob { right: auto; left: 3px; }
 </style>
-<!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VVJWY6FQZ9"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -196,7 +189,6 @@
 <body>
 <div class="app">
 
-  <!-- チュートリアルモーダル -->
   <div class="modal-overlay hidden" id="tutorialModal">
     <div class="modal">
       <div class="modal-icon">🌿</div>
@@ -226,7 +218,6 @@
       <hr class="modal-divider">
       <div class="modal-note">詳しくは「つかいかた」をご覧ください。</div>
 
-      <!-- デモエリア -->
       <div class="demo-area" id="demoArea">
         <div class="demo-label">こんなふうに使うよ</div>
         <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo()">▶ デモを見る</button>
@@ -335,6 +326,12 @@
         </div>
         <div class="feeling-message" id="feelingMessage"></div>
       </div>
+
+      <!-- アンケートリンク（翻訳完了後のみ表示） -->
+      <div class="survey-link">
+        <a href="https://forms.gle/RvF1nFinpc76MAUZ6" target="_blank" onclick="gtag('event', 'survey_tap')">30秒アンケートで開発を応援する →</a>
+      </div>
+
     </div>
   </div>
 
@@ -349,11 +346,6 @@
 
   <!-- つかいかた画面 -->
   <div id="screen-howto" class="screen">
-    <div class="howto-section">
-      <div class="howto-section-label">WHY</div>
-      <div class="howto-section-title">tsunageruをつくった理由</div>
-      <div class="howto-body">夫に腹が立ちすぎて眠れない夜がありました。<br><br>言いたいことはある。でも、どう伝えればいいかわからない。キレられるんじゃないか、拒絶されるんじゃないかって思うと、なかなか言葉にできない。<br><br>重要なのは、相手に伝わるかどうか。でも、伝わる言葉に変えるのって、本当に難しい。<br><br>そこで思いついたのが翻訳こんにゃく。モヤモヤした気持ちをそのまま入れると、AIが伝わる言葉に変えてくれるアプリ。アドラーやカーネギーが残した知恵をAIに学習させて、あなたの気持ちを届けます。</div>
-    </div>
 
     <div class="howto-section">
       <div class="howto-section-label">ABOUT</div>
@@ -461,6 +453,14 @@
         <div class="faq-a">もう少し具体的に書いてみると、より気持ちに近い翻訳になります。何度でも試してみてください。</div>
       </div>
     </div>
+
+    <!-- WHYセクション（つかいかたの一番下に移動） -->
+    <div class="howto-section">
+      <div class="howto-section-label">WHY</div>
+      <div class="howto-section-title">tsunageruをつくった理由</div>
+      <div class="howto-body">夫に腹が立ちすぎて眠れない夜がありました。<br><br>言いたいことはある。でも、どう伝えればいいかわからない。キレられるんじゃないか、拒絶されるんじゃないかって思うと、なかなか言葉にできない。<br><br>重要なのは、相手に伝わるかどうか。でも、伝わる言葉に変えるのって、本当に難しい。<br><br>そこで思いついたのが翻訳こんにゃく。モヤモヤした気持ちをそのまま入れると、AIが伝わる言葉に変えてくれるアプリ。アドラーやカーネギーが残した知恵をAIに学習させて、あなたの気持ちを届けます。</div>
+    </div>
+
   </div>
 
   <!-- 設定画面 -->
@@ -559,7 +559,6 @@
 </div>
 
 <script>
-// チュートリアル
 function tsgTutorialClose() {
   document.getElementById('tutorialModal').classList.add('hidden');
   localStorage.setItem('tsg_tutorial_done', '1');
@@ -572,7 +571,6 @@ function tsgTutorialHowto() {
   gtag('event', 'tutorial_howto');
 }
 
-// デモアニメーション共通関数
 function tsgRunDemoIn(ids, onComplete) {
   var text = 'なんでいつも私ばっかり家事してるの？';
   var textEl = document.getElementById(ids.text);
@@ -586,45 +584,30 @@ function tsgRunDemoIn(ids, onComplete) {
   var feelingMsg = document.getElementById(ids.feelingMsg);
   var i = 0;
 
-  // 1. 文字を1文字ずつ入力（ゆっくり）
   var typing = setInterval(function() {
     textEl.textContent += text[i];
     i++;
     if (i >= text.length) {
       clearInterval(typing);
       cursorEl.style.display = 'none';
-
-      // 2. ボタンを光らせる
       setTimeout(function() {
         btnMain.classList.add('active');
         setTimeout(function() {
           btnMain.classList.remove('active');
           btnMain.textContent = '整えています...';
-
-          // 3. 伝える翻訳を表示
           setTimeout(function() {
             btnMain.textContent = '言葉にしてみる';
             resultGreen.style.display = 'block';
-
-            // 4. 解決翻訳を表示
             setTimeout(function() {
               resultOrange.style.display = 'block';
-
-              // 5. コピーボタンを光らせる
               setTimeout(function() {
                 btnCopy.classList.add('copied');
                 btnCopy.textContent = 'コピーしました！';
-
-                // 6. 気持ち4択を表示
                 setTimeout(function() {
                   feelingEl.style.display = 'block';
-
-                  // 7. 気持ちを選択
                   setTimeout(function() {
                     feelingBtn1.classList.add('selected');
                     feelingMsg.style.display = 'block';
-
-                    // 8. 完了コールバック
                     setTimeout(function() {
                       if (onComplete) onComplete();
                     }, 2000);
@@ -639,7 +622,6 @@ function tsgRunDemoIn(ids, onComplete) {
   }, 200);
 }
 
-// チュートリアルデモ（ボタン押下で開始）
 function tsgStartTutorialDemo() {
   document.getElementById('tutorialPlayBtn').style.display = 'none';
   document.getElementById('tutorialDemoPhone').style.display = 'block';
@@ -655,7 +637,6 @@ function tsgRunDemo() {
   }, null);
 }
 
-// つかいかたデモ
 function tsgHowtoDemo() {
   var phone = document.getElementById('howtoDemoPhone');
   var playBtn = document.querySelector('.demo-play-btn');
@@ -673,7 +654,6 @@ if (!localStorage.getItem('tsg_tutorial_done')) {
   document.getElementById('tutorialModal').classList.remove('hidden');
 }
 
-// 文字数カウンター
 function tsgCount() {
   var len = document.getElementById('userInput').value.length;
   var el = document.getElementById('charCount');
@@ -681,7 +661,6 @@ function tsgCount() {
   el.style.color = len >= 450 ? '#D85A30' : '#bbb';
 }
 
-// 時計
 function updateClock() {
   var now = new Date();
   document.getElementById('clock').textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
@@ -689,7 +668,6 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 60000);
 
-// ナビゲーション
 function tsgNav(screen) {
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
@@ -699,7 +677,6 @@ function tsgNav(screen) {
   gtag('event', 'nav_tap', { screen_name: screen });
 }
 
-// クリア
 function tsgClear() {
   document.getElementById('userInput').value = '';
   document.getElementById('results').style.display = 'none';
@@ -707,7 +684,6 @@ function tsgClear() {
   document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
 }
 
-// 翻訳実行
 async function tsgRun() {
   var userInput = document.getElementById('userInput').value.trim();
   var errorEl = document.getElementById('errorMsg');
@@ -725,12 +701,7 @@ async function tsgRun() {
   document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
   gtag('event', 'translate_start');
 
-  // ローディングメッセージ切り替え
-  var loadingMessages = [
-    '気持ち、受け取ったよ 🌿',
-    '言葉を探してるよ...',
-    'もう少しだけ待ってね 🌱'
-  ];
+  var loadingMessages = ['気持ち、受け取ったよ 🌿', '言葉を探してるよ...', 'もう少しだけ待ってね 🌱'];
   var msgIdx = 0;
   var msgEl = document.getElementById('loadingMsg');
   msgEl.textContent = loadingMessages[0];
@@ -771,7 +742,6 @@ async function tsgRun() {
   }
 }
 
-// コピー
 function tsgCopy(id, btn) {
   var text = document.getElementById(id).textContent;
   var type = id === 'softResult' ? '伝える翻訳' : '解決翻訳';
@@ -786,7 +756,6 @@ function tsgCopy(id, btn) {
   });
 }
 
-// 今の気持ち選択
 var feelingMessages = {
   '😌': 'よかったです 🌿\n気持ちを整理するだけでも十分です。',
   '🌿': '素敵です ✨\n自分の気持ちに気づけたことが大切です。',
@@ -807,7 +776,6 @@ function tsgFeeling(btn) {
   gtag('event', 'feeling_selected', { feeling_label: label });
 }
 
-// 効果測定トグル
 var analyticsOn = true;
 function tsgToggle() {
   analyticsOn = !analyticsOn;
