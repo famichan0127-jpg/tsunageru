@@ -69,6 +69,26 @@
   .error { color: #D85A30; font-size: 13px; padding: 10px 14px; background: #FAECE7; border-radius: 10px; margin-bottom: 1rem; }
   .btn-retry { margin-top: 10px; width: 100%; padding: 10px; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
 
+  /* チュートリアルモーダル */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(50,45,38,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
+  .modal-overlay.hidden { display: none; }
+  .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px 20px; }
+  .modal-icon { text-align: center; font-size: 32px; margin-bottom: 8px; }
+  .modal-title { text-align: center; font-size: 16px; font-weight: 500; color: #333; margin-bottom: 4px; }
+  .modal-sub { text-align: center; font-size: 12px; color: #999; margin-bottom: 20px; line-height: 1.6; }
+  .modal-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+  .modal-item-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .modal-item-icon.green { background: #e8f5eb; }
+  .modal-item-icon.orange { background: #fdf0e6; }
+  .modal-item-icon.gray { background: #f2f0ec; }
+  .modal-item-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
+  .modal-item-sub { font-size: 11px; color: #888; line-height: 1.6; }
+  .modal-divider { border: none; border-top: 0.5px solid #eee; margin: 16px 0; }
+  .modal-note { font-size: 11px; color: #aaa; text-align: center; line-height: 1.6; margin-bottom: 16px; }
+  .modal-note a { color: #3D5A3E; }
+  .btn-agree { width: 100%; background: #3D5A3E; color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
+  .btn-detail { width: 100%; background: transparent; color: #888; border: none; font-size: 12px; cursor: pointer; font-family: inherit; padding: 4px; }
+
   /* 今の気持ち */
   .feeling-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
   .feeling-title { font-size: 13px; font-weight: 500; color: #444; margin-bottom: 2px; }
@@ -143,6 +163,40 @@
 </head>
 <body>
 <div class="app">
+
+  <!-- チュートリアルモーダル -->
+  <div class="modal-overlay hidden" id="tutorialModal">
+    <div class="modal">
+      <div class="modal-icon">🌿</div>
+      <div class="modal-title">はじめる前に</div>
+      <div class="modal-sub">tsunageruについて<br>少しだけ説明させてください</div>
+      <div class="modal-item">
+        <div class="modal-item-icon green">📱</div>
+        <div>
+          <div class="modal-item-title">文章はスマホの中にだけ保存</div>
+          <div class="modal-item-sub">入力した内容や翻訳結果は、外部サーバーには送信されません。あなたの端末の中だけに残ります。</div>
+        </div>
+      </div>
+      <div class="modal-item">
+        <div class="modal-item-icon orange">📊</div>
+        <div>
+          <div class="modal-item-title">気持ちの選択は匿名で活用</div>
+          <div class="modal-item-sub">「今の気持ち」などのボタン操作は、サービス改善のために匿名で計測されます。</div>
+        </div>
+      </div>
+      <div class="modal-item">
+        <div class="modal-item-icon gray">⚙️</div>
+        <div>
+          <div class="modal-item-title">いつでも変更・削除できます</div>
+          <div class="modal-item-sub">設定からデータの削除や、計測のオフが可能です。</div>
+        </div>
+      </div>
+      <hr class="modal-divider">
+      <div class="modal-note">詳しくは「つかいかた」をご覧ください。</div>
+      <button class="btn-agree" onclick="tsgTutorialClose()">わかった、はじめる</button>
+      <button class="btn-detail" onclick="tsgTutorialHowto()">くわしく読む</button>
+    </div>
+  </div>
 
   <div class="header">
     <div class="logo">tsunageru 🌿</div>
@@ -398,6 +452,22 @@
 </div>
 
 <script>
+// チュートリアル
+function tsgTutorialClose() {
+  document.getElementById('tutorialModal').classList.add('hidden');
+  localStorage.setItem('tsg_tutorial_done', '1');
+  gtag('event', 'tutorial_agree');
+}
+function tsgTutorialHowto() {
+  document.getElementById('tutorialModal').classList.add('hidden');
+  localStorage.setItem('tsg_tutorial_done', '1');
+  tsgNav('howto');
+  gtag('event', 'tutorial_howto');
+}
+if (!localStorage.getItem('tsg_tutorial_done')) {
+  document.getElementById('tutorialModal').classList.remove('hidden');
+}
+
 // 時計
 function updateClock() {
   var now = new Date();
