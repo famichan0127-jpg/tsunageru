@@ -71,9 +71,9 @@
   .btn-retry { margin-top: 10px; width: 100%; padding: 10px; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
 
   /* チュートリアルモーダル */
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(50,45,38,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(50,45,38,0.5); display: flex; align-items: flex-start; justify-content: center; z-index: 200; padding: 1rem; overflow-y: auto; }
   .modal-overlay.hidden { display: none; }
-  .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px 20px; }
+  .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px 20px; margin: auto; }
   .modal-icon { text-align: center; font-size: 32px; margin-bottom: 8px; }
   .modal-title { text-align: center; font-size: 16px; font-weight: 500; color: #333; margin-bottom: 4px; }
   .modal-sub { text-align: center; font-size: 12px; color: #999; margin-bottom: 20px; line-height: 1.6; }
@@ -259,8 +259,8 @@
         </div>
       </div>
 
-      <button class="btn-agree" id="btnAgree" style="display:none" onclick="tsgTutorialClose()">わかった、はじめる</button>
-      <button class="btn-detail" id="btnDetail" style="display:none" onclick="tsgTutorialHowto()">くわしく読む</button>
+      <button class="btn-agree" id="btnAgree" onclick="tsgTutorialClose()">わかった、はじめる</button>
+      <button class="btn-detail" id="btnDetail" onclick="tsgTutorialHowto()">くわしく読む</button>
     </div>
   </div>
 
@@ -383,25 +383,6 @@
     </div>
 
     <div class="howto-section">
-      <div class="howto-section-label">TRANSLATION</div>
-      <div class="howto-section-title">2種類の翻訳の違い</div>
-      <div class="trans-row">
-        <div class="trans-badge green">伝える翻訳</div>
-        <div class="trans-text">今の気持ちをやさしく言い換えます。まず気持ちを受け取ってほしいときに。</div>
-      </div>
-      <div class="trans-row">
-        <div class="trans-badge orange">解決翻訳</div>
-        <div class="trans-text">気持ちとお願いをセットで伝えます。具体的に動いてほしいときに。</div>
-      </div>
-    </div>
-
-    <div class="howto-section">
-      <div class="howto-section-label">FEELING CHECK</div>
-      <div class="howto-section-title">今の気持ち選択について</div>
-      <div class="howto-body">翻訳後に表示される4択は、送る・送らないに関係なく選べます。自分の気持ちを確認するためのものです。</div>
-    </div>
-
-    <div class="howto-section">
       <div class="howto-section-label">DEMO</div>
       <div class="howto-section-title">操作イメージを見てみる</div>
       <button class="demo-play-btn" onclick="tsgHowtoDemo()">▶ デモを見る</button>
@@ -433,6 +414,25 @@
           <div class="demo-feeling-msg" id="howtoDemoFeelingMsg" style="display:none">よかったです 🌿 気持ちを整理するだけでも十分です。</div>
         </div>
       </div>
+    </div>
+
+    <div class="howto-section">
+      <div class="howto-section-label">TRANSLATION</div>
+      <div class="howto-section-title">2種類の翻訳の違い</div>
+      <div class="trans-row">
+        <div class="trans-badge green">伝える翻訳</div>
+        <div class="trans-text">今の気持ちをやさしく言い換えます。まず気持ちを受け取ってほしいときに。</div>
+      </div>
+      <div class="trans-row">
+        <div class="trans-badge orange">解決翻訳</div>
+        <div class="trans-text">気持ちとお願いをセットで伝えます。具体的に動いてほしいときに。</div>
+      </div>
+    </div>
+
+    <div class="howto-section">
+      <div class="howto-section-label">FEELING CHECK</div>
+      <div class="howto-section-title">今の気持ち選択について</div>
+      <div class="howto-body">翻訳後に表示される4択は、送る・送らないに関係なく選べます。自分の気持ちを確認するためのものです。</div>
     </div>
 
     <div class="howto-section">
@@ -620,16 +620,16 @@ function tsgRunDemoIn(ids, onComplete) {
                     // 8. 完了コールバック
                     setTimeout(function() {
                       if (onComplete) onComplete();
-                    }, 1500);
-                  }, 1800);
-                }, 1500);
-              }, 1800);
-            }, 1500);
-          }, 2000);
-        }, 700);
-      }, 800);
+                    }, 2000);
+                  }, 2500);
+                }, 2000);
+              }, 2500);
+            }, 2500);
+          }, 3000);
+        }, 800);
+      }, 1000);
     }
-  }, 150);
+  }, 200);
 }
 
 // チュートリアルデモ
@@ -639,10 +639,7 @@ function tsgRunDemo() {
     resultGreen: 'demoResultGreen', resultOrange: 'demoResultOrange',
     btnCopy: 'demoBtnCopy', feeling: 'demoFeeling',
     feelingBtn1: 'demoFeelingBtn1', feelingMsg: 'demoFeelingMsg'
-  }, function() {
-    document.getElementById('btnAgree').style.display = 'block';
-    document.getElementById('btnDetail').style.display = 'block';
-  });
+  }, null);
 }
 
 // つかいかたデモ
