@@ -132,6 +132,14 @@
   .toggle.off { background: #ccc; }
   .toggle.off .toggle-knob { right: auto; left: 3px; }
 </style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VVJWY6FQZ9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VVJWY6FQZ9');
+</script>
 </head>
 <body>
 <div class="app">
@@ -405,6 +413,7 @@ function tsgNav(screen) {
   document.getElementById('screen-' + screen).classList.add('active');
   document.getElementById('nav-' + screen).classList.add('active');
   window.scrollTo(0, 0);
+  gtag('event', 'nav_tap', { screen_name: screen });
 }
 
 // クリア
@@ -431,6 +440,7 @@ async function tsgRun() {
   document.getElementById('loading').style.display = 'block';
   document.getElementById('results').style.display = 'none';
   document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
+  gtag('event', 'translate_start');
 
   try {
     var response = await fetch('/api/translate', {
@@ -447,10 +457,12 @@ async function tsgRun() {
     document.getElementById('solveResult').textContent = parsed.solve;
     document.getElementById('solveHint').textContent = parsed.solve_hint;
     document.getElementById('results').style.display = 'block';
+    gtag('event', 'translate_success');
 
   } catch(err) {
     errorEl.innerHTML = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿<br><button class="btn-retry" onclick="tsgRun()">もう一度試す</button>';
     errorEl.style.display = 'block';
+    gtag('event', 'translate_error');
   } finally {
     document.getElementById('mainBtn').disabled = false;
     document.getElementById('loading').style.display = 'none';
@@ -460,11 +472,11 @@ async function tsgRun() {
 // コピー
 function tsgCopy(id, btn) {
   var text = document.getElementById(id).textContent;
-  var originalText = btn.textContent;
-  var colorClass = btn.classList.contains('orange') ? 'orange' : 'green';
+  var type = id === 'softResult' ? '伝える翻訳' : '解決翻訳';
   navigator.clipboard.writeText(text).then(function() {
     btn.textContent = 'コピーしました！';
     btn.classList.add('copied');
+    gtag('event', 'copy_text', { translation_type: type });
     setTimeout(function() {
       btn.textContent = 'この文章を送る';
       btn.classList.remove('copied');
@@ -484,11 +496,13 @@ function tsgFeeling(btn) {
   document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
   btn.classList.add('selected');
   var emoji = btn.querySelector('.feeling-emoji').textContent.trim();
+  var label = btn.querySelector('.feeling-label').textContent.trim();
   var msg = feelingMessages[emoji] || '';
   var msgEl = document.getElementById('feelingMessage');
   msgEl.textContent = msg;
   msgEl.classList.remove('show');
   setTimeout(function() { msgEl.classList.add('show'); }, 10);
+  gtag('event', 'feeling_selected', { feeling_label: label });
 }
 
 // 効果測定トグル
