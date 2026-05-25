@@ -40,16 +40,11 @@ ${userInput}
     if (!response.ok) throw new Error(data.error?.message || 'APIエラー');
 
     const text = data.candidates[0].content.parts[0].text;
-
-const clean = text.replace(/```json|```/g, '').trim();
-const parsed = JSON.parse(clean);
-    
-    const text = data.candidates[0].content.parts[0].text;
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     res.status(200).json(parsed);
 
   } catch (err) {
-    res.status(500).json({ error: err.message, stack: err.stack });
+    res.status(500).json({ error: err.message });
   }
 }
