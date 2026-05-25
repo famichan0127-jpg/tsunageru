@@ -40,7 +40,7 @@ ${userInput}
     if (!response.ok) throw new Error(data.error?.message || 'APIエラー');
 
     const text = data.candidates[0].content.parts[0].text;
-console.log('Gemini response:', text); // ← 追加
+
 const clean = text.replace(/```json|```/g, '').trim();
 const parsed = JSON.parse(clean);
     
