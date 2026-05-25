@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tsunageru｜伝えたいのに、言葉にできない夜がある。</title>
+<meta property="og:title" content="tsunageru｜伝えたいのに、言葉にできない夜がある。">
+<meta property="og:description" content="モヤモヤした気持ちを、相手に伝わる言葉に変えるアプリ。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #3D5A3E;
+    --green-light: #C8D9C0;
+    --green-pale: #e8f5eb;
+    --orange: #c8622a;
+    --orange-pale: #fdf0e6;
+    --bg: #F5F2ED;
+    --text: #2C3E2D;
+    --text-mid: #666;
+    --text-light: #999;
+    --white: #fff;
+    --serif: 'Noto Serif JP', serif;
+    --sans: 'Zen Kaku Gothic New', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -20%;
+    width: 70vw;
+    height: 70vw;
+    background: radial-gradient(circle, rgba(200,217,192,0.3) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(245,196,160,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(24px, 6vw, 36px);
+    font-weight: 300;
+    line-height: 1.7;
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+
+  .hero-title em {
+    font-style: normal;
+    color: var(--green);
+    font-weight: 500;
+  }
+
+  .hero-sub {
+    font-size: 13px;
+    color: var(--text-mid);
+    text-align: center;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+
+  .hero-mockup {
+    width: 100%;
+    max-width: 280px;
+    background: var(--white);
+    border-radius: 24px;
+    padding: 1.25rem;
+    box-shadow: 0 20px 60px rgba(61,90,62,0.12), 0 4px 16px rgba(0,0,0,0.06);
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.8s forwards;
+  }
+
+  .mockup-label {
+    font-size: 10px;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+
+  .mockup-input {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin-bottom: 10px;
+    font-family: var(--sans);
+  }
+
+  .mockup-arrow {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+  }
+
+  .mockup-result {
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+
+  .mockup-result.green {
+    background: var(--green-pale);
+    border-left: 2px solid var(--green);
+  }
+
+  .mockup-result.orange {
+    background: var(--orange-pale);
+    border-left: 2px solid var(--orange);
+  }
+
+  .mockup-result-label {
+    font-size: 9px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .mockup-result-label.green { color: var(--green); }
+  .mockup-result-label.orange { color: var(--orange); }
+
+  .mockup-result-text {
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .hero-cta {
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1s forwards;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--green);
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: var(--sans);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-primary:hover {
+    background: #2C3E2D;
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .hero-note {
+    font-size: 11px;
+    color: var(--text-light);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* ===== EMPATHY ===== */
+  .section {
+    padding: 4rem 1.5rem;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 400;
+    text-align: center;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    color: var(--text);
+  }
+
+  .empathy-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .empathy-item {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    border-left: 3px solid var(--green-light);
+    position: relative;
+  }
+
+  .empathy-item::before {
+    content: '"';
+    font-family: var(--serif);
+    font-size: 32px;
+    color: var(--green-light);
+    position: absolute;
+    top: 4px;
+    left: 10px;
+    line-height: 1;
+  }
+
+  .empathy-item-text {
+    padding-left: 12px;
+  }
+
+  /* ===== BEFORE/AFTER ===== */
+  .ba-section {
+    background: var(--white);
+    padding: 4rem 1.5rem;
+  }
+
+  .ba-card {
+    max-width: 360px;
+    margin: 0 auto 2rem;
+  }
+
+  .ba-before {
+    background: #faf8f5;
+    border-radius: 14px 14px 0 0;
+    padding: 16px;
+    border: 1px solid #e8e5de;
+    border-bottom: none;
+  }
+
+  .ba-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .ba-label.before { color: var(--text-light); }
+  .ba-label.after-green { color: var(--green); }
+  .ba-label.after-orange { color: var(--orange); }
+
+  .ba-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-mid);
+  }
+
+  .ba-arrow {
+    text-align: center;
+    padding: 8px;
+    background: var(--bg);
+    border-left: 1px solid #e8e5de;
+    border-right: 1px solid #e8e5de;
+    color: var(--green);
+    font-size: 12px;
+  }
+
+  .ba-after-green {
+    background: var(--green-pale);
+    border-radius: 0 0 0 0;
+    padding: 16px;
+    border: 1px solid #b5d9bc;
+    border-top: none;
+    border-bottom: none;
+  }
+
+  .ba-after-orange {
+    background: var(--orange-pale);
+    border-radius: 0 0 14px 14px;
+    padding: 16px;
+    border: 1px solid #f5c4a0;
+    border-top: none;
+  }
+
+  .ba-after-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  /* ===== STEPS ===== */
+  .steps-section {
+    padding: 4rem 1.5rem;
+  }
+
+  .steps-list {
+    max-width: 360px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    position: relative;
+    padding-bottom: 2rem;
+  }
+
+  .step-item:last-child {
+    padding-bottom: 0;
+  }
+
+  .step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 36px;
+    bottom: 0;
+    width: 1px;
+    background: var(--green-light);
+  }
+
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--green);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: var(--serif);
+  }
+
+  .step-content {
+    padding-top: 6px;
+  }
+
+  .step-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .step-sub {
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* ===== TRUST ===== */
+  .trust-section {
+    background: var(--green-pale);
+    padding: 3rem 1.5rem;
+  }
+
+  .trust-grid {
+    max-width: 360px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .trust-item {
+    text-align: center;
+    padding: 16px 8px;
+    background: var(--white);
+    border-radius: 14px;
+  }
+
+  .trust-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .trust-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--green);
+    margin-bottom: 2px;
+  }
+
+  .trust-sub {
+    font-size: 10px;
+    color: var(--text-light);
+    line-height: 1.4;
+  }
+
+  /* ===== FINAL CTA ===== */
+  .final-cta {
+    padding: 4rem 1.5rem 5rem;
+    text-align: center;
+  }
+
+  .final-title {
+    font-family: var(--serif);
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 400;
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  .final-sub {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+  }
+
+  .final-cta-btn {
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-light);
+    border-top: 0.5px solid #e0ddd8;
+  }
+
+  /* ===== DIVIDER ===== */
+  .wave-divider {
+    height: 40px;
+    background: var(--white);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+
+  .wave-divider.bg { background: var(--bg); }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== SCROLL INDICATOR ===== */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1.4s forwards;
+  }
+
+  .scroll-hint span {
+    font-size: 10px;
+    color: var(--text-light);
+    letter-spacing: 0.1em;
+  }
+
+  .scroll-dot {
+    width: 4px;
+    height: 24px;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, var(--green-light), transparent);
+    animation: scrollPulse 1.5s ease infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-label">TSUNAGERU 🌿</div>
+  <h1 class="hero-title">
+    伝えたいのに、<br>
+    <em>言葉にできない夜</em>がある。
+  </h1>
+  <p class="hero-sub">
+    モヤモヤした気持ちをそのまま入れると、<br>
+    AIが伝わる言葉に変えてくれる。
+  </p>
+
+  <div class="hero-mockup">
+    <div class="mockup-label">送りたい気持ち</div>
+    <div class="mockup-input">なんでいつも私ばっかり家事してるの…</div>
+    <div class="mockup-arrow">↓ 言葉にしてみる</div>
+    <div class="mockup-result green">
+      <div class="mockup-result-label green">● 伝える翻訳</div>
+      <div class="mockup-result-text">最近ちょっと疲れてて、一緒にやってもらえると嬉しいな。</div>
+    </div>
+    <div class="mockup-result orange">
+      <div class="mockup-result-label orange">● 解決翻訳</div>
+      <div class="mockup-result-text">週に2〜3回、夕食後の片付けだけ代わってもらえないかな。</div>
+    </div>
+  </div>
+
+  <div class="hero-cta">
+    <a href="https://tsunageru.vercel.app" class="btn-primary">無料で試してみる →</a>
+    <p class="hero-note">登録不要・完全無料</p>
+  </div>
+
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-dot"></div>
+  </div>
+</section>
+
+<!-- EMPATHY -->
+<section class="section">
+  <div class="section-label">VOICE</div>
+  <h2 class="section-title reveal">こんな気持ち、<br>ありませんか？</h2>
+  <div class="empathy-list">
+    <div class="empathy-item reveal">
+      <div class="empathy-item-text">なんで私ばっかり…言いたいけど、また喧嘩になりそうで言えない</div>
+    </div>
+    <div class="empathy-item reveal">
+      <div class="empathy-item-text">もう限界なのに、うまく言葉にできなくてずっと我慢してる</div>
+    </div>
+    <div class="empathy-item reveal">
+      <div class="empathy-item-text">伝えようとすると感情的になってしまって、いつも後悔する</div>
+    </div>
+    <div class="empathy-item reveal">
+      <div class="empathy-item-text">私の気持ち、わかってほしいだけなのに、どう言えばいいかわからない</div>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE/AFTER -->
+<section class="ba-section">
+  <div class="section-label reveal">BEFORE / AFTER</div>
+  <h2 class="section-title reveal">こんなふうに<br>変わります</h2>
+
+  <div class="ba-card reveal">
+    <div class="ba-before">
+      <div class="ba-label before">INPUT — あなたの気持ち</div>
+      <div class="ba-text">仕事から帰ってきても全部私。もう疲れた。なんでいつも私ばっかりなの。</div>
+    </div>
+    <div class="ba-arrow">↓ tsunageruで変換</div>
+    <div class="ba-after-green">
+      <div class="ba-label after-green">● 伝える翻訳</div>
+      <div class="ba-after-text">最近ずっと余裕がなくて、正直しんどい。もう少し一緒にやってほしいな。</div>
+    </div>
+    <div class="ba-after-orange">
+      <div class="ba-label after-orange">● 解決翻訳</div>
+      <div class="ba-after-text">平日の夕食準備か、週末の掃除のどちらか一つ、担当してもらえると助かる。</div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="steps-section">
+  <div class="section-label reveal">HOW TO USE</div>
+  <h2 class="section-title reveal">使い方は<br>3ステップ</h2>
+
+  <div class="steps-list">
+    <div class="step-item reveal">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">気持ちをそのまま入力</div>
+        <div class="step-sub">うまく言えなくてOK。モヤモヤをそのまま書いてみてください。</div>
+      </div>
+    </div>
+    <div class="step-item reveal">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">2種類の翻訳が届く</div>
+        <div class="step-sub">「伝える翻訳」と「解決翻訳」から、今の気持ちに合うものを選んで。</div>
+      </div>
+    </div>
+    <div class="step-item reveal">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">そのままLINEで送る</div>
+        <div class="step-sub">コピーしてそのまま送れます。手直ししてもOK。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="trust-section">
+  <div class="trust-grid reveal">
+    <div class="trust-item">
+      <div class="trust-icon">🔒</div>
+      <div class="trust-title">プライバシー<br>保護</div>
+      <div class="trust-sub">入力内容は端末内のみ</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">✨</div>
+      <div class="trust-title">完全<br>無料</div>
+      <div class="trust-sub">登録不要ですぐ使える</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🌿</div>
+      <div class="trust-title">いつでも<br>使える</div>
+      <div class="trust-sub">ホーム画面に追加可能</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2 class="final-title reveal">
+    今夜、一度<br>試してみてください。
+  </h2>
+  <p class="final-sub reveal">気持ちを整理するだけでも十分です 🌿</p>
+  <div class="final-cta-btn reveal">
+    <a href="https://tsunageru.vercel.app" class="btn-primary">無料で試してみる →</a>
+  </div>
+</section>
+
+<footer>
+  © 2026 tsunageru
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
