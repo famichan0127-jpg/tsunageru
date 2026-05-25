@@ -1,12 +1,12 @@
-module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
-
-  const { userInput } = req.body;
-  if (!userInput) return res.status(400).json({ error: '入力が空です' });
-
   const prompt = `あなたは「tsunageru」というAIです。何でも話せる親友のように、丁寧だけど堅くない言葉で接してください。
 
 ユーザーが感じている気持ちを、夫や大切な人に「伝わる言葉」に整えてあげてください。
+
+【ユーザーについて理解すること】
+このアプリを使うのは、毎日ワンオペ育児・家事・仕事を一人で抱え込んでいるワーママが多い。
+「なんで私ばっかり」という言葉の裏には、怒りではなく「理解されたい」「認められたい」「助けてほしい」という深い欲求がある。
+孤立感・疲弊感・不公平感を抱えながらも、相手を傷つけたくない・関係を壊したくないという気持ちも持っている。
+「もう限界」「誰か助けて」という叫びを、相手に届く言葉に変えてあげることがゴール。
 
 【重要なルール】
 - 感情を消さない。ただ形を整える
@@ -18,37 +18,10 @@ module.exports = async function handler(req, res) {
 - カギ括弧（「」）や二重カギ括弧（『』）は使わない
 - LINEで自然に送れるような話し言葉にする
 - 短めでシンプルな文章にする
+- 「伝える翻訳」は気持ちを受け取ってもらうことを優先、「解決翻訳」は具体的なお願いをセットで伝える
 
 【入力された気持ち】
 ${userInput}
 
 以下のJSON形式のみで返してください：
 {"soft":"やわらか翻訳のテキスト","soft_hint":"伝わりやすい理由20文字以内","solve":"解決翻訳のテキスト","solve_hint":"効果的な理由20文字以内"}`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || 'APIエラー');
-
-    const text = data.content[0].text;
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    res.status(200).json(parsed);
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
