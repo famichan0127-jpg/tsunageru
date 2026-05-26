@@ -4,26 +4,17 @@ module.exports = async function handler(req, res) {
   const { userInput, mode = 'default' } = req.body;
   if (!userInput) return res.status(400).json({ error: '入力が空です' });
 
-  // モード別の翻訳スタイル定義
   const modeStyles = {
     default: {
-      label: 'やさしく伝える',
+      label: 'やさしく伝わる',
       instruction: '感情をやわらかく、相手が受け取りやすい言葉で伝える。責めず、でも本音は残す。'
     },
-    facts: {
-      label: '事実ベースで伝える',
-      instruction: '感情より事実・状況を中心に伝える。冷静で具体的な言葉を使う。感情的にならず、起きたことをシンプルに伝える。'
-    },
     nofight: {
-      label: 'ケンカになりにくく伝える',
+      label: 'ケンカにならず',
       instruction: '相手を責める言葉を徹底的に避ける。「あなたが〜」ではなく「私が〜」を主語にする。穏やかで、相手が防御態勢にならない言葉を選ぶ。'
     },
-    short: {
-      label: '短く伝える',
-      instruction: '2〜3文で完結させる。余計な説明を省いて、一番伝えたいことだけを残す。'
-    },
     male: {
-      label: '男性脳向けに伝える',
+      label: '男性脳向け',
       instruction: '結論を先に、理由を後にする。感情より状況・事実・お願いの順で伝える。何をしてほしいかを明確にする。長い感情説明は省く。'
     }
   };
@@ -57,7 +48,6 @@ ${selectedMode.instruction}
 ・スマホLINEで実際に送りやすい長さにする
 ・1文を短くする（1文に詰め込まない）
 ・改行を使って3〜4行以内にまとめる
-・「短く伝えるモード」以外でも、長くなりすぎない
 
 【人間っぽい文章を作る】
 ・少し不完全でいい、余白があっていい
