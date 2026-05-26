@@ -7,586 +7,536 @@
 <link rel="apple-touch-icon" href="/icon.png">
 <link rel="icon" href="/icon.png">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #F5F2ED; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; }
-  .app { width: 100%; max-width: 440px; min-height: 100vh; position: relative; display: flex; flex-direction: column; }
-
-  .header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1rem 0.5rem; }
-  .logo { font-size: 22px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; }
-  .time { font-size: 13px; color: #888; }
-
-  .screen { display: none; flex: 1; padding: 1rem 1rem 5rem; overflow-y: auto; }
-  .screen.active { display: block; }
-
-  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; background: #fff; border-top: 0.5px solid #e0ddd8; display: flex; z-index: 100; padding: 6px 0 10px; }
-  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; background: none; border: none; font-family: inherit; }
-  .nav-icon { font-size: 22px; color: #bbb; line-height: 1; }
-  .nav-label { font-size: 10px; color: #bbb; }
-  .nav-item.active .nav-icon { color: #3D5A3E; }
-  .nav-item.active .nav-label { color: #3D5A3E; font-weight: 500; }
-
-  .input-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
-  .input-label { font-size: 12px; color: #888; margin-bottom: 8px; }
-  textarea { width: 100%; border: none; background: transparent; font-size: 15px; color: #2C3E2D; resize: none; outline: none; font-family: inherit; line-height: 1.6; min-height: 100px; }
-  textarea::placeholder { color: #bbb; }
-
-  /* モード選択 */
-  .mode-section { margin-bottom: 1rem; }
-  .mode-label { font-size: 11px; color: #888; margin-bottom: 8px; padding-left: 2px; }
-  .mode-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-  .mode-scroll::-webkit-scrollbar { display: none; }
-  .mode-btn {
-    flex-shrink: 0;
-    padding: 8px 14px;
-    border-radius: 20px;
-    border: 1px solid #e0ddd8;
-    background: #fff;
-    font-size: 12px;
-    color: #888;
-    cursor: pointer;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: all 0.15s;
-  }
-  .mode-btn.active {
-    background: #3D5A3E;
-    border-color: #3D5A3E;
-    color: #fff;
-    font-weight: 500;
-  }
-  .mode-btn:not(.active):hover { border-color: #3D5A3E; color: #3D5A3E; }
-
-  .btn-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
-  .btn-main { flex: 1; padding: 14px; background: #3D5A3E; color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; font-family: inherit; }
-  .btn-main:hover { background: #2C3E2D; }
-  .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-clear { padding: 14px 18px; background: transparent; color: #888; border: 0.5px solid #ddd; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: inherit; }
-  .divider { display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; }
-  .divider-line { flex: 1; height: 0.5px; background: #ddd; }
-  .divider-text { font-size: 12px; color: #888; white-space: nowrap; }
-
-  /* モードバッジ（結果カードに表示） */
-  .mode-badge { display: inline-block; font-size: 10px; color: #aaa; background: #f5f2ed; padding: 2px 8px; border-radius: 10px; margin-bottom: 10px; }
-
-  .result-card { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 1.25rem; margin-bottom: 1rem; }
-  .result-card.green { border-color: #b5d9bc; }
-  .result-card.orange { border-color: #f5c4a0; }
-  .result-label { font-size: 12px; margin-bottom: 10px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
-  .result-label.green { color: #3D5A3E; }
-  .result-label.orange { color: #c8622a; }
-  .result-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .result-dot.green { background: #3D5A3E; }
-  .result-dot.orange { background: #e07840; }
-  .result-text { font-size: 15px; color: #2C3E2D; line-height: 1.7; margin-bottom: 12px; white-space: pre-wrap; }
-  .result-hint { font-size: 12px; color: #888; background: #f5f2ed; padding: 8px 12px; border-radius: 8px; line-height: 1.5; margin-bottom: 12px; }
-  .btn-copy { width: 100%; padding: 11px; background: transparent; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: inherit; }
-  .btn-copy.green { border: 0.5px solid #3D5A3E; color: #3D5A3E; }
-  .btn-copy.green:hover, .btn-copy.green.copied { background: #C8D9C0; }
-  .btn-copy.orange { border: 0.5px solid #f5c4a0; color: #c8622a; background: #fdf3ec; }
-  .btn-copy.orange:hover, .btn-copy.orange.copied { background: #f5c4a0; }
-
-  .loading { text-align: center; padding: 2rem; color: #888; font-size: 14px; }
-  #loadingMsg { transition: opacity 0.3s ease; }
-  .dot { display: inline-block; animation: bounce 1.2s infinite; }
-  .dot:nth-child(2) { animation-delay: 0.2s; }
-  .dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
-  .error { color: #D85A30; font-size: 13px; padding: 10px 14px; background: #FAECE7; border-radius: 10px; margin-bottom: 1rem; }
-  .btn-retry { margin-top: 10px; width: 100%; padding: 10px; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
-
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(50,45,38,0.5); display: flex; align-items: flex-start; justify-content: center; z-index: 200; padding: 1rem; overflow-y: auto; }
-  .modal-overlay.hidden { display: none; }
-  .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px 20px; margin: auto; }
-  .modal-icon { text-align: center; font-size: 32px; margin-bottom: 8px; }
-  .modal-title { text-align: center; font-size: 16px; font-weight: 500; color: #333; margin-bottom: 4px; }
-  .modal-sub { text-align: center; font-size: 12px; color: #999; margin-bottom: 20px; line-height: 1.6; }
-  .modal-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
-  .modal-item-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .modal-item-icon.green { background: #e8f5eb; }
-  .modal-item-icon.orange { background: #fdf0e6; }
-  .modal-item-icon.gray { background: #f2f0ec; }
-  .modal-item-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
-  .modal-item-sub { font-size: 11px; color: #888; line-height: 1.6; }
-  .modal-divider { border: none; border-top: 0.5px solid #eee; margin: 16px 0; }
-  .modal-note { font-size: 11px; color: #aaa; text-align: center; line-height: 1.6; margin-bottom: 16px; }
-  .modal-note a { color: #3D5A3E; }
-  .btn-agree { width: 100%; background: #3D5A3E; color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
-  .btn-detail { width: 100%; background: transparent; color: #888; border: none; font-size: 12px; cursor: pointer; font-family: inherit; padding: 4px; }
-
-  .demo-area { margin-bottom: 16px; }
-  .demo-label { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 8px; }
-  .demo-phone { background: #f5f2ed; border-radius: 12px; padding: 12px; }
-  .demo-input-card { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border: 0.5px solid #e0ddd8; min-height: 64px; }
-  .demo-input-label { font-size: 10px; color: #aaa; margin-bottom: 4px; }
-  .demo-input-text { font-size: 12px; color: #2C3E2D; line-height: 1.6; display: inline; }
-  .demo-cursor { display: inline-block; font-size: 12px; color: #3D5A3E; animation: blink 0.8s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-  .demo-btn-main { background: #3D5A3E; color: #fff; border-radius: 10px; padding: 10px; font-size: 13px; text-align: center; margin-bottom: 8px; transition: opacity 0.2s; }
-  .demo-btn-main.active { opacity: 0.7; }
-  .demo-result { background: #fff; border-radius: 10px; padding: 10px 12px; border: 0.5px solid #b5d9bc; margin-bottom: 8px; animation: fadeIn 0.4s ease; }
-  .demo-result.orange { border-color: #f5c4a0; }
-  .demo-result-label { font-size: 10px; font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
-  .demo-result-label.green { color: #3D5A3E; }
-  .demo-result-label.orange { color: #c8622a; }
-  .demo-result-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .demo-result-dot.green { background: #3D5A3E; }
-  .demo-result-dot.orange { background: #e07840; }
-  .demo-result-body { font-size: 11px; color: #2C3E2D; line-height: 1.6; margin-bottom: 8px; }
-  .demo-btn-copy { background: #fff; border: 0.5px solid #3D5A3E; color: #3D5A3E; border-radius: 8px; padding: 7px; font-size: 11px; text-align: center; transition: background 0.3s; margin-bottom: 4px; }
-  .demo-btn-copy.copied { background: #C8D9C0; }
-  .demo-btn-copy.orange { border-color: #f5c4a0; color: #c8622a; background: #fdf3ec; }
-  .demo-feeling { background: #fff; border-radius: 10px; padding: 10px 12px; border: 0.5px solid #e0ddd8; animation: fadeIn 0.4s ease; }
-  .demo-feeling-title { font-size: 10px; font-weight: 500; color: #444; margin-bottom: 8px; }
-  .demo-feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-  .demo-feeling-btn { background: #fafaf8; border: 1px solid #e8e5de; border-radius: 8px; padding: 8px 4px; text-align: center; font-size: 10px; color: #555; }
-  .demo-feeling-btn.selected { background: #eef5ee; border-color: #3D5A3E; }
-  .demo-feeling-msg { background: #f0f7f0; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #3D5A3E; line-height: 1.6; animation: fadeIn 0.3s ease; }
-  .demo-play-btn { width: 100%; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; padding: 10px; font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
-
-  .feeling-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
-  .feeling-title { font-size: 13px; font-weight: 500; color: #444; margin-bottom: 2px; }
-  .feeling-sub { font-size: 11px; color: #aaa; margin-bottom: 14px; }
-  .feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .feeling-btn { background: #fafaf8; border: 1px solid #e8e5de; border-radius: 12px; padding: 14px 8px; text-align: center; cursor: pointer; font-family: inherit; transition: background 0.15s; }
-  .feeling-btn:hover { background: #eef5ee; }
-  .feeling-btn.selected { background: #eef5ee; border-color: #3D5A3E; }
-  .feeling-emoji { font-size: 24px; margin-bottom: 4px; }
-  .feeling-label { font-size: 12px; color: #555; line-height: 1.4; }
-  .feeling-message { margin-top: 12px; padding: 12px 14px; background: #f0f7f0; border-radius: 12px; font-size: 13px; color: #3D5A3E; line-height: 1.7; display: none; animation: fadeIn 0.3s ease; }
-  .feeling-message.show { display: block; }
-
-  .survey-link { text-align: center; padding: 8px 0 4px; }
-  .survey-link a { font-size: 12px; color: #3D5A3E; text-decoration: none; opacity: 0.7; }
-  .survey-link a:hover { opacity: 1; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-  .coming-soon { text-align: center; padding: 4rem 2rem; color: #aaa; }
-  .coming-soon-icon { font-size: 40px; margin-bottom: 1rem; }
-  .coming-soon-title { font-size: 16px; font-weight: 500; color: #888; margin-bottom: 6px; }
-  .coming-soon-sub { font-size: 13px; line-height: 1.7; }
-
-  .howto-section { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
-  .howto-section-label { font-size: 10px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; margin-bottom: 6px; }
-  .howto-section-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 10px; }
-  .howto-body { font-size: 13px; color: #666; line-height: 1.8; }
-  .step-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
-  .step-row:last-child { margin-bottom: 0; }
-  .step-num { width: 26px; height: 26px; border-radius: 50%; background: #3D5A3E; color: #fff; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-  .step-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
-  .step-sub { font-size: 12px; color: #888; line-height: 1.6; }
-  .step-arrow { text-align: center; color: #ccc; font-size: 14px; margin: 2px 0 10px 13px; }
-  .trans-row { display: flex; gap: 10px; margin-bottom: 10px; }
-  .trans-row:last-child { margin-bottom: 0; }
-  .trans-badge { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; align-self: flex-start; margin-top: 1px; }
-  .trans-badge.green { background: #e8f5eb; color: #3D5A3E; }
-  .trans-badge.orange { background: #fdf0e6; color: #c8622a; }
-  .trans-text { font-size: 12px; color: #666; line-height: 1.7; }
-  .faq-item { margin-bottom: 14px; }
-  .faq-item:last-child { margin-bottom: 0; }
-  .faq-q { font-size: 12px; font-weight: 500; color: #3D5A3E; margin-bottom: 4px; display: flex; gap: 6px; }
-  .faq-a { font-size: 12px; color: #666; line-height: 1.7; padding-left: 18px; }
-
-  .settings-section-label { font-size: 11px; font-weight: 500; color: #3D5A3E; margin: 0 4px 6px; letter-spacing: 0.05em; }
-  .settings-section { background: #fff; border-radius: 16px; margin-bottom: 16px; border: 0.5px solid #e0ddd8; overflow: hidden; }
-  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 0.5px solid #f0ede6; }
-  .settings-row:last-child { border-bottom: none; }
-  .settings-row.disabled { opacity: 0.4; }
-  .settings-row-left { display: flex; align-items: center; gap: 10px; }
-  .settings-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-  .settings-icon.green { background: #e8f5eb; }
-  .settings-icon.gray { background: #f2f0ec; }
-  .settings-icon.orange { background: #fdf0e6; }
-  .settings-title { font-size: 13px; color: #333; }
-  .settings-sub { font-size: 11px; color: #aaa; margin-top: 1px; }
-  .settings-value { font-size: 12px; color: #aaa; }
-  .badge-soon { background: #f2f0ec; color: #aaa; font-size: 10px; padding: 3px 8px; border-radius: 20px; }
-  .chevron { color: #ccc; font-size: 16px; }
-  .toggle { width: 44px; height: 26px; border-radius: 13px; background: #3D5A3E; position: relative; cursor: pointer; flex-shrink: 0; border: none; }
-  .toggle-knob { width: 20px; height: 20px; border-radius: 50%; background: #fff; position: absolute; top: 3px; right: 3px; transition: right 0.2s; }
-  .toggle.off { background: #ccc; }
-  .toggle.off .toggle-knob { right: auto; left: 3px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #F5F2ED; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; }
+.app { width: 100%; max-width: 440px; min-height: 100vh; position: relative; display: flex; flex-direction: column; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1rem 0.5rem; }
+.logo { font-size: 22px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; }
+.time { font-size: 13px; color: #888; }
+.screen { display: none; flex: 1; padding: 1rem 1rem 5rem; overflow-y: auto; }
+.screen.active { display: block; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; background: #fff; border-top: 0.5px solid #e0ddd8; display: flex; z-index: 100; padding: 6px 0 10px; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; background: none; border: none; font-family: inherit; }
+.nav-icon { font-size: 22px; color: #bbb; line-height: 1; }
+.nav-label { font-size: 10px; color: #bbb; }
+.nav-item.active .nav-icon { color: #3D5A3E; }
+.nav-item.active .nav-label { color: #3D5A3E; font-weight: 500; }
+.input-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
+.input-label { font-size: 12px; color: #888; margin-bottom: 8px; }
+textarea { width: 100%; border: none; background: transparent; font-size: 15px; color: #2C3E2D; resize: none; outline: none; font-family: inherit; line-height: 1.6; min-height: 100px; }
+textarea::placeholder { color: #bbb; }
+.mode-section { margin-bottom: 1rem; }
+.mode-label { font-size: 11px; color: #888; margin-bottom: 8px; padding-left: 2px; }
+.mode-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.mode-scroll::-webkit-scrollbar { display: none; }
+.mode-btn { flex-shrink: 0; padding: 8px 14px; border-radius: 20px; border: 1px solid #e0ddd8; background: #fff; font-size: 12px; color: #888; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.15s; }
+.mode-btn.active { background: #3D5A3E; border-color: #3D5A3E; color: #fff; font-weight: 500; }
+.mode-btn:not(.active):hover { border-color: #3D5A3E; color: #3D5A3E; }
+.btn-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.btn-main { flex: 1; padding: 14px; background: #3D5A3E; color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; font-family: inherit; }
+.btn-main:hover { background: #2C3E2D; }
+.btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-clear { padding: 14px 18px; background: transparent; color: #888; border: 0.5px solid #ddd; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: inherit; }
+.divider { display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; }
+.divider-line { flex: 1; height: 0.5px; background: #ddd; }
+.divider-text { font-size: 12px; color: #888; white-space: nowrap; }
+.mode-badge { display: inline-block; font-size: 10px; color: #aaa; background: #f5f2ed; padding: 2px 8px; border-radius: 10px; margin-bottom: 10px; }
+.result-card { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 1.25rem; margin-bottom: 1rem; }
+.result-card.green { border-color: #b5d9bc; }
+.result-card.orange { border-color: #f5c4a0; }
+.result-label { font-size: 12px; margin-bottom: 10px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.result-label.green { color: #3D5A3E; }
+.result-label.orange { color: #c8622a; }
+.result-dot { width: 8px; height: 8px; border-radius: 50%; }
+.result-dot.green { background: #3D5A3E; }
+.result-dot.orange { background: #e07840; }
+.result-text { font-size: 15px; color: #2C3E2D; line-height: 1.7; margin-bottom: 12px; white-space: pre-wrap; }
+.result-hint { font-size: 12px; color: #888; background: #f5f2ed; padding: 8px 12px; border-radius: 8px; line-height: 1.5; margin-bottom: 12px; }
+.btn-copy { width: 100%; padding: 11px; background: transparent; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: inherit; }
+.btn-copy.green { border: 0.5px solid #3D5A3E; color: #3D5A3E; }
+.btn-copy.green:hover, .btn-copy.green.copied { background: #C8D9C0; }
+.btn-copy.orange { border: 0.5px solid #f5c4a0; color: #c8622a; background: #fdf3ec; }
+.btn-copy.orange:hover, .btn-copy.orange.copied { background: #f5c4a0; }
+.loading { text-align: center; padding: 2rem; color: #888; font-size: 14px; }
+#loadingMsg { transition: opacity 0.3s ease; }
+.dot { display: inline-block; animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+.error { color: #D85A30; font-size: 13px; padding: 10px 14px; background: #FAECE7; border-radius: 10px; margin-bottom: 1rem; }
+.btn-retry { margin-top: 10px; width: 100%; padding: 10px; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(50,45,38,0.5); display: flex; align-items: flex-start; justify-content: center; z-index: 200; padding: 1rem; overflow-y: auto; }
+.modal-overlay.hidden { display: none; }
+.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px 20px; margin: auto; }
+.modal-icon { text-align: center; font-size: 32px; margin-bottom: 8px; }
+.modal-title { text-align: center; font-size: 16px; font-weight: 500; color: #333; margin-bottom: 4px; }
+.modal-sub { text-align: center; font-size: 12px; color: #999; margin-bottom: 20px; line-height: 1.6; }
+.modal-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+.modal-item-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.modal-item-icon.green { background: #e8f5eb; }
+.modal-item-icon.orange { background: #fdf0e6; }
+.modal-item-icon.gray { background: #f2f0ec; }
+.modal-item-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
+.modal-item-sub { font-size: 11px; color: #888; line-height: 1.6; }
+.modal-divider { border: none; border-top: 0.5px solid #eee; margin: 16px 0; }
+.modal-note { font-size: 11px; color: #aaa; text-align: center; line-height: 1.6; margin-bottom: 16px; }
+.modal-note a { color: #3D5A3E; }
+.btn-agree { width: 100%; background: #3D5A3E; color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
+.btn-detail { width: 100%; background: transparent; color: #888; border: none; font-size: 12px; cursor: pointer; font-family: inherit; padding: 4px; }
+.demo-area { margin-bottom: 16px; }
+.demo-label { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 8px; }
+.demo-phone { background: #f5f2ed; border-radius: 12px; padding: 12px; }
+.demo-input-card { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border: 0.5px solid #e0ddd8; min-height: 64px; }
+.demo-input-label { font-size: 10px; color: #aaa; margin-bottom: 4px; }
+.demo-input-text { font-size: 12px; color: #2C3E2D; line-height: 1.6; display: inline; }
+.demo-cursor { display: inline-block; font-size: 12px; color: #3D5A3E; animation: blink 0.8s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.demo-btn-main { background: #3D5A3E; color: #fff; border-radius: 10px; padding: 10px; font-size: 13px; text-align: center; margin-bottom: 8px; transition: opacity 0.2s; }
+.demo-btn-main.active { opacity: 0.7; }
+.demo-result { background: #fff; border-radius: 10px; padding: 10px 12px; border: 0.5px solid #b5d9bc; margin-bottom: 8px; animation: fadeIn 0.4s ease; }
+.demo-result.orange { border-color: #f5c4a0; }
+.demo-result-label { font-size: 10px; font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+.demo-result-label.green { color: #3D5A3E; }
+.demo-result-label.orange { color: #c8622a; }
+.demo-result-dot { width: 6px; height: 6px; border-radius: 50%; }
+.demo-result-dot.green { background: #3D5A3E; }
+.demo-result-dot.orange { background: #e07840; }
+.demo-result-body { font-size: 11px; color: #2C3E2D; line-height: 1.6; margin-bottom: 8px; }
+.demo-btn-copy { background: #fff; border: 0.5px solid #3D5A3E; color: #3D5A3E; border-radius: 8px; padding: 7px; font-size: 11px; text-align: center; transition: background 0.3s; margin-bottom: 4px; }
+.demo-btn-copy.copied { background: #C8D9C0; }
+.demo-btn-copy.orange { border-color: #f5c4a0; color: #c8622a; background: #fdf3ec; }
+.demo-feeling { background: #fff; border-radius: 10px; padding: 10px 12px; border: 0.5px solid #e0ddd8; animation: fadeIn 0.4s ease; }
+.demo-feeling-title { font-size: 10px; font-weight: 500; color: #444; margin-bottom: 8px; }
+.demo-feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+.demo-feeling-btn { background: #fafaf8; border: 1px solid #e8e5de; border-radius: 8px; padding: 8px 4px; text-align: center; font-size: 10px; color: #555; }
+.demo-feeling-btn.selected { background: #eef5ee; border-color: #3D5A3E; }
+.demo-feeling-msg { background: #f0f7f0; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #3D5A3E; line-height: 1.6; animation: fadeIn 0.3s ease; }
+.demo-play-btn { width: 100%; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; padding: 10px; font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
+.feeling-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
+.feeling-title { font-size: 13px; font-weight: 500; color: #444; margin-bottom: 2px; }
+.feeling-sub { font-size: 11px; color: #aaa; margin-bottom: 14px; }
+.feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.feeling-btn { background: #fafaf8; border: 1px solid #e8e5de; border-radius: 12px; padding: 14px 8px; text-align: center; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.feeling-btn:hover { background: #eef5ee; }
+.feeling-btn.selected { background: #eef5ee; border-color: #3D5A3E; }
+.feeling-emoji { font-size: 24px; margin-bottom: 4px; }
+.feeling-label { font-size: 12px; color: #555; line-height: 1.4; }
+.feeling-message { margin-top: 12px; padding: 12px 14px; background: #f0f7f0; border-radius: 12px; font-size: 13px; color: #3D5A3E; line-height: 1.7; display: none; animation: fadeIn 0.3s ease; }
+.feeling-message.show { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.coming-soon { text-align: center; padding: 4rem 2rem; color: #aaa; }
+.coming-soon-icon { font-size: 40px; margin-bottom: 1rem; }
+.coming-soon-title { font-size: 16px; font-weight: 500; color: #888; margin-bottom: 6px; }
+.coming-soon-sub { font-size: 13px; line-height: 1.7; }
+.history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.history-header-title { font-size: 13px; font-weight: 500; color: #3D5A3E; }
+.history-count { font-size: 12px; color: #aaa; }
+.history-item { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 1.25rem; margin-bottom: 1rem; }
+.history-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.history-date { font-size: 11px; color: #aaa; }
+.history-input { font-size: 13px; color: #888; margin-bottom: 10px; padding: 8px 12px; background: #f5f2ed; border-radius: 8px; line-height: 1.6; }
+.history-label { font-size: 11px; color: #3D5A3E; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+.history-label-dot { width: 6px; height: 6px; border-radius: 50%; background: #3D5A3E; display: inline-block; }
+.history-text { font-size: 14px; color: #2C3E2D; line-height: 1.7; margin-bottom: 12px; white-space: pre-wrap; }
+.howto-section { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
+.howto-section-label { font-size: 10px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; margin-bottom: 6px; }
+.howto-section-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 10px; }
+.howto-body { font-size: 13px; color: #666; line-height: 1.8; }
+.step-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.step-row:last-child { margin-bottom: 0; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: #3D5A3E; color: #fff; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
+.step-sub { font-size: 12px; color: #888; line-height: 1.6; }
+.step-arrow { text-align: center; color: #ccc; font-size: 14px; margin: 2px 0 10px 13px; }
+.trans-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.trans-row:last-child { margin-bottom: 0; }
+.trans-badge { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; align-self: flex-start; margin-top: 1px; }
+.trans-badge.green { background: #e8f5eb; color: #3D5A3E; }
+.trans-badge.orange { background: #fdf0e6; color: #c8622a; }
+.trans-text { font-size: 12px; color: #666; line-height: 1.7; }
+.faq-item { margin-bottom: 14px; }
+.faq-item:last-child { margin-bottom: 0; }
+.faq-q { font-size: 12px; font-weight: 500; color: #3D5A3E; margin-bottom: 4px; display: flex; gap: 6px; }
+.faq-a { font-size: 12px; color: #666; line-height: 1.7; padding-left: 18px; }
+.settings-section-label { font-size: 11px; font-weight: 500; color: #3D5A3E; margin: 0 4px 6px; letter-spacing: 0.05em; }
+.settings-section { background: #fff; border-radius: 16px; margin-bottom: 16px; border: 0.5px solid #e0ddd8; overflow: hidden; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 0.5px solid #f0ede6; }
+.settings-row:last-child { border-bottom: none; }
+.settings-row.disabled { opacity: 0.4; }
+.settings-row-left { display: flex; align-items: center; gap: 10px; }
+.settings-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.settings-icon.green { background: #e8f5eb; }
+.settings-icon.gray { background: #f2f0ec; }
+.settings-icon.orange { background: #fdf0e6; }
+.settings-title { font-size: 13px; color: #333; }
+.settings-sub { font-size: 11px; color: #aaa; margin-top: 1px; }
+.settings-value { font-size: 12px; color: #aaa; }
+.badge-soon { background: #f2f0ec; color: #aaa; font-size: 10px; padding: 3px 8px; border-radius: 20px; }
+.chevron { color: #ccc; font-size: 16px; }
+.toggle { width: 44px; height: 26px; border-radius: 13px; background: #3D5A3E; position: relative; cursor: pointer; flex-shrink: 0; border: none; }
+.toggle-knob { width: 20px; height: 20px; border-radius: 50%; background: #fff; position: absolute; top: 3px; right: 3px; transition: right 0.2s; }
+.toggle.off { background: #ccc; }
+.toggle.off .toggle-knob { right: auto; left: 3px; }
 </style>
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VVJWY6FQZ9"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-VVJWY6FQZ9');
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-VVJWY6FQZ9');
 </script>
 </head>
 <body>
 <div class="app">
 
-  <div class="modal-overlay hidden" id="tutorialModal">
-    <div class="modal">
-      <div class="modal-icon">🌿</div>
-      <div class="modal-title">はじめる前に</div>
-      <div class="modal-sub">tsunageruについて<br>少しだけ説明させてください</div>
-      <div class="modal-item">
-        <div class="modal-item-icon green">📱</div>
-        <div>
-          <div class="modal-item-title">文章はスマホの中にだけ保存</div>
-          <div class="modal-item-sub">入力した内容や翻訳結果は、外部サーバーには送信されません。あなたの端末の中だけに残ります。</div>
+<div class="modal-overlay hidden" id="tutorialModal">
+  <div class="modal">
+    <div class="modal-icon">🌿</div>
+    <div class="modal-title">はじめる前に</div>
+    <div class="modal-sub">tsunageruについて<br>少しだけ説明させてください</div>
+    <div class="modal-item">
+      <div class="modal-item-icon green">📱</div>
+      <div>
+        <div class="modal-item-title">文章はスマホの中にだけ保存</div>
+        <div class="modal-item-sub">入力した内容や翻訳結果は、外部サーバーには送信されません。あなたの端末の中だけに残ります。</div>
+      </div>
+    </div>
+    <div class="modal-item">
+      <div class="modal-item-icon orange">📊</div>
+      <div>
+        <div class="modal-item-title">気持ちの選択は匿名で活用</div>
+        <div class="modal-item-sub">「今の気持ち」などのボタン操作は、サービス改善のために匿名で計測されます。</div>
+      </div>
+    </div>
+    <div class="modal-item">
+      <div class="modal-item-icon gray">⚙️</div>
+      <div>
+        <div class="modal-item-title">いつでも変更・削除できます</div>
+        <div class="modal-item-sub">設定からデータの削除や、計測のオフが可能です。</div>
+      </div>
+    </div>
+    <hr class="modal-divider">
+    <div class="modal-note">詳しくは「つかいかた」をご覧ください。</div>
+    <div class="demo-area" id="demoArea">
+      <div class="demo-label">こんなふうに使うよ</div>
+      <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo()">▶ デモを見る</button>
+      <div class="demo-phone" id="tutorialDemoPhone" style="display:none">
+        <div class="demo-input-card">
+          <div class="demo-input-label">送りたい気持ち</div>
+          <div class="demo-input-text" id="demoText"></div>
+          <div class="demo-cursor" id="demoCursor">|</div>
+        </div>
+        <div class="demo-btn-main" id="demoBtnMain">言葉にしてみる</div>
+        <div id="demoResultGreen" style="display:none" class="demo-result">
+          <div class="demo-result-label green"><span class="demo-result-dot green"></span>伝える翻訳</div>
+          <div class="demo-result-body">最近ちょっと疲れてて、自分の時間が欲しいな。また元気になれると思うんだ。</div>
+          <div class="demo-btn-copy green" id="demoBtnCopy">この文章を送る</div>
+        </div>
+        <div id="demoResultOrange" style="display:none" class="demo-result orange">
+          <div class="demo-result-label orange"><span class="demo-result-dot orange"></span>解決翻訳</div>
+          <div class="demo-result-body">心に余裕がなくて、近いうちに1日だけ自分の時間をもらえたら嬉しいな。</div>
+          <div class="demo-btn-copy orange">この文章を送る</div>
+        </div>
+        <div id="demoFeeling" style="display:none" class="demo-feeling">
+          <div class="demo-feeling-title">💚 今の気持ちに近いのは？</div>
+          <div class="demo-feeling-grid">
+            <div class="demo-feeling-btn" id="demoFeelingBtn1">😌 少し落ち着いた</div>
+            <div class="demo-feeling-btn">🌿 気持ちを整理できた</div>
+            <div class="demo-feeling-btn">🩷 伝えやすくなった</div>
+            <div class="demo-feeling-btn">🌥 まだモヤモヤする</div>
+          </div>
+          <div class="demo-feeling-msg" id="demoFeelingMsg" style="display:none">よかったです 🌿 気持ちを整理するだけでも十分です。</div>
         </div>
       </div>
-      <div class="modal-item">
-        <div class="modal-item-icon orange">📊</div>
-        <div>
-          <div class="modal-item-title">気持ちの選択は匿名で活用</div>
-          <div class="modal-item-sub">「今の気持ち」などのボタン操作は、サービス改善のために匿名で計測されます。</div>
-        </div>
-      </div>
-      <div class="modal-item">
-        <div class="modal-item-icon gray">⚙️</div>
-        <div>
-          <div class="modal-item-title">いつでも変更・削除できます</div>
-          <div class="modal-item-sub">設定からデータの削除や、計測のオフが可能です。</div>
-        </div>
-      </div>
-      <hr class="modal-divider">
-      <div class="modal-note">詳しくは「つかいかた」をご覧ください。</div>
-      <div class="demo-area" id="demoArea">
-        <div class="demo-label">こんなふうに使うよ</div>
-        <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo()">▶ デモを見る</button>
-        <div class="demo-phone" id="tutorialDemoPhone" style="display:none">
-          <div class="demo-input-card">
-            <div class="demo-input-label">送りたい気持ち</div>
-            <div class="demo-input-text" id="demoText"></div>
-            <div class="demo-cursor" id="demoCursor">|</div>
-          </div>
-          <div class="demo-btn-main" id="demoBtnMain">言葉にしてみる</div>
-          <div id="demoResultGreen" style="display:none" class="demo-result">
-            <div class="demo-result-label green"><span class="demo-result-dot green"></span>伝える翻訳</div>
-            <div class="demo-result-body">最近ちょっと疲れてて、自分の時間が欲しいな。また元気になれると思うんだ。</div>
-            <div class="demo-btn-copy green" id="demoBtnCopy">この文章を送る</div>
-          </div>
-          <div id="demoResultOrange" style="display:none" class="demo-result orange">
-            <div class="demo-result-label orange"><span class="demo-result-dot orange"></span>解決翻訳</div>
-            <div class="demo-result-body">心に余裕がなくて、近いうちに1日だけ自分の時間をもらえたら嬉しいな。</div>
-            <div class="demo-btn-copy orange">この文章を送る</div>
-          </div>
-          <div id="demoFeeling" style="display:none" class="demo-feeling">
-            <div class="demo-feeling-title">💚 今の気持ちに近いのは？</div>
-            <div class="demo-feeling-grid">
-              <div class="demo-feeling-btn" id="demoFeelingBtn1">😌 少し落ち着いた</div>
-              <div class="demo-feeling-btn">🌿 気持ちを整理できた</div>
-              <div class="demo-feeling-btn">🩷 伝えやすくなった</div>
-              <div class="demo-feeling-btn">🌥 まだモヤモヤする</div>
-            </div>
-            <div class="demo-feeling-msg" id="demoFeelingMsg" style="display:none">よかったです 🌿 気持ちを整理するだけでも十分です。</div>
-          </div>
-        </div>
-      </div>
-      <button class="btn-agree" id="btnAgree" onclick="tsgTutorialClose()">わかった、はじめる</button>
-      <button class="btn-detail" id="btnDetail" onclick="tsgTutorialHowto()">くわしく読む</button>
+    </div>
+    <button class="btn-agree" id="btnAgree" onclick="tsgTutorialClose()">わかった、はじめる</button>
+    <button class="btn-detail" id="btnDetail" onclick="tsgTutorialHowto()">くわしく読む</button>
+  </div>
+</div>
+
+<div class="header">
+  <div class="logo">tsunageru 🌿</div>
+  <div class="time" id="clock"></div>
+</div>
+
+<!-- ホーム画面 -->
+<div id="screen-home" class="screen active">
+  <div class="input-card">
+    <div class="input-label">送りたい気持ち</div>
+    <textarea id="userInput" maxlength="500" oninput="tsgCount()" placeholder="伝えたいことをそのまま書いてね。うまく言えなくても大丈夫。&#10;例：なんでいつも私ばっかり家事してるの？"></textarea>
+    <div style="text-align:right; font-size:11px; color:#bbb; margin-top:4px;"><span id="charCount">0</span> / 500</div>
+  </div>
+  <div class="mode-section">
+    <div class="mode-label">伝え方を選ぶ</div>
+    <div class="mode-scroll">
+      <button class="mode-btn active" data-mode="default" onclick="tsgSetMode(this)">🌿 やさしく伝わる</button>
+      <button class="mode-btn" data-mode="nofight" onclick="tsgSetMode(this)">🕊️ ケンカにならず</button>
+      <button class="mode-btn" data-mode="male" onclick="tsgSetMode(this)">👨 男性脳向け</button>
     </div>
   </div>
-
-  <div class="header">
-    <div class="logo">tsunageru 🌿</div>
-    <div class="time" id="clock"></div>
+  <div class="btn-row">
+    <button class="btn-main" id="mainBtn" onclick="tsgRun()">言葉にしてみる</button>
+    <button class="btn-clear" onclick="tsgClear()">クリア</button>
   </div>
-
-  <!-- ホーム画面 -->
-  <div id="screen-home" class="screen active">
-    <div class="input-card">
-      <div class="input-label">送りたい気持ち</div>
-      <textarea id="userInput" maxlength="500" oninput="tsgCount()" placeholder="伝えたいことをそのまま書いてね。うまく言えなくても大丈夫。&#10;例：なんでいつも私ばっかり家事してるの？"></textarea>
-      <div style="text-align:right; font-size:11px; color:#bbb; margin-top:4px;"><span id="charCount">0</span> / 500</div>
+  <div id="errorMsg" style="display:none" class="error">
+    <div>いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿</div>
+    <button class="btn-retry" onclick="tsgRun()">もう一度試す</button>
+  </div>
+  <div id="loading" style="display:none" class="loading">
+    <span id="loadingMsg">気持ち、受け取ったよ 🌿</span>
+  </div>
+  <div id="results" style="display:none">
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">こんなふうに伝えられるかも 🌿</div>
+      <div class="divider-line"></div>
     </div>
-
-    <!-- モード選択 -->
-    <div class="mode-section">
-      <div class="mode-label">伝え方を選ぶ</div>
-      <div class="mode-scroll">
-        <button class="mode-btn active" data-mode="default" onclick="tsgSetMode(this)">🌿 やさしく伝わる</button>
-        <button class="mode-btn" data-mode="nofight" onclick="tsgSetMode(this)">🕊️ ケンカにならず</button>
-        <button class="mode-btn" data-mode="male" onclick="tsgSetMode(this)">👨 男性脳向け</button>
-      </div>
+    <div class="result-card green">
+      <div class="result-label green"><span class="result-dot green"></span>伝える翻訳</div>
+      <div class="mode-badge" id="softModeBadge"></div>
+      <div class="result-text" id="softResult"></div>
+      <div class="result-hint" id="softHint"></div>
+      <button class="btn-copy green" onclick="tsgCopy('softResult', this)">この文章を送る</button>
     </div>
-
-    <div class="btn-row">
-      <button class="btn-main" id="mainBtn" onclick="tsgRun()">言葉にしてみる</button>
-      <button class="btn-clear" onclick="tsgClear()">クリア</button>
+    <div class="result-card orange">
+      <div class="result-label orange"><span class="result-dot orange"></span>解決翻訳</div>
+      <div class="result-text" id="solveResult"></div>
+      <div class="result-hint" id="solveHint"></div>
+      <button class="btn-copy orange" onclick="tsgCopy('solveResult', this)">この文章を送る</button>
     </div>
-
-    <div id="errorMsg" style="display:none" class="error">
-      <div>いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿</div>
-      <button class="btn-retry" onclick="tsgRun()">もう一度試す</button>
-    </div>
-    <div id="loading" style="display:none" class="loading">
-      <span id="loadingMsg">気持ち、受け取ったよ 🌿</span>
-    </div>
-
-    <div id="results" style="display:none">
-      <div class="divider">
-        <div class="divider-line"></div>
-        <div class="divider-text">こんなふうに伝えられるかも 🌿</div>
-        <div class="divider-line"></div>
+    <div class="feeling-card">
+      <div class="feeling-title">💚 今の気持ちに近いのは？</div>
+      <div class="feeling-sub">選ぶだけでも、気持ちの整理になります 🌿</div>
+      <div class="feeling-grid">
+        <button class="feeling-btn" onclick="tsgFeeling(this)">
+          <div class="feeling-emoji">😌</div>
+          <div class="feeling-label">少し落ち着いた</div>
+        </button>
+        <button class="feeling-btn" onclick="tsgFeeling(this)">
+          <div class="feeling-emoji">🌿</div>
+          <div class="feeling-label">気持ちを整理できた</div>
+        </button>
+        <button class="feeling-btn" onclick="tsgFeeling(this)">
+          <div class="feeling-emoji">🩷</div>
+          <div class="feeling-label">伝えやすくなった</div>
+        </button>
+        <button class="feeling-btn" onclick="tsgFeeling(this)">
+          <div class="feeling-emoji">🌥</div>
+          <div class="feeling-label">まだモヤモヤする</div>
+        </button>
       </div>
-
-      <div class="result-card green">
-        <div class="result-label green"><span class="result-dot green"></span>伝える翻訳</div>
-        <div class="mode-badge" id="softModeBadge"></div>
-        <div class="result-text" id="softResult"></div>
-        <div class="result-hint" id="softHint"></div>
-        <button class="btn-copy green" onclick="tsgCopy('softResult', this)">この文章を送る</button>
-      </div>
-
-      <div class="result-card orange">
-        <div class="result-label orange"><span class="result-dot orange"></span>解決翻訳</div>
-        <div class="result-text" id="solveResult"></div>
-        <div class="result-hint" id="solveHint"></div>
-        <button class="btn-copy orange" onclick="tsgCopy('solveResult', this)">この文章を送る</button>
-      </div>
-
-      <div class="feeling-card">
-        <div class="feeling-title">💚 今の気持ちに近いのは？</div>
-        <div class="feeling-sub">選ぶだけでも、気持ちの整理になります 🌿</div>
-        <div class="feeling-grid">
-          <button class="feeling-btn" onclick="tsgFeeling(this)">
-            <div class="feeling-emoji">😌</div>
-            <div class="feeling-label">少し落ち着いた</div>
-          </button>
-          <button class="feeling-btn" onclick="tsgFeeling(this)">
-            <div class="feeling-emoji">🌿</div>
-            <div class="feeling-label">気持ちを整理できた</div>
-          </button>
-          <button class="feeling-btn" onclick="tsgFeeling(this)">
-            <div class="feeling-emoji">🩷</div>
-            <div class="feeling-label">伝えやすくなった</div>
-          </button>
-          <button class="feeling-btn" onclick="tsgFeeling(this)">
-            <div class="feeling-emoji">🌥</div>
-            <div class="feeling-label">まだモヤモヤする</div>
-          </button>
-        </div>
-        <div class="feeling-message" id="feelingMessage"></div>
-      </div>
-
-      <div class="survey-link">
-        <a href="https://forms.gle/RvF1nFinpc76MAUZ6" target="_blank" onclick="gtag('event', 'survey_tap')">30秒アンケートで開発を応援する →</a>
-      </div>
+      <div class="feeling-message" id="feelingMessage"></div>
     </div>
   </div>
+</div>
 
-  <!-- 履歴画面 -->
-  <div id="screen-history" class="screen">
-    <div class="coming-soon">
-      <div class="coming-soon-icon">🕐</div>
-      <div class="coming-soon-title">履歴機能は準備中です</div>
-      <div class="coming-soon-sub">過去の翻訳や気持ちの記録を<br>振り返れるようになります 🌿</div>
+<!-- 履歴画面 -->
+<div id="screen-history" class="screen">
+  <div id="historyEmpty" class="coming-soon">
+    <div class="coming-soon-icon">🕐</div>
+    <div class="coming-soon-title">まだ履歴がありません</div>
+    <div class="coming-soon-sub">翻訳すると、ここに記録されます 🌿</div>
+  </div>
+  <div id="historyList"></div>
+</div>
+
+<!-- つかいかた画面 -->
+<div id="screen-howto" class="screen">
+  <div class="howto-section">
+    <div class="howto-section-label">ABOUT</div>
+    <div class="howto-section-title">tsunageruってなに？</div>
+    <div class="howto-body">伝えたいのに言葉にできない気持ちを、相手に伝わりやすい言葉に変えるアプリです。怒りもモヤモヤも、感謝も謝りたい気持ちも。うまく言葉にできなくても大丈夫。そのまま入力するだけでOKです。</div>
+  </div>
+  <div class="howto-section">
+    <div class="howto-section-label">STEP 0</div>
+    <div class="howto-section-title">まずホーム画面に追加しよう 📱</div>
+    <div class="howto-body">アプリのように使えて、伝えたい瞬間にすぐ開けます。<br><br>
+      <strong>iPhoneの場合</strong><br>
+      Safariで開く → 下の共有ボタン（四角に矢印）→「ホーム画面に追加」<br><br>
+      <strong>Androidの場合</strong><br>
+      Chromeで開く → 右上のメニュー（︙）→「ホーム画面に追加」
     </div>
   </div>
-
-  <!-- つかいかた画面 -->
-  <div id="screen-howto" class="screen">
-    <div class="howto-section">
-      <div class="howto-section-label">ABOUT</div>
-      <div class="howto-section-title">tsunageruってなに？</div>
-      <div class="howto-body">伝えたいのに言葉にできない気持ちを、相手に伝わりやすい言葉に変えるアプリです。怒りもモヤモヤも、感謝も謝りたい気持ちも。うまく言葉にできなくても大丈夫。そのまま入力するだけでOKです。</div>
-    </div>
-
-    <div class="howto-section">
-      <div class="howto-section-label">STEP 0</div>
-      <div class="howto-section-title">まずホーム画面に追加しよう 📱</div>
-      <div class="howto-body">アプリのように使えて、伝えたい瞬間にすぐ開けます。<br><br>
-        <strong>iPhoneの場合</strong><br>
-        Safariで開く → 下の共有ボタン（四角に矢印）→「ホーム画面に追加」<br><br>
-        <strong>Androidの場合</strong><br>
-        Chromeで開く → 右上のメニュー（︙）→「ホーム画面に追加」
+  <div class="howto-section">
+    <div class="howto-section-label">HOW TO USE</div>
+    <div class="howto-section-title">使い方は3ステップ</div>
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">気持ちを入力する</div>
+        <div class="step-sub">うまく言えなくてOK。伝えたいことをそのまま書いてみてください。</div>
       </div>
     </div>
-
-    <div class="howto-section">
-      <div class="howto-section-label">HOW TO USE</div>
-      <div class="howto-section-title">使い方は3ステップ</div>
-      <div class="step-row">
-        <div class="step-num">1</div>
-        <div>
-          <div class="step-title">気持ちを入力する</div>
-          <div class="step-sub">うまく言えなくてOK。伝えたいことをそのまま書いてみてください。</div>
-        </div>
-      </div>
-      <div class="step-arrow">↓</div>
-      <div class="step-row">
-        <div class="step-num">2</div>
-        <div>
-          <div class="step-title">伝え方を選んで翻訳する</div>
-          <div class="step-sub">5つのモードから今の状況に合うものを選んでください。</div>
-        </div>
-      </div>
-      <div class="step-arrow">↓</div>
-      <div class="step-row">
-        <div class="step-num">3</div>
-        <div>
-          <div class="step-title">そのまま送る</div>
-          <div class="step-sub">「この文章を送る」を押してコピーし、LINEやメッセージで送れます。</div>
-        </div>
+    <div class="step-arrow">↓</div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">伝え方を選んで翻訳する</div>
+        <div class="step-sub">5つのモードから今の状況に合うものを選んでください。</div>
       </div>
     </div>
-
-    <div class="howto-section">
-      <div class="howto-section-label">MODES</div>
-      <div class="howto-section-title">5つの伝え方モード</div>
-      <div class="trans-row">
-        <div class="trans-badge green">🌿 やさしく伝わる</div>
-        <div class="trans-text">感情をやわらかく、相手が受け取りやすい言葉で伝えます。迷ったらこれ。</div>
-      </div>
-      <div class="trans-row">
-        <div class="trans-badge green">🕊️ ケンカにならず</div>
-        <div class="trans-text">相手を責める言葉を避けて、穏やかに伝えます。言い合いになりそうなときに。</div>
-      </div>
-      <div class="trans-row">
-        <div class="trans-badge green">👨 男性脳向け</div>
-        <div class="trans-text">結論を先に、何をしてほしいかを明確に伝えます。論理的なパートナーに。</div>
-      </div>
-    </div>
-
-    <div class="howto-section">
-      <div class="howto-section-label">TRANSLATION</div>
-      <div class="howto-section-title">2種類の翻訳の違い</div>
-      <div class="trans-row">
-        <div class="trans-badge green">伝える翻訳</div>
-        <div class="trans-text">今の気持ちをやさしく言い換えます。まず気持ちを受け取ってほしいときに。</div>
-      </div>
-      <div class="trans-row">
-        <div class="trans-badge orange">解決翻訳</div>
-        <div class="trans-text">気持ちとお願いをセットで伝えます。具体的に動いてほしいときに。</div>
-      </div>
-    </div>
-
-    <div class="howto-section">
-      <div class="howto-section-label">FEELING CHECK</div>
-      <div class="howto-section-title">今の気持ち選択について</div>
-      <div class="howto-body">翻訳後に表示される4択は、送る・送らないに関係なく選べます。自分の気持ちを確認するためのものです。</div>
-    </div>
-
-    <div class="howto-section">
-      <div class="howto-section-title">よくある質問</div>
-      <div class="faq-item">
-        <div class="faq-q"><span>Q.</span>入力した内容は誰かに見られますか？</div>
-        <div class="faq-a">いいえ。入力した文章や翻訳結果は外部に送信されず、あなたのスマホの中にだけ保存されます。</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q"><span>Q.</span>翻訳はAIがやってるの？</div>
-        <div class="faq-a">はい。AIがあなたの気持ちを読み取って、伝わりやすい言葉に変えています。</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q"><span>Q.</span>履歴はどこで見られますか？</div>
-        <div class="faq-a">下のメニューの「履歴」から確認できます。現在準備中です。</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q"><span>Q.</span>うまく翻訳されなかったときは？</div>
-        <div class="faq-a">モードを変えてもう一度試してみてください。「ケンカにならず」は特に穏やかな表現になります。</div>
-      </div>
-    </div>
-
-    <div class="howto-section">
-      <div class="howto-section-label">WHY</div>
-      <div class="howto-section-title">tsunageruをつくった理由</div>
-      <div class="howto-body">夫に腹が立ちすぎて眠れない夜がありました。<br><br>言いたいことはある。でも、どう伝えればいいかわからない。キレられるんじゃないか、拒絶されるんじゃないかって思うと、なかなか言葉にできない。<br><br>重要なのは、相手に伝わるかどうか。でも、伝わる言葉に変えるのって、本当に難しい。<br><br>そこで思いついたのが翻訳こんにゃく。伝えたい気持ちをそのまま入れると、AIが伝わる言葉に変えてくれるアプリ。アドラーやカーネギーが残した知恵をAIに学習させて、あなたの気持ちを届けます。</div>
-    </div>
-  </div>
-
-  <!-- 設定画面 -->
-  <div id="screen-settings" class="screen">
-    <div class="settings-section-label">プライバシー</div>
-    <div class="settings-section">
-      <div class="settings-row">
-        <div class="settings-row-left">
-          <div class="settings-icon green">📊</div>
-          <div>
-            <div class="settings-title">効果測定への参加</div>
-            <div class="settings-sub">気持ちの選択を匿名で活用</div>
-          </div>
-        </div>
-        <button class="toggle" id="analyticsToggle" onclick="tsgToggle()"></button>
-      </div>
-      <div class="settings-row disabled">
-        <div class="settings-row-left">
-          <div class="settings-icon gray">🗑️</div>
-          <div>
-            <div class="settings-title">データをすべて削除</div>
-            <div class="settings-sub">履歴データの削除</div>
-          </div>
-        </div>
-        <span class="badge-soon">準備中</span>
-      </div>
-    </div>
-
-    <div class="settings-section-label">相手のプロフィール</div>
-    <div class="settings-section">
-      <div class="settings-row disabled">
-        <div class="settings-row-left">
-          <div class="settings-icon orange">👤</div>
-          <div>
-            <div class="settings-title">性格・タイプを登録</div>
-            <div class="settings-sub">翻訳の精度が上がります</div>
-          </div>
-        </div>
-        <span class="badge-soon">準備中</span>
-      </div>
-    </div>
-
-    <div class="settings-section-label">通知</div>
-    <div class="settings-section">
-      <div class="settings-row disabled">
-        <div class="settings-row-left">
-          <div class="settings-icon gray">🔔</div>
-          <div>
-            <div class="settings-title">通知設定</div>
-            <div class="settings-sub">リマインダーなど</div>
-          </div>
-        </div>
-        <span class="badge-soon">準備中</span>
-      </div>
-    </div>
-
-    <div class="settings-section-label">アプリについて</div>
-    <div class="settings-section">
-      <div class="settings-row" onclick="gtag('event', 'inquiry_tap'); window.open('https://forms.gle/aKwysRoBBgFpT4U2A', '_blank')" style="cursor:pointer;">
-        <div class="settings-row-left">
-          <div class="settings-icon gray">✉️</div>
-          <div><div class="settings-title">お問い合わせ</div></div>
-        </div>
-        <span class="chevron">›</span>
-      </div>
-      <div class="settings-row">
-        <div class="settings-row-left">
-          <div class="settings-icon gray">ℹ️</div>
-          <div><div class="settings-title">バージョン</div></div>
-        </div>
-        <span class="settings-value">1.1.0</span>
+    <div class="step-arrow">↓</div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">そのまま送る</div>
+        <div class="step-sub">「この文章を送る」を押してコピーし、LINEやメッセージで送れます。</div>
       </div>
     </div>
   </div>
+  <div class="howto-section">
+    <div class="howto-section-label">MODES</div>
+    <div class="howto-section-title">5つの伝え方モード</div>
+    <div class="trans-row">
+      <div class="trans-badge green">🌿 やさしく伝わる</div>
+      <div class="trans-text">感情をやわらかく、相手が受け取りやすい言葉で伝えます。迷ったらこれ。</div>
+    </div>
+    <div class="trans-row">
+      <div class="trans-badge green">🕊️ ケンカにならず</div>
+      <div class="trans-text">相手を責める言葉を避けて、穏やかに伝えます。言い合いになりそうなときに。</div>
+    </div>
+    <div class="trans-row">
+      <div class="trans-badge green">👨 男性脳向け</div>
+      <div class="trans-text">結論を先に、何をしてほしいかを明確に伝えます。論理的なパートナーに。</div>
+    </div>
+  </div>
+  <div class="howto-section">
+    <div class="howto-section-label">TRANSLATION</div>
+    <div class="howto-section-title">2種類の翻訳の違い</div>
+    <div class="trans-row">
+      <div class="trans-badge green">伝える翻訳</div>
+      <div class="trans-text">今の気持ちをやさしく言い換えます。まず気持ちを受け取ってほしいときに。</div>
+    </div>
+    <div class="trans-row">
+      <div class="trans-badge orange">解決翻訳</div>
+      <div class="trans-text">気持ちとお願いをセットで伝えます。具体的に動いてほしいときに。</div>
+    </div>
+  </div>
+  <div class="howto-section">
+    <div class="howto-section-label">FEELING CHECK</div>
+    <div class="howto-section-title">今の気持ち選択について</div>
+    <div class="howto-body">翻訳後に表示される4択は、送る・送らないに関係なく選べます。自分の気持ちを確認するためのものです。</div>
+  </div>
+  <div class="howto-section">
+    <div class="howto-section-title">よくある質問</div>
+    <div class="faq-item">
+      <div class="faq-q"><span>Q.</span>入力した内容は誰かに見られますか？</div>
+      <div class="faq-a">いいえ。入力した文章や翻訳結果は外部に送信されず、あなたのスマホの中にだけ保存されます。</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q"><span>Q.</span>翻訳はAIがやってるの？</div>
+      <div class="faq-a">はい。AIがあなたの気持ちを読み取って、伝わりやすい言葉に変えています。</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q"><span>Q.</span>履歴はどこで見られますか？</div>
+      <div class="faq-a">下のメニューの「履歴」から確認できます。</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q"><span>Q.</span>うまく翻訳されなかったときは？</div>
+      <div class="faq-a">モードを変えてもう一度試してみてください。「ケンカにならず」は特に穏やかな表現になります。</div>
+    </div>
+  </div>
+  <div class="howto-section">
+    <div class="howto-section-label">WHY</div>
+    <div class="howto-section-title">tsunageruをつくった理由</div>
+    <div class="howto-body">夫に腹が立ちすぎて眠れない夜がありました。<br><br>言いたいことはある。でも、どう伝えればいいかわからない。キレられるんじゃないか、拒絶されるんじゃないかって思うと、なかなか言葉にできない。<br><br>重要なのは、相手に伝わるかどうか。でも、伝わる言葉に変えるのって、本当に難しい。<br><br>そこで思いついたのが翻訳こんにゃく。伝えたい気持ちをそのまま入れると、AIが伝わる言葉に変えてくれるアプリ。アドラーやカーネギーが残した知恵をAIに学習させて、あなたの気持ちを届けます。</div>
+  </div>
+</div>
 
-  <!-- ボトムナビ -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" id="nav-home" onclick="tsgNav('home')">
-      <div class="nav-icon">🏠</div>
-      <div class="nav-label">ホーム</div>
-    </button>
-    <button class="nav-item" id="nav-history" onclick="tsgNav('history')">
-      <div class="nav-icon">🕐</div>
-      <div class="nav-label">履歴</div>
-    </button>
-    <button class="nav-item" id="nav-howto" onclick="tsgNav('howto')">
-      <div class="nav-icon">🌿</div>
-      <div class="nav-label">つかいかた</div>
-    </button>
-    <button class="nav-item" id="nav-settings" onclick="tsgNav('settings')">
-      <div class="nav-icon">⚙️</div>
-      <div class="nav-label">設定</div>
-    </button>
-  </nav>
+<!-- 設定画面 -->
+<div id="screen-settings" class="screen">
+  <div class="settings-section-label">プライバシー</div>
+  <div class="settings-section">
+    <div class="settings-row">
+      <div class="settings-row-left">
+        <div class="settings-icon green">📊</div>
+        <div>
+          <div class="settings-title">効果測定への参加</div>
+          <div class="settings-sub">気持ちの選択を匿名で活用</div>
+        </div>
+      </div>
+      <button class="toggle" id="analyticsToggle" onclick="tsgToggle()"></button>
+    </div>
+    <div class="settings-row" onclick="tsgDeleteHistory()" style="cursor:pointer;">
+      <div class="settings-row-left">
+        <div class="settings-icon gray">🗑️</div>
+        <div>
+          <div class="settings-title">データをすべて削除</div>
+          <div class="settings-sub">履歴データの削除</div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+  </div>
+  <div class="settings-section-label">相手のプロフィール</div>
+  <div class="settings-section">
+    <div class="settings-row disabled">
+      <div class="settings-row-left">
+        <div class="settings-icon orange">👤</div>
+        <div>
+          <div class="settings-title">性格・タイプを登録</div>
+          <div class="settings-sub">翻訳の精度が上がります</div>
+        </div>
+      </div>
+      <span class="badge-soon">準備中</span>
+    </div>
+  </div>
+  <div class="settings-section-label">通知</div>
+  <div class="settings-section">
+    <div class="settings-row disabled">
+      <div class="settings-row-left">
+        <div class="settings-icon gray">🔔</div>
+        <div>
+          <div class="settings-title">通知設定</div>
+          <div class="settings-sub">リマインダーなど</div>
+        </div>
+      </div>
+      <span class="badge-soon">準備中</span>
+    </div>
+  </div>
+  <div class="settings-section-label">アプリについて</div>
+  <div class="settings-section">
+    <div class="settings-row" onclick="gtag('event', 'inquiry_tap'); window.open('https://forms.gle/aKwysRoBBgFpT4U2A', '_blank')" style="cursor:pointer;">
+      <div class="settings-row-left">
+        <div class="settings-icon gray">✉️</div>
+        <div><div class="settings-title">お問い合わせ</div></div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left">
+        <div class="settings-icon gray">ℹ️</div>
+        <div><div class="settings-title">バージョン</div></div>
+      </div>
+      <span class="settings-value">1.2.0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ボトムナビ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="tsgNav('home')">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">ホーム</div>
+  </button>
+  <button class="nav-item" id="nav-history" onclick="tsgNav('history')">
+    <div class="nav-icon">🕐</div>
+    <div class="nav-label">履歴</div>
+  </button>
+  <button class="nav-item" id="nav-howto" onclick="tsgNav('howto')">
+    <div class="nav-icon">🌿</div>
+    <div class="nav-label">つかいかた</div>
+  </button>
+  <button class="nav-item" id="nav-settings" onclick="tsgNav('settings')">
+    <div class="nav-icon">⚙️</div>
+    <div class="nav-label">設定</div>
+  </button>
+</nav>
 
 </div>
 
 <script>
-// モード管理
 var currentMode = 'default';
 var modeLabels = {
   default: '🌿 やさしく伝わる',
@@ -606,6 +556,7 @@ function tsgTutorialClose() {
   localStorage.setItem('tsg_tutorial_done', '1');
   gtag('event', 'tutorial_agree');
 }
+
 function tsgTutorialHowto() {
   document.getElementById('tutorialModal').classList.add('hidden');
   localStorage.setItem('tsg_tutorial_done', '1');
@@ -706,24 +657,27 @@ function tsgClear() {
   document.getElementById('errorMsg').style.display = 'none';
   document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
   document.getElementById('feelingMessage').classList.remove('show');
+  var surveyCard = document.getElementById('surveyCard');
+  if (surveyCard) surveyCard.remove();
 }
 
 async function tsgRun() {
   var userInput = document.getElementById('userInput').value.trim();
   var errorEl = document.getElementById('errorMsg');
   errorEl.style.display = 'none';
-
   if (!userInput) {
     errorEl.innerHTML = '気持ちを入力してください。';
     errorEl.style.display = 'block';
     return;
   }
-
   document.getElementById('mainBtn').disabled = true;
   document.getElementById('loading').style.display = 'block';
   document.getElementById('results').style.display = 'none';
   document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
   document.getElementById('feelingMessage').classList.remove('show');
+  var surveyCard = document.getElementById('surveyCard');
+  if (surveyCard) surveyCard.remove();
+
   gtag('event', 'translate_start', { mode: currentMode });
 
   var loadingMessages = ['気持ち、受け取ったよ 🌿', '言葉を探してるよ...', 'もう少しだけ待ってね 🌱'];
@@ -745,7 +699,6 @@ async function tsgRun() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userInput: userInput, mode: currentMode })
     });
-
     var parsed = await response.json();
     if (!response.ok) throw new Error(parsed.error || 'エラーが発生しました');
 
@@ -754,13 +707,26 @@ async function tsgRun() {
     document.getElementById('solveResult').textContent = parsed.solve;
     document.getElementById('solveHint').textContent = parsed.solve_hint;
 
-    // モードバッジ表示
     var badge = document.getElementById('softModeBadge');
     badge.textContent = modeLabels[currentMode] || '';
     badge.style.display = currentMode !== 'default' ? 'inline-block' : 'none';
 
     document.getElementById('results').style.display = 'block';
     gtag('event', 'translate_success', { mode: currentMode });
+
+    // 履歴保存
+    var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
+    history.unshift({
+      id: Date.now(),
+      date: new Date().toISOString(),
+      input: userInput,
+      mode: currentMode,
+      soft: parsed.soft,
+      solve: parsed.solve
+    });
+    if (history.length > 50) history = history.slice(0, 50);
+    localStorage.setItem('tsg_history', JSON.stringify(history));
+    tsgRenderHistory();
 
   } catch(err) {
     errorEl.innerHTML = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿<br><button class="btn-retry" onclick="tsgRun()">もう一度試す</button>';
@@ -805,6 +771,126 @@ function tsgFeeling(btn) {
   msgEl.classList.remove('show');
   setTimeout(function() { msgEl.classList.add('show'); }, 10);
   gtag('event', 'feeling_selected', { feeling_label: label });
+
+  // アンケート表示（未回答の場合のみ）
+  if (!localStorage.getItem('tsg_survey_done')) {
+    setTimeout(function() { tsgShowSurvey(); }, 600);
+  }
+}
+
+// ---- 履歴 ----
+function tsgRenderHistory() {
+  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
+  var emptyEl = document.getElementById('historyEmpty');
+  var listEl = document.getElementById('historyList');
+  if (!listEl) return;
+
+  if (history.length === 0) {
+    emptyEl.style.display = 'block';
+    listEl.innerHTML = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  listEl.innerHTML = history.map(function(item) {
+    var d = new Date(item.date);
+    var dateStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
+                  d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+    var modeLabel = modeLabels[item.mode] || '';
+    return '<div class="history-item">' +
+      '<div class="history-meta">' +
+        '<span class="history-date">' + dateStr + '</span>' +
+        '<span class="mode-badge">' + modeLabel + '</span>' +
+      '</div>' +
+      '<div class="history-input">' + item.input + '</div>' +
+      '<div class="history-label"><span class="history-label-dot"></span>伝える翻訳</div>' +
+      '<div class="history-text">' + item.soft + '</div>' +
+      '<button class="btn-copy green" onclick="tsgCopyHistory(' + item.id + ', \'soft\', this)">この文章を送る</button>' +
+    '</div>';
+  }).join('');
+}
+
+function tsgCopyHistory(id, type, btn) {
+  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
+  var item = history.find(function(h) { return h.id == id; });
+  if (!item) return;
+  navigator.clipboard.writeText(item[type]).then(function() {
+    btn.textContent = 'コピーしました！';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = 'この文章を送る';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function tsgDeleteHistory() {
+  if (!confirm('すべての履歴を削除しますか？')) return;
+  localStorage.removeItem('tsg_history');
+  tsgRenderHistory();
+  gtag('event', 'history_deleted');
+}
+
+// ---- アンケート ----
+function tsgShowSurvey() {
+  if (document.getElementById('surveyCard')) return;
+  var card = document.createElement('div');
+  card.id = 'surveyCard';
+  card.className = 'feeling-card';
+  card.style.animation = 'fadeIn 0.35s ease';
+  var options = ['このまま送りたい！','少し手直しすれば送れそう','ニュアンスが少し違った','送るにはまだハードルが高い'];
+  var optsHtml = options.map(function(v) {
+    var safeV = v.replace(/'/g, "\\'");
+    return '<button onclick="tsgSurveySelect(this,\'' + safeV + '\')" style="padding:12px 16px;border:0.5px solid #e0ddd8;border-radius:10px;font-size:14px;color:#2C3E2D;cursor:pointer;background:#fff;text-align:left;font-family:inherit;transition:all 0.15s;position:relative;overflow:hidden;">' +
+      v + '<span class="survey-check" style="position:absolute;right:14px;top:50%;transform:translateY(-50%) scale(0);transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);color:#5cb87a;font-size:16px;">✓</span>' +
+    '</button>';
+  }).join('');
+  card.innerHTML =
+    '<div style="font-size:13px;color:#aaa;margin-bottom:1rem;display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">🌿</span>ひとつだけ聞かせてください</div>' +
+    '<div style="font-size:15px;font-weight:500;color:#2C3E2D;margin-bottom:1rem;line-height:1.5;">翻訳された文章を見て、どう感じましたか？</div>' +
+    '<div id="surveyOpts" style="display:flex;flex-direction:column;gap:8px;">' + optsHtml + '</div>' +
+    '<div id="surveyThanks" style="display:none;text-align:center;padding:1rem 0;animation:fadeIn 0.35s ease;">' +
+      '<div style="font-size:24px;margin-bottom:8px;">🌿</div>' +
+      '<div style="font-size:15px;font-weight:500;color:#2C3E2D;margin-bottom:4px;">ありがとうございます</div>' +
+      '<div style="font-size:13px;color:#aaa;">あなたの声が次の機能になります</div>' +
+    '</div>';
+  var feelingCard = document.querySelector('.feeling-card');
+  feelingCard.parentNode.insertBefore(card, feelingCard.nextSibling);
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function tsgSurveySelect(btn, value) {
+  var opts = document.querySelectorAll('#surveyOpts button');
+  opts.forEach(function(o) {
+    o.style.opacity = o === btn ? '1' : '0.35';
+    o.style.pointerEvents = 'none';
+  });
+  btn.style.background = '#f0faf3';
+  btn.style.borderColor = '#5cb87a';
+  btn.style.color = '#2d6e42';
+  btn.querySelector('.survey-check').style.transform = 'translateY(-50%) scale(1)';
+
+  setTimeout(function() {
+    var optsEl = document.getElementById('surveyOpts');
+    optsEl.style.transition = 'opacity 0.3s';
+    optsEl.style.opacity = '0';
+    setTimeout(function() {
+      optsEl.style.display = 'none';
+      document.getElementById('surveyThanks').style.display = 'block';
+    }, 300);
+  }, 500);
+
+  localStorage.setItem('tsg_survey_done', '1');
+
+  var formId = '1FAIpQLSdCe-I1NGCxI_2Sbac_ZGNaP44NoXPynNai6hFmHpYHjEw9qQ';
+  var body = new URLSearchParams();
+  body.append('entry.2122053896', value);
+  fetch('https://docs.google.com/forms/u/0/d/e/' + formId + '/formResponse', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  });
 }
 
 var analyticsOn = true;
@@ -813,6 +899,8 @@ function tsgToggle() {
   var toggle = document.getElementById('analyticsToggle');
   if (analyticsOn) { toggle.classList.remove('off'); } else { toggle.classList.add('off'); }
 }
+
+tsgRenderHistory();
 </script>
 </body>
 </html>
