@@ -236,7 +236,7 @@ gtag('config', 'G-VVJWY6FQZ9');
     <div class="modal-note">詳しくは「つかいかた」をご覧ください。</div>
     <div class="demo-area" id="demoArea">
       <div class="demo-label">こんなふうに使うよ</div>
-      <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo()">▶ デモを見る</button>
+      <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo(); gtag('event', 'demo_play');">▶ デモを見る</button>
       <div class="demo-phone" id="tutorialDemoPhone" style="display:none">
         <div class="demo-input-card">
           <div class="demo-input-label">送りたい気持ち</div>
@@ -293,11 +293,11 @@ gtag('config', 'G-VVJWY6FQZ9');
   </div>
   <div class="btn-row">
     <button class="btn-main" id="mainBtn" onclick="tsgRun()">言葉にしてみる</button>
-    <button class="btn-clear" onclick="tsgClear()">クリア</button>
+    <button class="btn-clear" onclick="tsgClear(); gtag('event', 'clear_tap');">クリア</button>
   </div>
   <div id="errorMsg" style="display:none" class="error">
     <div>いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿</div>
-    <button class="btn-retry" onclick="tsgRun()">もう一度試す</button>
+    <button class="btn-retry" onclick="tsgRun(); gtag('event', 'retry_tap');">もう一度試す</button>
   </div>
   <div id="loading" style="display:none" class="loading">
     <span id="loadingMsg">気持ち、受け取ったよ 🌿</span>
@@ -389,7 +389,7 @@ gtag('config', 'G-VVJWY6FQZ9');
       <div class="step-num">2</div>
       <div>
         <div class="step-title">伝え方を選んで翻訳する</div>
-        <div class="step-sub">5つのモードから今の状況に合うものを選んでください。</div>
+        <div class="step-sub">モードから今の状況に合うものを選んでください。</div>
       </div>
     </div>
     <div class="step-arrow">↓</div>
@@ -745,7 +745,7 @@ async function tsgRun() {
     tsgRenderHistory();
 
   } catch(err) {
-    errorEl.innerHTML = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿<br><button class="btn-retry" onclick="tsgRun()">もう一度試す</button>';
+    errorEl.innerHTML = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿<br><button class="btn-retry" onclick="tsgRun(); gtag(\'event\', \'retry_tap\');">もう一度試す</button>';
     errorEl.style.display = 'block';
     gtag('event', 'translate_error');
   } finally {
@@ -820,11 +820,11 @@ function tsgRenderHistory() {
       '<div class="history-input">' + item.input + '</div>' +
       '<div class="history-label green"><span class="history-label-dot green"></span>伝える翻訳</div>' +
       '<div class="history-text">' + item.soft + '</div>' +
-      '<button class="btn-copy green" onclick="tsgCopyHistory(' + item.id + ', \'soft\', this)">この文章を送る</button>' +
+      '<button class="btn-copy green" onclick="tsgCopyHistory(' + item.id + ', \'soft\', this); gtag(\'event\', \'history_copy\', {type: \'soft\'});">この文章を送る</button>' +
       '<div class="history-divider"></div>' +
       '<div class="history-label orange"><span class="history-label-dot orange"></span>解決翻訳</div>' +
       '<div class="history-text">' + item.solve + '</div>' +
-      '<button class="btn-copy orange" onclick="tsgCopyHistory(' + item.id + ', \'solve\', this)">この文章を送る</button>' +
+      '<button class="btn-copy orange" onclick="tsgCopyHistory(' + item.id + ', \'solve\', this); gtag(\'event\', \'history_copy\', {type: \'solve\'});">この文章を送る</button>' +
     '</div>';
   }).join('');
 }
@@ -898,6 +898,7 @@ function tsgSurveySelect(btn, value) {
     }, 300);
   }, 500);
   localStorage.setItem('tsg_survey_done', '1');
+  gtag('event', 'survey_answer', { answer: value });
   var formId = '1FAIpQLSdCe-I1NGCxI_2Sbac_ZGNaP44NoXPynNai6hFmHpYHjEw9qQ';
   var body = new URLSearchParams();
   body.append('entry.2122053896', value);
@@ -913,6 +914,7 @@ function tsgToggle() {
   analyticsOn = !analyticsOn;
   var toggle = document.getElementById('analyticsToggle');
   if (analyticsOn) { toggle.classList.remove('off'); } else { toggle.classList.add('off'); }
+  gtag('event', 'analytics_toggle', { enabled: analyticsOn });
 }
 
 tsgRenderHistory();
