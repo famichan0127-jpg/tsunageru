@@ -28,28 +28,24 @@ textarea::placeholder { color: #bbb; }
 .mode-section { margin-bottom: 1rem; }
 .mode-label { font-size: 11px; color: #888; margin-bottom: 8px; padding-left: 2px; }
 .mode-scroll {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  padding-right: 1rem;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  margin-right: -1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
 }
-.mode-scroll::-webkit-scrollbar { display: none; }
 .mode-btn {
-  flex-shrink: 0;
-  padding: 8px 16px;
+  padding: 9px 4px;
   border-radius: 20px;
   border: 1px solid #e0ddd8;
   background: #fff;
-  font-size: 13px;
+  font-size: 12px;
   color: #888;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
+  text-align: center;
   transition: all 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .mode-btn.active { background: #3D5A3E; border-color: #3D5A3E; color: #fff; font-weight: 500; }
 .mode-btn:not(.active):hover { border-color: #3D5A3E; color: #3D5A3E; }
