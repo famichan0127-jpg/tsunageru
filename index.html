@@ -364,17 +364,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     <div style="text-align:right; font-size:11px; color:#bbb; margin-top:4px;"><span id="charCount">0</span> / 500</div>
   </div>
   <div class="mode-section">
-    <div class="mode-label">これは誰の話？</div>
-    <div style="display:flex;gap:8px;margin-bottom:1rem;">
-      <button id="subject-other" onclick="tsgSetSubject('other', this)"
-        style="flex:1;padding:9px 4px;border-radius:20px;border:1px solid #e0ddd8;background:#3D5A3E;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s;text-align:center;">
-        🙍 相手のこと
-      </button>
-      <button id="subject-self" onclick="tsgSetSubject('self', this)"
-        style="flex:1;padding:9px 4px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;color:#888;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.15s;text-align:center;">
-        🙋 自分のこと
-      </button>
-    </div>
     <div class="mode-label">伝え方を選ぶ</div>
     <div class="mode-scroll">
       <button class="mode-btn active" data-mode="default" onclick="tsgSetMode(this)">🌿 やさしく伝わる</button>
@@ -930,7 +919,7 @@ async function tsgRun() {
     var response = await fetch('/api/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userInput: userInput, mode: currentMode, profile: tsgGetProfileContext(), partner: currentPartner, subject: currentSubject })
+      body: JSON.stringify({ userInput: userInput, mode: currentMode, profile: tsgGetProfileContext(), partner: currentPartner })
     });
     var parsed = await response.json();
     if (!response.ok) throw new Error(parsed.error || 'エラーが発生しました');
