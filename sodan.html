@@ -273,15 +273,19 @@ gtag('config', 'G-VVJWY6FQZ9');
   .chip:active { transform: scale(0.96); }
   .chip.orange { background: var(--orange-pale); color: #c06040; border-color: #f5d0bc; }
 
-  /* Chat input */
-  .chat-input-bar {
-    padding: 10px 14px 14px;
+  .chat-footer {
+    flex-shrink: 0;
+    background: var(--cream);
     border-top: 1px solid var(--border);
+    padding: 10px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chat-input-row {
     display: flex;
     gap: 10px;
     align-items: flex-end;
-    background: var(--cream);
-    flex-shrink: 0;
   }
   .chat-input {
     flex: 1;
