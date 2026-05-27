@@ -364,6 +364,17 @@ gtag('config', 'G-VVJWY6FQZ9');
     <div style="text-align:right; font-size:11px; color:#bbb; margin-top:4px;"><span id="charCount">0</span> / 500</div>
   </div>
   <div class="mode-section">
+    <div class="mode-label">これは誰の話？</div>
+    <div style="display:flex;gap:8px;margin-bottom:1rem;">
+      <button class="mode-btn active" id="subject-other" onclick="tsgSetSubject('other', this)"
+        style="flex:1;padding:9px 4px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:13px;color:#888;cursor:pointer;font-family:inherit;transition:all 0.15s;text-align:center;">
+        🙍 相手のこと
+      </button>
+      <button class="mode-btn" id="subject-self" onclick="tsgSetSubject('self', this)"
+        style="flex:1;padding:9px 4px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:13px;color:#888;cursor:pointer;font-family:inherit;transition:all 0.15s;text-align:center;">
+        🙋 自分のこと
+      </button>
+    </div>
     <div class="mode-label">伝え方を選ぶ</div>
     <div class="mode-scroll">
       <button class="mode-btn active" data-mode="default" onclick="tsgSetMode(this)">🌿 やさしく伝わる</button>
@@ -678,6 +689,13 @@ gtag('config', 'G-VVJWY6FQZ9');
 
 <script>
 var currentMode = 'default';
+var currentSubject = 'other'; // 'other' or 'self'
+
+function tsgSetSubject(val, btn) {
+  currentSubject = val;
+  document.getElementById('subject-other').classList.toggle('active', val === 'other');
+  document.getElementById('subject-self').classList.toggle('active', val === 'self');
+}
 var modeLabels = {
   default: '🌿 やさしく伝わる',
   nofight: '🕊️ ケンカにならず',
@@ -905,7 +923,7 @@ async function tsgRun() {
     var response = await fetch('/api/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userInput: userInput, mode: currentMode, profile: tsgGetProfileContext(), partner: currentPartner })
+      body: JSON.stringify({ userInput: userInput, mode: currentMode, profile: tsgGetProfileContext(), partner: currentPartner, subject: currentSubject })
     });
     var parsed = await response.json();
     if (!response.ok) throw new Error(parsed.error || 'エラーが発生しました');
