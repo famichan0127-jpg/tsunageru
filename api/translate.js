@@ -1,7 +1,7 @@
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { userInput, mode = 'default' } = req.body;
+  const { userInput, mode = 'default', profile = '', partner = '' } = req.body;
   if (!userInput) return res.status(400).json({ error: '入力が空です' });
 
   const modeStyles = {
@@ -81,6 +81,9 @@ ${selectedMode.instruction}
 
 【翻訳の考え方ベース】
 アドラー心理学・カーネギーの人間関係論・NVC（非暴力コミュニケーション）
+
+${profile ? '【送り手・受け取り手の情報】\n' + profile + '\nこの情報を踏まえて、より自然でパーソナルな翻訳をしてください。' : ''}
+${partner ? '・翻訳文の中で相手の名前は使わず、「あなた」も避けて自然な形にしてください。' : ''}
 
 ---
 
