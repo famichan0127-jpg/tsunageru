@@ -476,6 +476,22 @@ gtag('config', 'G-VVJWY6FQZ9');
     </div>
   </div>
   <div class="howto-section">
+    <div class="howto-section-label">CONSULTATION</div>
+    <div class="howto-section-title">お悩み相談モード 🌱</div>
+    <div class="howto-body" style="margin-bottom:12px;">伝える前に、まず気持ちを整理したいときに使えます。AIが話を聞いて、自分の気持ちに気づくお手伝いをします。</div>
+    <div class="trans-row">
+      <div class="trans-badge green">🫧 ただ聞いてほしい</div>
+      <div class="trans-text">解決しなくていい。ただ話を聞いてもらいたいときに。共感と問いかけで気持ちを整理します。</div>
+    </div>
+    <div class="trans-row">
+      <div class="trans-badge green">💡 どうすればいいか知りたい</div>
+      <div class="trans-text">具体的なアドバイスがほしいときに。アドラー心理学・カーネギーの考え方をベースに提案します。</div>
+    </div>
+    <div style="margin-top:12px;padding:10px 12px;background:#f0f7f0;border-radius:10px;font-size:12px;color:#3D5A3E;line-height:1.7;">
+      💬 気持ちが整理できたら、そのまま「伝える」機能へつなげられます。
+    </div>
+  </div>
+  <div class="howto-section">
     <div class="howto-section-label">TRANSLATION</div>
     <div class="howto-section-title">2種類の翻訳の違い</div>
     <div class="trans-row">
@@ -868,7 +884,8 @@ async function tsgRun() {
       input: userInput,
       mode: currentMode,
       soft: parsed.soft,
-      solve: parsed.solve
+      solve: parsed.solve,
+      emotion: parsed.emotion || 'モヤモヤ'
     });
     if (history.length > 50) history = history.slice(0, 50);
     localStorage.setItem('tsg_history', JSON.stringify(history));
@@ -936,15 +953,22 @@ function tsgRenderHistory() {
   }
   emptyEl.style.display = 'none';
 
+  var emotionEmoji = { 'モヤモヤ':'😶', 'イライラ':'😡', '悲しい':'😢', '不安':'😰', '疲れた':'😤', '感謝':'❤️' };
+
   listEl.innerHTML = history.map(function(item) {
     var d = new Date(item.date);
     var dateStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
                   d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
     var modeLabel = modeLabels[item.mode] || '';
+    var emo = item.emotion || '';
+    var emoEmoji = emotionEmoji[emo] || '';
     return '<div class="history-item">' +
       '<div class="history-meta">' +
         '<span class="history-date">' + dateStr + '</span>' +
-        '<span class="mode-badge">' + modeLabel + '</span>' +
+        '<div style="display:flex;gap:6px;align-items:center;">' +
+          (emo ? '<span style="font-size:11px;background:#f5f2ed;padding:2px 8px;border-radius:10px;color:#888;">' + emoEmoji + ' ' + emo + '</span>' : '') +
+          '<span class="mode-badge">' + modeLabel + '</span>' +
+        '</div>' +
       '</div>' +
       '<div class="history-input">' + item.input + '</div>' +
       '<div class="history-label green"><span class="history-label-dot green"></span>伝える翻訳</div>' +
