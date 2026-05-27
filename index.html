@@ -429,6 +429,39 @@ gtag('config', 'G-VVJWY6FQZ9');
 
 <!-- 履歴画面 -->
 <div id="screen-history" class="screen">
+
+  <!-- 週次振り返りカード -->
+  <div id="weeklyReview" style="background:#fff;border-radius:16px;border:0.5px solid #e0ddd8;margin-bottom:1rem;overflow:hidden;">
+    <div onclick="tsgToggleWeekly()" style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">🌿</span>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:#3D5A3E;">今週の振り返り</div>
+          <div style="font-size:11px;color:#aaa;" id="weeklySubtitle">タップで開く</div>
+        </div>
+      </div>
+      <span id="weeklyChevron" style="color:#ccc;font-size:16px;">›</span>
+    </div>
+    <div id="weeklyContent" style="display:none;padding:0 16px 16px;">
+      <!-- カレンダー -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;color:#aaa;margin-bottom:8px;">今週の気持ち</div>
+        <div id="weeklyCalendar" style="display:flex;gap:4px;"></div>
+      </div>
+      <!-- 集計 -->
+      <div id="weeklySummary" style="font-size:12px;color:#666;line-height:1.8;margin-bottom:14px;background:#f5f2ed;padding:10px 12px;border-radius:10px;"></div>
+      <!-- AIの言葉 -->
+      <div id="weeklyAI" style="border-top:0.5px solid #e0ddd8;padding-top:12px;">
+        <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;">tsunageruより 🌿</div>
+        <div id="weeklyAIText" style="font-size:13px;color:#444;line-height:1.8;"></div>
+        <button onclick="tsgRefreshWeeklyAI()" id="weeklyRefreshBtn"
+          style="margin-top:10px;padding:7px 14px;background:#f5f2ed;border:0.5px solid #b5d9bc;border-radius:20px;font-size:12px;color:#3D5A3E;cursor:pointer;font-family:inherit;">
+          別の言葉を見る
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="historyEmpty" class="coming-soon">
     <div class="coming-soon-icon">🕐</div>
     <div class="coming-soon-title">まだ履歴がありません</div>
@@ -1006,6 +1039,147 @@ function tsgFeeling(btn) {
 
   if (!localStorage.getItem('tsg_survey_done')) {
     setTimeout(function() { tsgShowSurvey(); }, 600);
+  }
+}
+
+// ========== 週次振り返り ==========
+var weeklyOpen = false;
+
+function tsgToggleWeekly() {
+  weeklyOpen = !weeklyOpen;
+  document.getElementById('weeklyContent').style.display = weeklyOpen ? 'block' : 'none';
+  document.getElementById('weeklyChevron').textContent = weeklyOpen ? '∨' : '›';
+  if (weeklyOpen) tsgRenderWeekly();
+}
+
+function tsgRenderWeekly() {
+  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
+  var now = new Date();
+  var dayOfWeek = now.getDay(); // 0=日
+  var weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - dayOfWeek);
+  weekStart.setHours(0,0,0,0);
+
+  // 今週のデータを抽出
+  var weekData = history.filter(function(item) {
+    return new Date(item.date) >= weekStart;
+  });
+
+  // カレンダー生成
+  var dayLabels = ['日','月','火','水','木','金','土'];
+  var calEl = document.getElementById('weeklyCalendar');
+  var calHtml = '';
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    var dateStr = d.toDateString();
+    var dayItems = weekData.filter(function(item) {
+      return new Date(item.date).toDateString() === dateStr;
+    });
+    var emoji = '　';
+    if (dayItems.length > 0) {
+      var last = dayItems[dayItems.length - 1];
+      if (last.feelingAfter) {
+        var emoMap = { '少し落ち着いた':'😌', '気持ちを整理できた':'🌿', '伝えやすくなった':'🩷', 'まだモヤモヤする':'🌥', '少し楽になった':'😌', '整理できてきた':'🌿', 'まだモヤモヤ':'🌥' };
+        emoji = emoMap[last.feelingAfter] || '📝';
+      } else {
+        emoji = last.type === 'sodan' ? '💬' : '📝';
+      }
+    }
+    var isToday = d.toDateString() === now.toDateString();
+    calHtml += '<div style="flex:1;text-align:center;">' +
+      '<div style="font-size:10px;color:' + (isToday ? '#3D5A3E' : '#aaa') + ';font-weight:' + (isToday ? '700' : 'normal') + ';margin-bottom:4px;">' + dayLabels[i] + '</div>' +
+      '<div style="font-size:20px;height:28px;">' + emoji + '</div>' +
+    '</div>';
+  }
+  calEl.innerHTML = calHtml;
+
+  // 集計
+  var total = weekData.length;
+  var feelings = {};
+  weekData.forEach(function(item) {
+    var f = item.feelingAfter || item.feeling || '';
+    if (f) feelings[f] = (feelings[f] || 0) + 1;
+  });
+  var feelingText = Object.keys(feelings).map(function(k) {
+    return k + ' ' + feelings[k] + '回';
+  }).join('・');
+
+  var summaryEl = document.getElementById('weeklySummary');
+  if (total === 0) {
+    summaryEl.textContent = '今週はまだ記録がありません。';
+    document.getElementById('weeklySubtitle').textContent = '今週の記録はまだなし';
+  } else {
+    summaryEl.innerHTML = '今週は <strong>' + total + '回</strong> 気持ちを言葉にしました。' +
+      (feelingText ? '<br>' + feelingText : '');
+    document.getElementById('weeklySubtitle').textContent = '今週 ' + total + '回の記録あり';
+  }
+
+  // AIの言葉（まだ生成してなければ生成）
+  if (!document.getElementById('weeklyAIText').textContent) {
+    tsgGenerateWeeklyAI(weekData, feelings, total);
+  }
+}
+
+function tsgRefreshWeeklyAI() {
+  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
+  var now = new Date();
+  var dayOfWeek = now.getDay();
+  var weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - dayOfWeek);
+  weekStart.setHours(0,0,0,0);
+  var weekData = history.filter(function(item) { return new Date(item.date) >= weekStart; });
+  var feelings = {};
+  weekData.forEach(function(item) {
+    var f = item.feelingAfter || item.feeling || '';
+    if (f) feelings[f] = (feelings[f] || 0) + 1;
+  });
+  document.getElementById('weeklyAIText').textContent = '';
+  tsgGenerateWeeklyAI(weekData, feelings, weekData.length);
+}
+
+async function tsgGenerateWeeklyAI(weekData, feelings, total) {
+  var textEl = document.getElementById('weeklyAIText');
+  var btn = document.getElementById('weeklyRefreshBtn');
+  textEl.textContent = '考えています... 🌿';
+  if (btn) btn.disabled = true;
+
+  var feelingSummary = Object.keys(feelings).map(function(k) { return k + ' ' + feelings[k] + '回'; }).join('、');
+  var context = total === 0
+    ? '今週はまだ記録がない'
+    : '今週' + total + '回気持ちを言葉にした。感情の記録：' + (feelingSummary || 'なし');
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `あなたはtsunaげるというアプリのAIです。ユーザーの今週の感情記録を見て、寄り添いの言葉を届けてください。
+
+【今週の記録】
+${context}
+
+【ルール】
+・アドラー心理学（課題の分離・勇気づけ）とカーネギーの考え方（批判しない・相手の立場に立つ）をベースにする
+・でも理論名は一切出さない。自然な言葉で
+・3〜4文。温かく、押しつけがましくなく
+・「あなたは〜すべき」は絶対NG
+・敬語なし。友達のような自然なトーン
+・最後は少し前を向けるような一言で締める`
+        }]
+      })
+    });
+    var data = await res.json();
+    var text = data.content[0].text;
+    textEl.textContent = text;
+  } catch(e) {
+    textEl.textContent = '気持ちを言葉にしようとするだけで、十分なことだよ 🌿';
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
