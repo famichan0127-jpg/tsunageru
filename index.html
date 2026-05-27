@@ -242,32 +242,66 @@ gtag('config', 'G-VVJWY6FQZ9');
     <div class="demo-area" id="demoArea">
       <div class="demo-label">こんなふうに使うよ</div>
       <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo(); gtag('event', 'demo_play');">▶ デモを見る</button>
-      <div class="demo-phone" id="tutorialDemoPhone" style="display:none">
-        <div class="demo-input-card">
-          <div class="demo-input-label">送りたい気持ち</div>
-          <div class="demo-input-text" id="demoText"></div>
-          <div class="demo-cursor" id="demoCursor">|</div>
-        </div>
-        <div class="demo-btn-main" id="demoBtnMain">言葉にしてみる</div>
-        <div id="demoResultGreen" style="display:none" class="demo-result">
-          <div class="demo-result-label green"><span class="demo-result-dot green"></span>伝える翻訳</div>
-          <div class="demo-result-body">最近ちょっと疲れてて、自分の時間が欲しいな。また元気になれると思うんだ。</div>
-          <div class="demo-btn-copy green" id="demoBtnCopy">この文章を送る</div>
-        </div>
-        <div id="demoResultOrange" style="display:none" class="demo-result orange">
-          <div class="demo-result-label orange"><span class="demo-result-dot orange"></span>解決翻訳</div>
-          <div class="demo-result-body">心に余裕がなくて、近いうちに1日だけ自分の時間をもらえたら嬉しいな。</div>
-          <div class="demo-btn-copy orange">この文章を送る</div>
-        </div>
-        <div id="demoFeeling" style="display:none" class="demo-feeling">
-          <div class="demo-feeling-title">💚 今の気持ちに近いのは？</div>
-          <div class="demo-feeling-grid">
-            <div class="demo-feeling-btn" id="demoFeelingBtn1">😌 少し落ち着いた</div>
-            <div class="demo-feeling-btn">🌿 気持ちを整理できた</div>
-            <div class="demo-feeling-btn">🩷 伝えやすくなった</div>
-            <div class="demo-feeling-btn">🌥 まだモヤモヤする</div>
+
+      <!-- 伝えるデモ -->
+      <div id="tutorialDemoPhone" style="display:none">
+        <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;text-align:center;">💬 伝えるモード</div>
+        <div class="demo-phone">
+          <div class="demo-input-card">
+            <div class="demo-input-label">送りたい気持ち</div>
+            <div class="demo-input-text" id="demoText"></div>
+            <div class="demo-cursor" id="demoCursor">|</div>
           </div>
-          <div class="demo-feeling-msg" id="demoFeelingMsg" style="display:none">よかったです 🌿 気持ちを整理するだけでも十分です。</div>
+          <div class="demo-btn-main" id="demoBtnMain">言葉にしてみる</div>
+          <div id="demoResultGreen" style="display:none" class="demo-result">
+            <div class="demo-result-label green"><span class="demo-result-dot green"></span>伝える翻訳</div>
+            <div class="demo-result-body">最近ちょっと疲れてて、自分の時間が欲しいな。また元気になれると思うんだ。</div>
+            <div class="demo-btn-copy green" id="demoBtnCopy">この文章を送る</div>
+          </div>
+          <div id="demoResultOrange" style="display:none" class="demo-result orange">
+            <div class="demo-result-label orange"><span class="demo-result-dot orange"></span>解決翻訳</div>
+            <div class="demo-result-body">心に余裕がなくて、近いうちに1日だけ自分の時間をもらえたら嬉しいな。</div>
+            <div class="demo-btn-copy orange">この文章を送る</div>
+          </div>
+          <div id="demoFeeling" style="display:none" class="demo-feeling">
+            <div class="demo-feeling-title">💚 今の気持ちに近いのは？</div>
+            <div class="demo-feeling-grid">
+              <div class="demo-feeling-btn" id="demoFeelingBtn1">😌 少し落ち着いた</div>
+              <div class="demo-feeling-btn">🌿 気持ちを整理できた</div>
+              <div class="demo-feeling-btn">🩷 伝えやすくなった</div>
+              <div class="demo-feeling-btn">🌥 まだモヤモヤする</div>
+            </div>
+            <div class="demo-feeling-msg" id="demoFeelingMsg" style="display:none">よかったです 🌿 気持ちを整理するだけでも十分です。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 相談デモ（伝えるデモ完了後に表示） -->
+      <div id="tutorialDemoSodan" style="display:none;margin-top:12px;">
+        <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;text-align:center;">🌱 お悩み相談モード</div>
+        <div class="demo-phone">
+          <!-- モード選択 -->
+          <div id="demoSodanModes" style="display:flex;gap:6px;margin-bottom:8px;">
+            <div id="demoSodanModeA" style="flex:1;padding:10px 6px;border-radius:12px;border:2px solid #e0ddd8;background:#fff;text-align:center;font-size:11px;color:#888;">
+              <div style="font-size:18px;margin-bottom:3px;">🫧</div>聞いてほしい
+            </div>
+            <div id="demoSodanModeB" style="flex:1;padding:10px 6px;border-radius:12px;border:2px solid #e0ddd8;background:#fff;text-align:center;font-size:11px;color:#888;">
+              <div style="font-size:18px;margin-bottom:3px;">💡</div>どうすればいい
+            </div>
+          </div>
+          <!-- 入力 -->
+          <div class="demo-input-card" style="margin-bottom:8px;">
+            <div class="demo-input-label">今、気になっていることは？</div>
+            <div class="demo-input-text" id="demoSodanText"></div>
+            <div class="demo-cursor" id="demoSodanCursor" style="display:none;">|</div>
+          </div>
+          <!-- 送信ボタン -->
+          <div class="demo-btn-main" id="demoSodanBtn" style="display:none;">話しはじめる 🌿</div>
+          <!-- AI返答 -->
+          <div id="demoSodanReply" style="display:none;" class="demo-result">
+            <div class="demo-result-label green"><span class="demo-result-dot green"></span>tsunageru</div>
+            <div class="demo-result-body" id="demoSodanReplyText"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -283,6 +317,18 @@ gtag('config', 'G-VVJWY6FQZ9');
 
 <!-- ホーム画面 -->
 <div id="screen-home" class="screen active">
+
+  <!-- ★追加：お悩み相談バナー -->
+  <div onclick="location.href='sodan.html'; gtag('event', 'sodan_banner_tap');"
+    style="background:#f0f7f0; border:1px solid #b5d9bc; border-radius:14px; padding:14px 16px; margin-bottom:1rem; display:flex; align-items:center; gap:12px; cursor:pointer;">
+    <div style="font-size:28px;">🌱</div>
+    <div>
+      <div style="font-size:13px; font-weight:500; color:#3D5A3E;">お悩み相談モード</div>
+      <div style="font-size:12px; color:#888; margin-top:2px;">まず話を聞いてほしいときに</div>
+    </div>
+    <div style="margin-left:auto; color:#b5d9bc; font-size:18px;">›</div>
+  </div>
+
   <div class="input-card">
     <div class="input-label">送りたい気持ち</div>
     <textarea id="userInput" maxlength="500" oninput="tsgCount()" placeholder="伝えたいことをそのまま書いてね。うまく言えなくても大丈夫。&#10;例：なんでいつも私ばっかり家事してるの？"></textarea>
@@ -530,7 +576,7 @@ gtag('config', 'G-VVJWY6FQZ9');
         <div class="settings-icon gray">ℹ️</div>
         <div><div class="settings-title">バージョン</div></div>
       </div>
-      <span class="settings-value">1.2.0</span>
+      <span class="settings-value">1.3.0</span>
     </div>
   </div>
 </div>
@@ -544,6 +590,11 @@ gtag('config', 'G-VVJWY6FQZ9');
   <button class="nav-item" id="nav-history" onclick="tsgNav('history')">
     <div class="nav-icon">🕐</div>
     <div class="nav-label">履歴</div>
+  </button>
+  <!-- ★追加：相談するタブ -->
+  <button class="nav-item" id="nav-sodan" onclick="location.href='sodan.html'; gtag('event', 'nav_sodan');">
+    <div class="nav-icon">🌱</div>
+    <div class="nav-label">相談する</div>
   </button>
   <button class="nav-item" id="nav-howto" onclick="tsgNav('howto')">
     <div class="nav-icon">🌿</div>
@@ -641,7 +692,75 @@ function tsgStartTutorialDemo() {
     resultGreen: 'demoResultGreen', resultOrange: 'demoResultOrange',
     btnCopy: 'demoBtnCopy', feeling: 'demoFeeling',
     feelingBtn1: 'demoFeelingBtn1', feelingMsg: 'demoFeelingMsg'
-  }, null);
+  }, function() {
+    // 伝えるデモ完了 → 相談デモへ
+    setTimeout(function() { tsgRunSodanDemo(); }, 1200);
+  });
+}
+
+function tsgRunSodanDemo() {
+  var sodanEl = document.getElementById('tutorialDemoSodan');
+  sodanEl.style.display = 'block';
+  sodanEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  var modeA = document.getElementById('demoSodanModeA');
+  var modeB = document.getElementById('demoSodanModeB');
+  var textEl = document.getElementById('demoSodanText');
+  var cursorEl = document.getElementById('demoSodanCursor');
+  var btnEl = document.getElementById('demoSodanBtn');
+  var replyEl = document.getElementById('demoSodanReply');
+  var replyTextEl = document.getElementById('demoSodanReplyText');
+
+  var sodanText = '夫の日記を読んじゃってモヤモヤしてる';
+  var replyText = 'それはモヤモヤするよね。\n読んじゃったこと自体に気まずさがあるのかな、それとも内容が気になってる感じ？';
+
+  // ① モードAをハイライト
+  setTimeout(function() {
+    modeA.style.borderColor = '#3D5A3E';
+    modeA.style.background = '#e8f5eb';
+    modeA.style.color = '#3D5A3E';
+
+    // ② テキスト入力アニメ
+    setTimeout(function() {
+      cursorEl.style.display = 'inline';
+      var i = 0;
+      var typing = setInterval(function() {
+        textEl.textContent += sodanText[i];
+        i++;
+        if (i >= sodanText.length) {
+          clearInterval(typing);
+          cursorEl.style.display = 'none';
+
+          // ③ ボタン表示→クリック
+          setTimeout(function() {
+            btnEl.style.display = 'block';
+            setTimeout(function() {
+              btnEl.style.opacity = '0.7';
+              setTimeout(function() {
+                btnEl.style.opacity = '1';
+                btnEl.textContent = '話を聞いています...';
+
+                // ④ AI返答を1文字ずつ表示
+                setTimeout(function() {
+                  btnEl.style.display = 'none';
+                  replyEl.style.display = 'block';
+                  replyTextEl.textContent = '';
+                  var j = 0;
+                  var replyTyping = setInterval(function() {
+                    replyTextEl.textContent += replyText[j];
+                    j++;
+                    if (j >= replyText.length) {
+                      clearInterval(replyTyping);
+                    }
+                  }, 40);
+                }, 1800);
+              }, 600);
+            }, 800);
+          }, 600);
+        }
+      }, 120);
+    }, 800);
+  }, 600);
 }
 
 if (!localStorage.getItem('tsg_tutorial_done')) {
@@ -735,7 +854,6 @@ async function tsgRun() {
     document.getElementById('results').style.display = 'block';
     gtag('event', 'translate_success', { mode: currentMode });
 
-    // 履歴保存
     var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
     history.unshift({
       id: Date.now(),
@@ -798,7 +916,6 @@ function tsgFeeling(btn) {
   }
 }
 
-// ---- 履歴 ----
 function tsgRenderHistory() {
   var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
   var emptyEl = document.getElementById('historyEmpty');
@@ -855,7 +972,6 @@ function tsgDeleteHistory() {
   gtag('event', 'history_deleted');
 }
 
-// ---- アンケート ----
 function tsgShowSurvey() {
   if (document.getElementById('surveyCard')) return;
   var card = document.createElement('div');
