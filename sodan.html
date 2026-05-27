@@ -611,14 +611,28 @@ gtag('config', 'G-VVJWY6FQZ9');
 
     document.getElementById('feeling-section').style.display = 'none';
 
+    const followMessages = {
+      '少し楽になった': '少し楽になったならよかった 🌿\n話してくれてありがとう。',
+      '整理できてきた': '整理できてきたなら嬉しい 🌿\n気持ちに気づけたこと、大事だよ。',
+      'まだモヤモヤ': 'まだモヤモヤしてるんだね。\nもう少し話す？'
+    };
+
+    // フォローメッセージをAIバブルで表示
+    const msg = followMessages[feeling] || '';
+    if (msg) {
+      setTimeout(() => renderBubble('ai', msg), 300);
+    }
+
     if (feeling === 'まだモヤモヤ') {
-      // Continue conversation
-      chatHistory.push({ role: 'user', content: 'まだちょっとモヤモヤしてる' });
-      renderBubble('user', 'まだちょっとモヤモヤしてる');
-      fetchAIResponse();
+      // 入力欄を再度有効化して続けられるように
+      setTimeout(() => {
+        document.getElementById('chat-input').disabled = false;
+        document.getElementById('send-btn').disabled = false;
+        document.getElementById('end-btn').style.display = 'block';
+      }, 800);
     } else {
-      // Show end card
-      showEndCard(feeling);
+      // エンドカードを表示
+      setTimeout(() => showEndCard(feeling), 1200);
     }
   }
 
