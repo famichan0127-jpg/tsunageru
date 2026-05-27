@@ -599,6 +599,20 @@ gtag('config', 'G-VVJWY6FQZ9');
     document.getElementById('send-btn').disabled = true;
     document.getElementById('end-btn').style.display = 'none';
 
+    // 履歴に保存
+    const firstUserMsg = chatHistory.find(m => m.role === 'user');
+    const history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
+    history.unshift({
+      id: Date.now(),
+      date: new Date().toISOString(),
+      type: 'sodan',
+      mode: currentMode,
+      input: firstUserMsg ? firstUserMsg.content : '',
+      messageCount: messageCount
+    });
+    if (history.length > 50) history.splice(50);
+    localStorage.setItem('tsg_history', JSON.stringify(history));
+
     document.getElementById('feeling-section').style.display = 'block';
     document.getElementById('feeling-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -606,8 +620,15 @@ gtag('config', 'G-VVJWY6FQZ9');
   }
 
   function selectFeeling(feeling) {
-    // GA: 相談後の気持ち計測
     gtag('event', 'sodan_feeling', { sodan_mode: currentMode, feeling: feeling });
+
+    // 感情タグを履歴に追記
+    const history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
+    const latest = history.find(h => h.type === 'sodan' && !h.feeling);
+    if (latest) {
+      latest.feeling = feeling;
+      localStorage.setItem('tsg_history', JSON.stringify(history));
+    }
 
     document.getElementById('feeling-section').style.display = 'none';
 
@@ -641,10 +662,8 @@ gtag('config', 'G-VVJWY6FQZ9');
     const card = document.createElement('div');
     card.className = 'end-card';
     card.innerHTML = `
-      <div class="end-card-label">🌿 ${feeling}</div>
-      <p>気持ちが整理できたなら、夫に伝えてみる？<br>「伝える」機能でお手伝いできるよ。</p>
-      <a href="index.html" class="btn-link">💬 「伝える」機能へ</a>
-      <button class="btn-skip" onclick="this.parentElement.remove()">またあとで</button>
+      <div class="end-card-label">🌿 今日はここまで</div>
+      <p style="text-align:center; font-size:14px; color:var(--text-main); line-height:1.8;">話してくれてありがとう。<br>またいつでも話しかけてね。</p>
     `;
     chatBody.appendChild(card);
     scrollToBottom();
