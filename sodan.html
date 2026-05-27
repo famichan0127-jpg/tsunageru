@@ -205,6 +205,15 @@ gtag('config', 'G-VVJWY6FQZ9');
     background: #e05050; color: white; padding: 10px 20px; border-radius: 20px;
     font-size: 13px; z-index: 200; display: none;
   }
+  .category-btn {
+    padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--white); font-size: 12px; color: var(--text-sub);
+    cursor: pointer; font-family: inherit; transition: all .15s;
+  }
+  .category-btn.selected {
+    background: var(--green-pale); border-color: var(--green-mid);
+    color: var(--green-dark); font-weight: 500;
+  }
 </style>
 </head>
 <body>
@@ -237,6 +246,17 @@ gtag('config', 'G-VVJWY6FQZ9');
         placeholder="うまく書けなくても大丈夫。思ってることをそのまま。"
         maxlength="500" oninput="onEntryInput()"></textarea>
       <div class="char-count"><span id="char-count">0</span> / 500</div>
+    </div>
+    <div>
+      <div class="section-label">カテゴリー（任意）</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="category-btn" onclick="tsgSelectCategory(this, '夫婦・パートナー')">💑 夫婦・パートナー</button>
+        <button class="category-btn" onclick="tsgSelectCategory(this, '仕事・上司')">💼 仕事・上司</button>
+        <button class="category-btn" onclick="tsgSelectCategory(this, '子育て')">👶 子育て</button>
+        <button class="category-btn" onclick="tsgSelectCategory(this, '家族')">🏠 家族</button>
+        <button class="category-btn" onclick="tsgSelectCategory(this, '友人')">👫 友人</button>
+        <button class="category-btn" onclick="tsgSelectCategory(this, '自分自身')">🌱 自分自身</button>
+      </div>
     </div>
     <button class="btn-start" id="btn-start" onclick="startChat()" disabled>
       話しはじめる 🌿
@@ -287,7 +307,14 @@ gtag('config', 'G-VVJWY6FQZ9');
 
 <script>
   let currentMode = 'listen';
+  let currentCategory = '';
   let chatHistory = [];
+
+  function tsgSelectCategory(btn, cat) {
+    currentCategory = (currentCategory === cat) ? '' : cat;
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+    if (currentCategory) btn.classList.add('selected');
+  }
   let messageCount = 0;
   let isLoading = false;
 
@@ -375,9 +402,10 @@ gtag('config', 'G-VVJWY6FQZ9');
     history.unshift({
       id: Date.now(), date: new Date().toISOString(),
       type: 'sodan', mode: currentMode,
+      category: currentCategory,
       input: firstUserMsg ? firstUserMsg.content : '',
       messageCount: messageCount,
-      chatHistory: chatHistory  // 会話全体を保存
+      chatHistory: chatHistory
     });
     if (history.length > 50) history.splice(50);
     localStorage.setItem('tsg_history', JSON.stringify(history));
