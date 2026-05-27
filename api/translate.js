@@ -1,8 +1,12 @@
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { userInput, mode = 'default', profile = '', partner = '' } = req.body;
+  const { userInput, mode = 'default', profile = '', partner = '', subject = 'other' } = req.body;
   if (!userInput) return res.status(400).json({ error: '入力が空です' });
+
+  const subjectInstruction = subject === 'self'
+    ? '【重要】これはユーザー自身の悩み・気持ちについての話です。自分の感情や状況を相手に伝える翻訳をしてください。'
+    : '【重要】これは相手の行動・言動に対するユーザーの不満や指摘についての話です。相手の行動へのユーザーの気持ちを伝える翻訳をしてください。自分の反省や自己批判に書き換えないでください。';
 
   const modeStyles = {
     default: {
@@ -22,6 +26,8 @@ module.exports = async function handler(req, res) {
   const selectedMode = modeStyles[mode] || modeStyles.default;
 
   const prompt = `あなたは「感情LINE翻訳者」です。
+
+${subjectInstruction}
 
 ユーザーが入力した気持ちを、そのまま相手に送れる自然なLINE文へ変換してください。
 
