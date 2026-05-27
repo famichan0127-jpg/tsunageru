@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/translate.js": { "maxDuration": 60 },
+    "api/sodan.js": { "maxDuration": 60 },
+    "api/weekly.js": { "maxDuration": 60 }
+  }
+}
