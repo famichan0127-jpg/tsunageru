@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>tsunageru — お悩み相談</title>
 <link rel="icon" href="icon.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VVJWY6FQZ9"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-VVJWY6FQZ9');
+</script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -485,6 +492,9 @@
     const input = document.getElementById('entry-input').value.trim();
     if (!input) return;
 
+    // GA: 相談開始
+    gtag('event', 'sodan_start', { sodan_mode: currentMode });
+
     // Setup chat header
     const badge = document.getElementById('mode-badge');
     if (currentMode === 'advice') {
@@ -555,6 +565,9 @@
   }
 
   function selectFeeling(feeling) {
+    // GA: 相談後の気持ち計測
+    gtag('event', 'sodan_feeling', { sodan_mode: currentMode, feeling: feeling });
+
     document.getElementById('feeling-section').style.display = 'none';
 
     if (feeling === 'まだモヤモヤ') {
