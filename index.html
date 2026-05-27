@@ -220,6 +220,32 @@ gtag('config', 'G-VVJWY6FQZ9');
 <body>
 <div class="app">
 
+<!-- PWAホーム画面追加モーダル -->
+<div class="modal-overlay hidden" id="pwaModal">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:40px;margin-bottom:8px;">📱</div>
+    <div class="modal-title">ホーム画面に追加しよう</div>
+    <div class="modal-sub" style="margin-bottom:20px;">アイコンから直接開けて、伝えたい瞬間にすぐ使えるよ</div>
+    <div id="pwa-ios" style="display:none;background:#f5f2ed;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">
+      <div style="font-size:12px;font-weight:500;color:#3D5A3E;margin-bottom:8px;">iPhoneの場合</div>
+      <div style="font-size:13px;color:#555;line-height:1.8;">
+        ① 下の共有ボタン <span style="font-size:16px;">⬆️</span> をタップ<br>
+        ② 「ホーム画面に追加」を選ぶ<br>
+        ③ 右上の「追加」をタップ
+      </div>
+    </div>
+    <div id="pwa-android" style="display:none;background:#f5f2ed;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">
+      <div style="font-size:12px;font-weight:500;color:#3D5A3E;margin-bottom:8px;">Androidの場合</div>
+      <div style="font-size:13px;color:#555;line-height:1.8;">
+        ① 右上のメニュー <span style="font-size:16px;">⋮</span> をタップ<br>
+        ② 「ホーム画面に追加」を選ぶ
+      </div>
+    </div>
+    <button class="btn-agree" onclick="tsgClosePWAPrompt(true)">わかった！あとで追加する</button>
+    <button class="btn-detail" onclick="tsgClosePWAPrompt(false)">今はいい</button>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="tutorialModal">
   <div class="modal">
     <div class="modal-icon">🌿</div>
@@ -734,10 +760,36 @@ function tsgSetMode(btn) {
   gtag('event', 'mode_select', { mode: currentMode });
 }
 
+function tsgShowPWAPrompt() {
+  // すでにPWAとして起動してたら表示しない
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+
+  var ua = navigator.userAgent;
+  var isIOS = /iphone|ipad|ipod/i.test(ua);
+  var isAndroid = /android/i.test(ua);
+
+  if (!isIOS && !isAndroid) return; // PCは表示しない
+
+  document.getElementById('pwa-ios').style.display = isIOS ? 'block' : 'none';
+  document.getElementById('pwa-android').style.display = isAndroid ? 'block' : 'none';
+  document.getElementById('pwaModal').classList.remove('hidden');
+  gtag('event', 'pwa_prompt_shown', { platform: isIOS ? 'ios' : 'android' });
+}
+
+function tsgClosePWAPrompt(accepted) {
+  document.getElementById('pwaModal').classList.add('hidden');
+  localStorage.setItem('tsg_pwa_prompted', '1');
+  gtag('event', 'pwa_prompt_response', { accepted: accepted ? 'yes' : 'no' });
+}
+
 function tsgTutorialClose() {
   document.getElementById('tutorialModal').classList.add('hidden');
   localStorage.setItem('tsg_tutorial_done', '1');
   gtag('event', 'tutorial_agree');
+  // ホーム画面追加を促す（初回のみ）
+  if (!localStorage.getItem('tsg_pwa_prompted')) {
+    setTimeout(function() { tsgShowPWAPrompt(); }, 500);
+  }
 }
 
 function tsgTutorialHowto() {
