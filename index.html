@@ -1115,10 +1115,8 @@ function tsgRenderWeekly() {
     document.getElementById('weeklySubtitle').textContent = '今週 ' + total + '回の記録あり';
   }
 
-  // AIの言葉（まだ生成してなければ生成）
-  if (!document.getElementById('weeklyAIText').textContent) {
-    tsgGenerateWeeklyAI(weekData, feelings, total);
-  }
+  // AIの言葉（開くたびに生成）
+  tsgGenerateWeeklyAI(weekData, feelings, total);
 }
 
 function tsgRefreshWeeklyAI() {
