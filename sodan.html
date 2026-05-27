@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>tsunageru — お悩み相談</title>
+<link rel="icon" href="icon.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --green-dark: #2d4a2d;
+    --green-mid: #4a7c4a;
+    --green-soft: #7aaa6a;
+    --green-pale: #e8f0e0;
+    --green-mist: #f2f5ee;
+    --cream: #faf8f4;
+    --white: #ffffff;
+    --text-main: #2a2a2a;
+    --text-sub: #888;
+    --text-light: #bbb;
+    --orange-pale: #fdf0ea;
+    --border: #e8e4de;
+    --shadow: rgba(80,100,60,0.10);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--cream);
+    font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    color: var(--text-main);
+  }
+
+  /* ========== SCREENS ========== */
+  .screen { display: none; flex-direction: column; height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* ========== SCREEN 1: 入口 ========== */
+  #screen-entry {
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  .entry-header {
+    padding: 56px 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .back-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--green-mist);
+    border: none;
+    font-size: 16px;
+    color: var(--green-dark);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .entry-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green-dark);
+  }
+
+  .entry-body {
+    padding: 0 16px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .section-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-bottom: 8px;
+  }
+
+  /* Mode buttons */
+  .mode-row {
+    display: flex;
+    gap: 10px;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 16px 10px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    background: var(--white);
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .mode-btn.selected {
+    border-color: var(--green-mid);
+    background: var(--green-pale);
+  }
+  .mode-btn .emoji { font-size: 28px; display: block; margin-bottom: 8px; }
+  .mode-btn .label { font-size: 13px; font-weight: 700; color: var(--green-dark); line-height: 1.4; }
+  .mode-btn .sub { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+
+  /* Textarea */
+  .sodan-textarea {
+    width: 100%;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text-main);
+    resize: none;
+    height: 120px;
+    outline: none;
+    line-height: 1.7;
+    transition: border-color .2s;
+  }
+  .sodan-textarea:focus { border-color: var(--green-mid); }
+  .sodan-textarea::placeholder { color: var(--text-light); }
+
+  .char-count {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: -8px;
+  }
+
+  .btn-start {
+    width: 100%;
+    padding: 16px;
+    background: var(--green-dark);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: .5px;
+    transition: opacity .2s;
+  }
+  .btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-start:not(:disabled):active { opacity: 0.85; }
+
+  /* ========== SCREEN 2: チャット ========== */
+  #screen-chat {
+    position: relative;
+  }
+
+  .chat-header {
+    padding: 52px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .chat-mode-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-pale);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green-dark);
+  }
+  .chat-mode-badge.advice {
+    background: #fef9ea;
+    color: #7a6020;
+  }
+
+  .chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Bubbles */
+  .bubble-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .bubble-wrap.ai { align-items: flex-start; }
+  .bubble-wrap.user { align-items: flex-end; }
+
+  .bubble-name { font-size: 11px; color: var(--text-sub); padding: 0 6px; }
+
+  .bubble {
+    max-width: 84%;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.75;
+    word-break: break-word;
+  }
+  .bubble.ai {
+    background: var(--white);
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+  .bubble.user {
+    background: var(--green-dark);
+    color: white;
+    border-bottom-right-radius: 5px;
+  }
+
+  /* Typing */
+  .typing-wrap { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .typing-bubble {
+    padding: 14px 18px;
+    background: var(--white);
+    border-radius: 20px;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 10px var(--shadow);
+    display: flex; gap: 5px; align-items: center;
+  }
+  .dot {
+    width: 7px; height: 7px;
+    background: var(--green-soft);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: .2s; }
+  .dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); opacity:.4; }
+    30% { transform: translateY(-5px); opacity:1; }
+  }
+
+  /* Feeling chips */
+  .feeling-section {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+    flex-shrink: 0;
+  }
+  .feeling-label {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-bottom: 10px;
+  }
+  .feeling-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--green-mist);
+    color: var(--green-dark);
+    border: 1.5px solid var(--green-pale);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .chip:active { transform: scale(0.96); }
+  .chip.orange { background: var(--orange-pale); color: #c06040; border-color: #f5d0bc; }
+
+  /* Chat input */
+  .chat-input-bar {
+    padding: 10px 14px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: var(--cream);
+    flex-shrink: 0;
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-main);
+    outline: none;
+    resize: none;
+    max-height: 100px;
+    line-height: 1.5;
+    transition: border-color .2s;
+  }
+  .chat-input:focus { border-color: var(--green-mid); }
+  .send-btn {
+    width: 42px; height: 42px;
+    background: var(--green-dark);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity .15s;
+  }
+  .send-btn:disabled { opacity: 0.4; }
+  .send-btn:not(:disabled):active { opacity: 0.8; }
+
+  /* End card */
+  .end-card {
+    margin: 0 16px 16px;
+    background: var(--white);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+  .end-card-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green-mid);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .end-card p { font-size: 13px; color: var(--text-sub); line-height: 1.6; margin-bottom: 12px; }
+  .btn-link {
+    width: 100%;
+    padding: 13px;
+    background: var(--green-dark);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+  }
+  .btn-skip {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    color: var(--text-sub);
+    border: none;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+
+  /* ========== BOTTOM NAV ========== */
+  .bottom-nav {
+    display: flex;
+    padding: 10px 16px 28px;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    color: var(--text-sub);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .nav-item.active { color: var(--green-dark); font-weight: 700; }
+  .nav-icon { font-size: 22px; }
+
+  /* Error toast */
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #e05050;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    z-index: 100;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== SCREEN 1: エントリー ========== -->
+<div id="screen-entry" class="screen active">
+  <div class="entry-header">
+    <button class="back-btn" onclick="location.href='index.html'">←</button>
+    <div class="entry-title">🌿 お悩み相談</div>
+  </div>
+
+  <div class="entry-body">
+    <div>
+      <div class="section-label">どんなふうに話したい？</div>
+      <div class="mode-row">
+        <div class="mode-btn selected" id="mode-listen" onclick="selectMode('listen')">
+          <span class="emoji">🫧</span>
+          <div class="label">ただ聞いてほしい</div>
+          <div class="sub">解決しなくていい</div>
+        </div>
+        <div class="mode-btn" id="mode-advice" onclick="selectMode('advice')">
+          <span class="emoji">💡</span>
+          <div class="label">どうすればいいか知りたい</div>
+          <div class="sub">アドバイスほしい</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">今、気になっていることは？</div>
+      <textarea
+        class="sodan-textarea"
+        id="entry-input"
+        placeholder="うまく書けなくても大丈夫。思ってることをそのまま。"
+        maxlength="500"
+        oninput="onEntryInput()"
+      ></textarea>
+      <div class="char-count"><span id="char-count">0</span> / 500</div>
+    </div>
+
+    <button class="btn-start" id="btn-start" onclick="startChat()" disabled>
+      話しはじめる 🌿
+    </button>
+  </div>
+</div>
+
+<!-- ========== SCREEN 2: チャット ========== -->
+<div id="screen-chat" class="screen">
+  <div class="chat-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="chat-mode-badge" id="mode-badge">🫧 ただ聞いてほしい</div>
+  </div>
+
+  <div class="chat-body" id="chat-body"></div>
+
+  <div class="feeling-section" id="feeling-section" style="display:none;">
+    <div class="feeling-label">🌿 今の気持ちは？</div>
+    <div class="feeling-chips">
+      <div class="chip" onclick="selectFeeling('少し楽になった')">少し楽になった</div>
+      <div class="chip" onclick="selectFeeling('整理できてきた')">整理できてきた</div>
+      <div class="chip orange" onclick="selectFeeling('まだモヤモヤ')">まだモヤモヤ</div>
+    </div>
+  </div>
+
+  <div class="chat-input-bar">
+    <textarea
+      class="chat-input"
+      id="chat-input"
+      placeholder="続きを話す…"
+      rows="1"
+      onkeydown="onKeyDown(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">↑</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ========== STATE ==========
+  let currentMode = 'listen';
+  let chatHistory = [];
+  let messageCount = 0;
+  let isLoading = false;
+
+  // ========== ENTRY ==========
+  function selectMode(mode) {
+    currentMode = mode;
+    document.getElementById('mode-listen').classList.toggle('selected', mode === 'listen');
+    document.getElementById('mode-advice').classList.toggle('selected', mode === 'advice');
+  }
+
+  function onEntryInput() {
+    const val = document.getElementById('entry-input').value;
+    document.getElementById('char-count').textContent = val.length;
+    document.getElementById('btn-start').disabled = val.trim().length === 0;
+  }
+
+  function startChat() {
+    const input = document.getElementById('entry-input').value.trim();
+    if (!input) return;
+
+    // Setup chat header
+    const badge = document.getElementById('mode-badge');
+    if (currentMode === 'advice') {
+      badge.textContent = '💡 どうすればいいか知りたい';
+      badge.classList.add('advice');
+    } else {
+      badge.textContent = '🫧 ただ聞いてほしい';
+      badge.classList.remove('advice');
+    }
+
+    // Switch screen
+    showScreen('screen-chat');
+
+    // Add first user message and get AI response
+    chatHistory = [{ role: 'user', content: input }];
+    messageCount = 1;
+    renderBubble('user', input);
+    fetchAIResponse();
+  }
+
+  // ========== CHAT ==========
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text || isLoading) return;
+
+    input.value = '';
+    autoResize(input);
+
+    chatHistory.push({ role: 'user', content: text });
+    messageCount++;
+    renderBubble('user', text);
+    fetchAIResponse();
+
+    // Show feeling chips after 4 exchanges
+    if (messageCount >= 4) {
+      document.getElementById('feeling-section').style.display = 'block';
+    }
+  }
+
+  async function fetchAIResponse() {
+    isLoading = true;
+    document.getElementById('send-btn').disabled = true;
+    showTyping();
+
+    try {
+      const res = await fetch('/api/sodan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory, mode: currentMode })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
+
+      hideTyping();
+      chatHistory.push({ role: 'assistant', content: data.reply });
+      renderBubble('ai', data.reply);
+
+    } catch (err) {
+      hideTyping();
+      showToast('うまく繋がれなかった。もう一度試してみて。');
+      // Remove last user message from history on error
+      chatHistory.pop();
+    } finally {
+      isLoading = false;
+      document.getElementById('send-btn').disabled = false;
+    }
+  }
+
+  function selectFeeling(feeling) {
+    document.getElementById('feeling-section').style.display = 'none';
+
+    if (feeling === 'まだモヤモヤ') {
+      // Continue conversation
+      chatHistory.push({ role: 'user', content: 'まだちょっとモヤモヤしてる' });
+      renderBubble('user', 'まだちょっとモヤモヤしてる');
+      fetchAIResponse();
+    } else {
+      // Show end card
+      showEndCard(feeling);
+    }
+  }
+
+  function showEndCard(feeling) {
+    const chatBody = document.getElementById('chat-body');
+    const card = document.createElement('div');
+    card.className = 'end-card';
+    card.innerHTML = `
+      <div class="end-card-label">🌿 ${feeling}</div>
+      <p>気持ちが整理できたなら、夫に伝えてみる？<br>「伝える」機能でお手伝いできるよ。</p>
+      <a href="index.html" class="btn-link">💬 「伝える」機能へ</a>
+      <button class="btn-skip" onclick="this.parentElement.remove()">またあとで</button>
+    `;
+    chatBody.appendChild(card);
+    scrollToBottom();
+  }
+
+  // ========== RENDER ==========
+  function renderBubble(role, text) {
+    const chatBody = document.getElementById('chat-body');
+    const wrap = document.createElement('div');
+    wrap.className = `bubble-wrap ${role}`;
+
+    if (role === 'ai') {
+      const name = document.createElement('div');
+      name.className = 'bubble-name';
+      name.textContent = 'tsunageru';
+      wrap.appendChild(name);
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = `bubble ${role}`;
+    bubble.innerHTML = text.replace(/\n/g, '<br>');
+    wrap.appendChild(bubble);
+
+    chatBody.appendChild(wrap);
+    scrollToBottom();
+  }
+
+  let typingEl = null;
+  function showTyping() {
+    const chatBody = document.getElementById('chat-body');
+    const wrap = document.createElement('div');
+    wrap.className = 'typing-wrap';
+    wrap.id = 'typing-indicator';
+    const name = document.createElement('div');
+    name.className = 'bubble-name';
+    name.textContent = 'tsunageru';
+    const typing = document.createElement('div');
+    typing.className = 'typing-bubble';
+    typing.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    wrap.appendChild(name);
+    wrap.appendChild(typing);
+    chatBody.appendChild(wrap);
+    scrollToBottom();
+  }
+
+  function hideTyping() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  function scrollToBottom() {
+    const body = document.getElementById('chat-body');
+    setTimeout(() => body.scrollTop = body.scrollHeight, 50);
+  }
+
+  // ========== UI UTILS ==========
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function goBack() {
+    if (chatHistory.length > 0) {
+      if (!confirm('相談を終了しますか？')) return;
+    }
+    showScreen('screen-entry');
+    chatHistory = [];
+    messageCount = 0;
+    document.getElementById('chat-body').innerHTML = '';
+    document.getElementById('feeling-section').style.display = 'none';
+  }
+
+  function onKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 3000);
+  }
+</script>
+</body>
+</html>
