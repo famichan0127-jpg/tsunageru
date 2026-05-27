@@ -325,11 +325,15 @@ gtag('config', 'G-VVJWY6FQZ9');
   }
 
   function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const text = input.value.trim();
+    const inputEl = document.getElementById('chat-input');
+    const text = inputEl.value.trim();
     if (!text || isLoading) return;
-    input.value = '';
-    autoResize(input);
+
+    // 先にテキストを取得してからクリア
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    inputEl.focus();
+
     chatHistory.push({ role: 'user', content: text });
     messageCount++;
     renderBubble('user', text);
@@ -379,6 +383,7 @@ gtag('config', 'G-VVJWY6FQZ9');
     localStorage.setItem('tsg_history', JSON.stringify(history));
 
     document.getElementById('feeling-section').style.display = 'block';
+    setTimeout(adjustChatBody, 50);
     gtag('event', 'sodan_end', { sodan_mode: currentMode, message_count: messageCount });
   }
 
@@ -465,11 +470,18 @@ gtag('config', 'G-VVJWY6FQZ9');
     if (el) el.remove();
   }
 
+  function adjustChatBody() {
+    const footer = document.getElementById('chat-footer');
+    const body = document.getElementById('chat-body');
+    if (!footer || !body) return;
+    const navH = 68;
+    const footerH = footer.offsetHeight;
+    body.style.bottom = (navH + footerH) + 'px';
+  }
+
   function scrollToBottom() {
     const body = document.getElementById('chat-body');
-    setTimeout(() => {
-      body.scrollTop = body.scrollHeight;
-    }, 100);
+    setTimeout(() => { body.scrollTop = body.scrollHeight; }, 100);
   }
 
   // キーボード表示時にフッターを動かす
@@ -498,6 +510,7 @@ gtag('config', 'G-VVJWY6FQZ9');
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     window.scrollTo(0, 0);
+    if (id === 'screen-chat') setTimeout(adjustChatBody, 50);
   }
 
   function goBack() {
