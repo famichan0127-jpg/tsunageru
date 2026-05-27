@@ -472,6 +472,28 @@ gtag('config', 'G-VVJWY6FQZ9');
     }, 100);
   }
 
+  // キーボード表示時にフッターを動かす
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', function() {
+      const footer = document.getElementById('chat-footer');
+      const feelingSection = document.getElementById('feeling-section');
+      const chatBody = document.getElementById('chat-body');
+      if (!footer) return;
+
+      const viewportBottom = window.innerHeight - window.visualViewport.height;
+      const navH = 68;
+
+      footer.style.bottom = (viewportBottom + navH) + 'px';
+      if (feelingSection.style.display !== 'none') {
+        feelingSection.style.bottom = (viewportBottom + navH + 112) + 'px';
+      }
+      const footerH = footer.offsetHeight;
+      chatBody.style.bottom = (viewportBottom + navH + footerH) + 'px';
+
+      scrollToBottom();
+    });
+  }
+
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
