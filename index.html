@@ -1148,36 +1148,13 @@ async function tsgGenerateWeeklyAI(weekData, feelings, total) {
     : '今週' + total + '回気持ちを言葉にした。感情の記録：' + (feelingSummary || 'なし');
 
   try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+    var res = await fetch('/api/weekly', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `あなたはtsunaげるというアプリのAIで、ユーザーの一番の親友です。今週の感情記録を見て、親友として心から寄り添う言葉を届けてください。
-
-【今週の記録】
-${context}
-
-【話し方のルール】
-・親友がLINEで送ってくるような自然な口語
-・敬語なし。「だよね」「だと思う」「してみてね」など
-・5〜7文。短すぎず、でも説教にならない長さ
-・まず「よくがんばってたね」という気持ちで受け止める
-・記録の内容（何回使ったか、どんな感情が多かったか）に触れて、パーソナルな言葉にする
-・アドラー心理学の「勇気づけ」と「課題の分離」、カーネギーの「相手の立場に立つ」考え方をベースにする。でも理論名は一切出さない
-・「〜すべき」「〜しなければ」は絶対NG
-・途中で共感→気づき→少し前向きな一言、という流れで
-・最後は押しつけがましくなく、「またいつでも話しかけてね」のような温かい締めで終わる
-・絵文字は🌿を1回だけ、最後に使う`
-        }]
-      })
+      body: JSON.stringify({ context: context })
     });
     var data = await res.json();
-    var text = data.content[0].text;
-    textEl.textContent = text;
+    textEl.textContent = data.message || '気持ちを言葉にしようとするだけで、十分なことだよ 🌿';
   } catch(e) {
     textEl.textContent = '気持ちを言葉にしようとするだけで、十分なことだよ 🌿';
   } finally {
