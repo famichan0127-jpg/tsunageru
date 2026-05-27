@@ -13,8 +13,8 @@ module.exports = async function handler(req, res) {
       label: 'ケンカにならず',
       instruction: '相手を責める言葉を徹底的に避ける。「あなたが〜」ではなく「私が〜」を主語にする。穏やかで、相手が防御態勢にならない言葉を選ぶ。'
     },
-    male: {
-      label: '男性脳向け',
+    resolve: {
+      label: '解決したい',
       instruction: '結論を先に、理由を後にする。感情より状況・事実・お願いの順で伝える。何をしてほしいかを明確にする。長い感情説明は省く。'
     }
   };
