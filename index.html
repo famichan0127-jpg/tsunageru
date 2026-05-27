@@ -935,13 +935,12 @@ function tsgFeeling(btn) {
   setTimeout(function() { msgEl.classList.add('show'); }, 10);
   gtag('event', 'feeling_selected', { feeling_label: label });
 
-  // 直近の翻訳履歴に feelingAfter を追記
+  // 直近の翻訳履歴に feelingAfter を追記（上書きOK）
   var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
   var latest = history.find(function(h) { return h.type !== 'sodan'; });
-  if (latest && !latest.feelingAfter) {
+  if (latest) {
     latest.feelingAfter = label;
     localStorage.setItem('tsg_history', JSON.stringify(history));
-    tsgRenderHistory();
   }
 
   if (!localStorage.getItem('tsg_survey_done')) {
@@ -1002,7 +1001,7 @@ function tsgRenderHistory() {
       '<div class="history-meta">' +
         '<span class="history-date">' + dateStr + '</span>' +
         '<div style="display:flex;gap:6px;align-items:center;">' +
-          (emo ? '<span style="font-size:11px;background:#f5f2ed;padding:2px 8px;border-radius:10px;color:#888;">' + emoEmoji + ' ' + emo + '</span>' : '') +
+          changeStr +
           '<span class="mode-badge">' + modeLabel + '</span>' +
         '</div>' +
       '</div>' +
