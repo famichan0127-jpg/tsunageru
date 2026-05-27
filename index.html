@@ -935,6 +935,15 @@ function tsgFeeling(btn) {
   setTimeout(function() { msgEl.classList.add('show'); }, 10);
   gtag('event', 'feeling_selected', { feeling_label: label });
 
+  // 直近の翻訳履歴に feelingAfter を追記
+  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
+  var latest = history.find(function(h) { return h.type !== 'sodan'; });
+  if (latest && !latest.feelingAfter) {
+    latest.feelingAfter = label;
+    localStorage.setItem('tsg_history', JSON.stringify(history));
+    tsgRenderHistory();
+  }
+
   if (!localStorage.getItem('tsg_survey_done')) {
     setTimeout(function() { tsgShowSurvey(); }, 600);
   }
@@ -983,6 +992,12 @@ function tsgRenderHistory() {
     var modeLabel = modeLabels[item.mode] || '';
     var emo = item.emotion || '';
     var emoEmoji = emotionEmoji[emo] || '';
+    var feelingAfter = item.feelingAfter || '';
+    var feelingAfterEmoji = { '少し落ち着いた':'😌', '気持ちを整理できた':'🌿', '伝えやすくなった':'🩷', 'まだモヤモヤする':'🌥' };
+    var afterEmoji = feelingAfterEmoji[feelingAfter] || '';
+    var changeStr = (emo && feelingAfter)
+      ? '<span style="font-size:11px;background:#f0f7f0;padding:3px 10px;border-radius:10px;color:#3D5A3E;">' + emoEmoji + ' ' + emo + ' → ' + afterEmoji + ' ' + feelingAfter + '</span>'
+      : (emo ? '<span style="font-size:11px;background:#f5f2ed;padding:2px 8px;border-radius:10px;color:#888;">' + emoEmoji + ' ' + emo + '</span>' : '');
     return '<div class="history-item">' +
       '<div class="history-meta">' +
         '<span class="history-date">' + dateStr + '</span>' +
