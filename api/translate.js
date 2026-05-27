@@ -135,14 +135,47 @@ ${userInput}
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || 'APIエラー');
+
+    if (!response.ok) {
+      const errType = data.error?.type || 'api_error';
+      const errMsg = data.error?.message || 'APIエラー';
+      // レート制限は特別扱い
+      if (response.status === 429) {
+        return res.status(429).json({ error: 'rate_limit', message: 'しばらくしてから再試行してください' });
+      }
+      throw new Error(`${errType}: ${errMsg}`);
+    }
 
     const text = data.content[0].text;
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+
+    // JSON抽出：AIが余計な文字を返しても対処
+    let parsed;
+    try {
+      const clean = text.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch (parseErr) {
+      // JSONが見つからない場合はテキストからJSONを抽出
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('json_parse_error: AIの返答形式が不正でした');
+      }
+    }
+
+    // 必須フィールドチェック
+    if (!parsed.soft || !parsed.solve) {
+      throw new Error('missing_fields: 翻訳結果が不完全でした');
+    }
+
     res.status(200).json(parsed);
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const isTimeout = err.name === 'AbortError';
+    const errorType = isTimeout ? 'timeout' : (err.message.split(':')[0] || 'unknown');
+    res.status(500).json({
+      error: errorType,
+      message: isTimeout ? 'タイムアウトしました' : err.message
+    });
   }
 }
