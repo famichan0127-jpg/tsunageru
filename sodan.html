@@ -44,7 +44,7 @@ gtag('config', 'G-VVJWY6FQZ9');
 
   /* ========== SCREEN 1: 入口 ========== */
   #screen-entry {
-    padding: 0;
+    padding: 0 0 120px;
     overflow-y: auto;
   }
 
@@ -360,6 +360,11 @@ gtag('config', 'G-VVJWY6FQZ9');
     border-top: 1px solid var(--border);
     background: var(--cream);
     flex-shrink: 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
   }
   .nav-item {
     flex: 1;
@@ -371,6 +376,9 @@ gtag('config', 'G-VVJWY6FQZ9');
     color: var(--text-sub);
     cursor: pointer;
     text-decoration: none;
+    background: none;
+    border: none;
+    font-family: inherit;
   }
   .nav-item.active { color: var(--green-dark); font-weight: 700; }
   .nav-icon { font-size: 22px; }
@@ -534,11 +542,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     messageCount++;
     renderBubble('user', text);
     fetchAIResponse();
-
-    // Show feeling chips after 4 exchanges
-    if (messageCount >= 4) {
-      document.getElementById('feeling-section').style.display = 'block';
-    }
   }
 
   async function fetchAIResponse() {
@@ -568,6 +571,21 @@ gtag('config', 'G-VVJWY6FQZ9');
       isLoading = false;
       document.getElementById('send-btn').disabled = false;
     }
+  }
+
+  function endConversation() {
+    // 入力エリアを無効化
+    document.getElementById('chat-input').disabled = true;
+    document.getElementById('send-btn').disabled = true;
+
+    // 「会話を終わる」ボタンを非表示
+    document.querySelector('[onclick="endConversation()"]').style.display = 'none';
+
+    // 気持ち選択を表示
+    document.getElementById('feeling-section').style.display = 'block';
+    document.getElementById('feeling-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    gtag('event', 'sodan_end', { sodan_mode: currentMode, message_count: messageCount });
   }
 
   function selectFeeling(feeling) {
