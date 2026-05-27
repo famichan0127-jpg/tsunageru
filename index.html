@@ -963,7 +963,13 @@ async function tsgRun() {
     badge.style.display = currentMode !== 'default' ? 'inline-block' : 'none';
 
     document.getElementById('results').style.display = 'block';
-    gtag('event', 'translate_success', { mode: currentMode });
+    gtag('event', 'translate_success', {
+      mode: currentMode,
+      emotion: parsed.emotion || '',
+      has_partner: currentPartner ? 'yes' : 'no',
+      relation: currentPartnerRelation || 'none',
+      input_length: userInput.length
+    });
 
     var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
     history.unshift({
@@ -983,7 +989,12 @@ async function tsgRun() {
   } catch(err) {
     errorEl.innerHTML = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿<br><button class="btn-retry" onclick="tsgRun(); gtag(\'event\', \'retry_tap\');">もう一度試す</button>';
     errorEl.style.display = 'block';
-    gtag('event', 'translate_error');
+    gtag('event', 'translate_error', {
+      error_message: err.message || 'unknown',
+      mode: currentMode,
+      has_partner: currentPartner ? 'yes' : 'no',
+      input_length: userInput.length
+    });
   } finally {
     clearInterval(msgTimer);
     document.getElementById('mainBtn').disabled = false;
