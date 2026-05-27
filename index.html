@@ -1046,10 +1046,10 @@ function tsgRenderHistory() {
       var modeLabel = sodanModeLabel[item.mode] || '';
       var feelingStr = '';
       if (item.feeling) {
-        var beforeEmoji = '😶';
         var afterMap = { '少し楽になった': '😌 少し楽になった', '整理できてきた': '🌿 整理できてきた', 'まだモヤモヤ': '🌥 まだモヤモヤ' };
-        var afterStr = afterMap[item.feeling] || item.feeling;
-        feelingStr = '<span style="font-size:11px;background:#f0f7f0;padding:3px 10px;border-radius:10px;color:#3D5A3E;">' + beforeEmoji + ' モヤモヤ → ' + afterStr + '</span>';
+        feelingStr = '<div style="margin-top:6px;">' +
+          '<span style="font-size:12px;background:#f0f7f0;padding:3px 10px;border-radius:10px;color:#3D5A3E;">😶 モヤモヤ → ' + (afterMap[item.feeling] || item.feeling) + '</span>' +
+        '</div>';
       }
       var chatLog = '';
       if (item.chatHistory && item.chatHistory.length > 0) {
@@ -1060,28 +1060,28 @@ function tsgRenderHistory() {
             '<div style="max-width:84%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.7;word-break:break-word;' +
               (isUser ? 'background:#2d4a2d;color:white;border-bottom-right-radius:4px;' : 'background:#f5f2ed;color:#2a2a2a;border-bottom-left-radius:4px;') + '">' +
               msg.content.replace(/\n/g, '<br>') +
-            '</div>' +
-          '</div>';
+            '</div></div>';
         }).join('');
       }
       return '<div class="history-item" style="border-left:3px solid #3D5A3E;padding-left:14px;">' +
-        '<div class="history-meta">' +
+        // 1行目：日時 + カテゴリー
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
           '<span class="history-date">' + dateStr + '</span>' +
           '<div style="display:flex;gap:6px;align-items:center;">' +
             (item.category ? '<span style="font-size:11px;background:#f0f7f0;padding:2px 8px;border-radius:10px;color:#3D5A3E;">' + item.category + '</span>' : '') +
             '<span style="font-size:11px;background:#e8f5eb;padding:2px 8px;border-radius:10px;color:#3D5A3E;font-weight:500;">🌱 相談</span>' +
           '</div>' +
         '</div>' +
-        '<div class="history-input">' + item.input + '</div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:6px;">' +
-          '<span style="font-size:11px;color:#aaa;">' + modeLabel + ' · ' + item.messageCount + '回のやりとり</span>' +
-          (feelingStr ? feelingStr : '') +
-        '</div>' +
-        (chatLog ? '<div onclick="tsgToggleChatLog(this)" style="margin-top:12px;cursor:pointer;">' +
-          '<div style="font-size:11px;color:#3D5A3E;display:flex;align-items:center;gap:4px;margin-bottom:8px;">' +
-            '<span class="toggle-label">▶ やりとりを見る</span>' +
-          '</div>' +
-          '<div class="chat-log" style="display:none;">' + chatLog + '</div>' +
+        // 気持ち変化
+        feelingStr +
+        // 入力内容
+        '<div class="history-input" style="margin-top:8px;">' + item.input + '</div>' +
+        // やりとり数（小さく）
+        '<div style="font-size:11px;color:#bbb;margin-top:4px;">' + modeLabel + ' · ' + item.messageCount + '回のやりとり</div>' +
+        // 展開
+        (chatLog ? '<div onclick="tsgToggleChatLog(this)" style="margin-top:10px;cursor:pointer;">' +
+          '<div style="font-size:11px;color:#3D5A3E;"><span class="toggle-label">▶ やりとりを見る</span></div>' +
+          '<div class="chat-log" style="display:none;margin-top:10px;">' + chatLog + '</div>' +
         '</div>' : '') +
       '</div>';
     }
@@ -1094,34 +1094,35 @@ function tsgRenderHistory() {
     var feelingAfterEmoji = { '少し落ち着いた':'😌', '気持ちを整理できた':'🌿', '伝えやすくなった':'🩷', 'まだモヤモヤする':'🌥' };
     var afterEmoji = feelingAfterEmoji[feelingAfter] || '';
     var changeStr = (emo && feelingAfter)
-      ? '<span style="font-size:11px;background:#f0f7f0;padding:3px 10px;border-radius:10px;color:#3D5A3E;">' + emoEmoji + ' ' + emo + ' → ' + afterEmoji + ' ' + feelingAfter + '</span>'
-      : (emo ? '<span style="font-size:11px;background:#f5f2ed;padding:2px 8px;border-radius:10px;color:#888;">' + emoEmoji + ' ' + emo + '</span>' : '');
+      ? '<span style="font-size:12px;background:#f0f7f0;padding:3px 10px;border-radius:10px;color:#3D5A3E;">' + emoEmoji + ' ' + emo + ' → ' + afterEmoji + ' ' + feelingAfter + '</span>'
+      : (emo ? '<span style="font-size:12px;background:#f5f2ed;padding:3px 10px;border-radius:10px;color:#888;">' + emoEmoji + ' ' + emo + '</span>' : '');
 
     var translationDetail =
       '<div style="margin-top:12px;">' +
         '<div class="history-label green"><span class="history-label-dot green"></span>伝える翻訳</div>' +
         '<div class="history-text">' + item.soft + '</div>' +
-        '<button class="btn-copy green" onclick="tsgCopyHistory(' + item.id + ', \'soft\', this); gtag(\'event\', \'history_copy\', {type: \'soft\'});">この文章を送る</button>' +
+        '<button class="btn-copy green" onclick="tsgCopyHistory(' + item.id + ', \'soft\', this);">この文章を送る</button>' +
         '<div class="history-divider"></div>' +
         '<div class="history-label orange"><span class="history-label-dot orange"></span>解決翻訳</div>' +
         '<div class="history-text">' + item.solve + '</div>' +
-        '<button class="btn-copy orange" onclick="tsgCopyHistory(' + item.id + ', \'solve\', this); gtag(\'event\', \'history_copy\', {type: \'solve\'});">この文章を送る</button>' +
+        '<button class="btn-copy orange" onclick="tsgCopyHistory(' + item.id + ', \'solve\', this);">この文章を送る</button>' +
       '</div>';
 
     return '<div class="history-item" style="border-left:3px solid #e07840;padding-left:14px;">' +
-      '<div class="history-meta">' +
+      // 1行目：日時 + 相手
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
         '<span class="history-date">' + dateStr + '</span>' +
-        '<div style="display:flex;gap:6px;align-items:center;">' +
-          (item.partner ? '<span style="font-size:11px;background:#fdf0e6;padding:2px 8px;border-radius:10px;color:#c8622a;">→ ' + item.partner + '</span>' : '') +
-          changeStr +
-          '<span class="mode-badge">' + modeLabel + '</span>' +
-        '</div>' +
+        (item.partner ? '<span style="font-size:11px;background:#fdf0e6;padding:2px 8px;border-radius:10px;color:#c8622a;">→ ' + item.partner + '</span>' : '') +
       '</div>' +
+      // 2行目：気持ち変化
+      (changeStr ? '<div style="margin-bottom:4px;">' + changeStr + '</div>' : '') +
+      // 3行目：モード（小さく）
+      '<div style="font-size:11px;color:#bbb;margin-bottom:6px;">' + modeLabel + '</div>' +
+      // 入力内容
       '<div class="history-input">' + item.input + '</div>' +
+      // 展開
       '<div onclick="tsgToggleChatLog(this)" style="margin-top:8px;cursor:pointer;">' +
-        '<div style="font-size:11px;color:#c8622a;display:flex;align-items:center;gap:4px;">' +
-          '<span class="toggle-label">▶ 翻訳を見る</span>' +
-        '</div>' +
+        '<div style="font-size:11px;color:#c8622a;"><span class="toggle-label">▶ 翻訳を見る</span></div>' +
         '<div class="chat-log" style="display:none;">' + translationDetail + '</div>' +
       '</div>' +
     '</div>';
