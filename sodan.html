@@ -153,8 +153,9 @@ gtag('config', 'G-VVJWY6FQZ9');
   /* ========== SCREEN 2: チャット ========== */
   #screen-chat {
     position: relative;
-    height: 100vh;
-    padding-bottom: 68px; /* ボトムナビ分 */
+    height: calc(100vh - 68px);
+    display: flex;
+    flex-direction: column;
   }
 
   .chat-header {
