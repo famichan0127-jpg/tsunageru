@@ -274,7 +274,7 @@ gtag('config', 'G-VVJWY6FQZ9');
 
   /* Chat input */
   .chat-input-bar {
-    padding: 10px 14px 80px;
+    padding: 10px 14px 14px;
     border-top: 1px solid var(--border);
     display: flex;
     gap: 10px;
@@ -463,12 +463,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     </div>
   </div>
 
-  <div style="padding: 8px 16px 0; background: var(--cream);">
-    <button onclick="endConversation()"
-      style="width:100%; padding:10px; background:transparent; border:1.5px solid var(--border); border-radius:20px; font-size:13px; color:var(--text-sub); font-family:inherit; cursor:pointer;">
-      会話を終わる 🌿
-    </button>
-  </div>
   <div class="chat-input-bar">
     <textarea
       class="chat-input"
@@ -479,6 +473,13 @@ gtag('config', 'G-VVJWY6FQZ9');
       oninput="autoResize(this)"
     ></textarea>
     <button class="send-btn" id="send-btn" onclick="sendMessage()">↑</button>
+  </div>
+  <div style="padding: 4px 16px 12px; background: var(--cream);">
+    <button onclick="endConversation()"
+      id="end-btn"
+      style="width:100%; padding:10px; background:transparent; border:1.5px solid var(--border); border-radius:20px; font-size:13px; color:var(--text-sub); font-family:inherit; cursor:pointer;">
+      今日はここまで 🌿
+    </button>
   </div>
 </div>
 
@@ -594,14 +595,10 @@ gtag('config', 'G-VVJWY6FQZ9');
   }
 
   function endConversation() {
-    // 入力エリアを無効化
     document.getElementById('chat-input').disabled = true;
     document.getElementById('send-btn').disabled = true;
+    document.getElementById('end-btn').style.display = 'none';
 
-    // 「会話を終わる」ボタンを非表示
-    document.querySelector('[onclick="endConversation()"]').style.display = 'none';
-
-    // 気持ち選択を表示
     document.getElementById('feeling-section').style.display = 'block';
     document.getElementById('feeling-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
