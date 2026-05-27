@@ -39,12 +39,14 @@ gtag('config', 'G-VVJWY6FQZ9');
   }
 
   /* ========== SCREENS ========== */
-  .screen { display: none; flex-direction: column; height: 100vh; }
+  /* BUG FIX①: .screenにheight:100vhをつけない。各画面で個別指定 */
+  .screen { display: none; flex-direction: column; }
   .screen.active { display: flex; }
 
   /* ========== SCREEN 1: 入口 ========== */
   #screen-entry {
-    padding: 0 0 120px;
+    height: 100vh;
+    padding: 0 0 80px;
     overflow-y: auto;
   }
 
@@ -84,11 +86,7 @@ gtag('config', 'G-VVJWY6FQZ9');
     margin-bottom: 8px;
   }
 
-  /* Mode buttons */
-  .mode-row {
-    display: flex;
-    gap: 10px;
-  }
+  .mode-row { display: flex; gap: 10px; }
   .mode-btn {
     flex: 1;
     padding: 16px 10px;
@@ -99,15 +97,11 @@ gtag('config', 'G-VVJWY6FQZ9');
     cursor: pointer;
     transition: all .2s;
   }
-  .mode-btn.selected {
-    border-color: var(--green-mid);
-    background: var(--green-pale);
-  }
+  .mode-btn.selected { border-color: var(--green-mid); background: var(--green-pale); }
   .mode-btn .emoji { font-size: 28px; display: block; margin-bottom: 8px; }
   .mode-btn .label { font-size: 13px; font-weight: 700; color: var(--green-dark); line-height: 1.4; }
   .mode-btn .sub { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
 
-  /* Textarea */
   .sodan-textarea {
     width: 100%;
     background: var(--white);
@@ -151,11 +145,11 @@ gtag('config', 'G-VVJWY6FQZ9');
   .btn-start:not(:disabled):active { opacity: 0.85; }
 
   /* ========== SCREEN 2: チャット ========== */
+  /* BUG FIX②: ボトムナビ(68px)分だけ引いた高さにしてflexで縦積み */
   #screen-chat {
-    position: relative;
     height: calc(100vh - 68px);
-    display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   .chat-header {
@@ -178,11 +172,9 @@ gtag('config', 'G-VVJWY6FQZ9');
     font-weight: 700;
     color: var(--green-dark);
   }
-  .chat-mode-badge.advice {
-    background: #fef9ea;
-    color: #7a6020;
-  }
+  .chat-mode-badge.advice { background: #fef9ea; color: #7a6020; }
 
+  /* チャット本文：flex:1でのこり全部 */
   .chat-body {
     flex: 1;
     overflow-y: auto;
@@ -197,9 +189,7 @@ gtag('config', 'G-VVJWY6FQZ9');
   .bubble-wrap { display: flex; flex-direction: column; gap: 4px; }
   .bubble-wrap.ai { align-items: flex-start; }
   .bubble-wrap.user { align-items: flex-end; }
-
   .bubble-name { font-size: 11px; color: var(--text-sub); padding: 0 6px; }
-
   .bubble {
     max-width: 84%;
     padding: 12px 16px;
@@ -242,23 +232,15 @@ gtag('config', 'G-VVJWY6FQZ9');
     30% { transform: translateY(-5px); opacity:1; }
   }
 
-  /* Feeling chips */
+  /* 気持ちチップ */
   .feeling-section {
     padding: 12px 16px;
     border-top: 1px solid var(--border);
     background: var(--cream);
     flex-shrink: 0;
   }
-  .feeling-label {
-    font-size: 11px;
-    color: var(--text-sub);
-    margin-bottom: 10px;
-  }
-  .feeling-chips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+  .feeling-label { font-size: 11px; color: var(--text-sub); margin-bottom: 10px; }
+  .feeling-chips { display: flex; gap: 8px; flex-wrap: wrap; }
   .chip {
     padding: 7px 14px;
     border-radius: 20px;
@@ -273,6 +255,7 @@ gtag('config', 'G-VVJWY6FQZ9');
   .chip:active { transform: scale(0.96); }
   .chip.orange { background: var(--orange-pale); color: #c06040; border-color: #f5d0bc; }
 
+  /* フッター（入力欄 + 今日はここまで） */
   .chat-footer {
     flex-shrink: 0;
     background: var(--cream);
@@ -290,6 +273,7 @@ gtag('config', 'G-VVJWY6FQZ9');
   }
   .chat-input {
     flex: 1;
+    min-width: 0;
     background: var(--white);
     border: 1.5px solid var(--border);
     border-radius: 22px;
@@ -302,7 +286,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     max-height: 100px;
     line-height: 1.5;
     transition: border-color .2s;
-    min-width: 0;
   }
   .chat-input:focus { border-color: var(--green-mid); }
   .send-btn {
@@ -319,7 +302,7 @@ gtag('config', 'G-VVJWY6FQZ9');
   .send-btn:disabled { opacity: 0.4; }
   .send-btn:not(:disabled):active { opacity: 0.8; }
 
-  /* End card */
+  /* エンドカード */
   .end-card {
     margin: 0 16px 16px;
     background: var(--white);
@@ -334,33 +317,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     margin-bottom: 10px;
     display: flex; align-items: center; gap: 6px;
   }
-  .end-card p { font-size: 13px; color: var(--text-sub); line-height: 1.6; margin-bottom: 12px; }
-  .btn-link {
-    width: 100%;
-    padding: 13px;
-    background: var(--green-dark);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    text-align: center;
-    display: block;
-    text-decoration: none;
-  }
-  .btn-skip {
-    width: 100%;
-    padding: 10px;
-    background: transparent;
-    color: var(--text-sub);
-    border: none;
-    font-size: 13px;
-    font-family: inherit;
-    cursor: pointer;
-    margin-top: 6px;
-  }
 
   /* ========== BOTTOM NAV ========== */
   .bottom-nav {
@@ -368,7 +324,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     padding: 10px 16px 28px;
     border-top: 1px solid var(--border);
     background: var(--cream);
-    flex-shrink: 0;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -392,10 +347,9 @@ gtag('config', 'G-VVJWY6FQZ9');
   .nav-item.active { color: var(--green-dark); font-weight: 700; }
   .nav-icon { font-size: 22px; }
 
-  /* Error toast */
   .toast {
     position: fixed;
-    bottom: 100px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     background: #e05050;
@@ -403,7 +357,7 @@ gtag('config', 'G-VVJWY6FQZ9');
     padding: 10px 20px;
     border-radius: 20px;
     font-size: 13px;
-    z-index: 100;
+    z-index: 200;
     display: none;
   }
 </style>
@@ -416,7 +370,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     <button class="back-btn" onclick="location.href='index.html'">←</button>
     <div class="entry-title">🌿 お悩み相談</div>
   </div>
-
   <div class="entry-body">
     <div>
       <div class="section-label">どんなふうに話したい？</div>
@@ -433,7 +386,6 @@ gtag('config', 'G-VVJWY6FQZ9');
         </div>
       </div>
     </div>
-
     <div>
       <div class="section-label">今、気になっていることは？</div>
       <textarea
@@ -445,7 +397,6 @@ gtag('config', 'G-VVJWY6FQZ9');
       ></textarea>
       <div class="char-count"><span id="char-count">0</span> / 500</div>
     </div>
-
     <button class="btn-start" id="btn-start" onclick="startChat()" disabled>
       話しはじめる 🌿
     </button>
@@ -482,8 +433,7 @@ gtag('config', 'G-VVJWY6FQZ9');
       ></textarea>
       <button class="send-btn" id="send-btn" onclick="sendMessage()">↑</button>
     </div>
-    <button onclick="endConversation()"
-      id="end-btn"
+    <button onclick="endConversation()" id="end-btn"
       style="width:100%; padding:9px; background:transparent; border:1.5px solid var(--border); border-radius:20px; font-size:13px; color:var(--text-sub); font-family:inherit; cursor:pointer;">
       今日はここまで 🌿
     </button>
@@ -492,32 +442,21 @@ gtag('config', 'G-VVJWY6FQZ9');
 
 <div class="toast" id="toast"></div>
 
+<!-- BUG FIX③: ボトムナビの重複を削除。1つだけ残す -->
 <nav class="bottom-nav">
-  <a href="index.html" class="nav-item">
-    <span class="nav-icon">🏠</span>ホーム
-  </a>
-  <a href="index.html" class="nav-item">
-    <span class="nav-icon">🕐</span>履歴
-  </a>
-  <a href="sodan.html" class="nav-item active">
-    <span class="nav-icon">🌱</span>相談する
-  </a>
-  <a href="index.html" class="nav-item">
-    <span class="nav-icon">🌿</span>つかいかた
-  </a>
-  <a href="index.html" class="nav-item">
-    <span class="nav-icon">⚙️</span>設定
-  </a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span>ホーム</a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">🕐</span>履歴</a>
+  <a href="sodan.html" class="nav-item active"><span class="nav-icon">🌱</span>相談する</a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">🌿</span>つかいかた</a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">⚙️</span>設定</a>
 </nav>
 
 <script>
-  // ========== STATE ==========
   let currentMode = 'listen';
   let chatHistory = [];
   let messageCount = 0;
   let isLoading = false;
 
-  // ========== ENTRY ==========
   function selectMode(mode) {
     currentMode = mode;
     document.getElementById('mode-listen').classList.toggle('selected', mode === 'listen');
@@ -533,11 +472,8 @@ gtag('config', 'G-VVJWY6FQZ9');
   function startChat() {
     const input = document.getElementById('entry-input').value.trim();
     if (!input) return;
-
-    // GA: 相談開始
     gtag('event', 'sodan_start', { sodan_mode: currentMode });
 
-    // Setup chat header
     const badge = document.getElementById('mode-badge');
     if (currentMode === 'advice') {
       badge.textContent = '💡 どうすればいいか知りたい';
@@ -547,25 +483,19 @@ gtag('config', 'G-VVJWY6FQZ9');
       badge.classList.remove('advice');
     }
 
-    // Switch screen
     showScreen('screen-chat');
-
-    // Add first user message and get AI response
     chatHistory = [{ role: 'user', content: input }];
     messageCount = 1;
     renderBubble('user', input);
     fetchAIResponse();
   }
 
-  // ========== CHAT ==========
   function sendMessage() {
     const input = document.getElementById('chat-input');
     const text = input.value.trim();
     if (!text || isLoading) return;
-
     input.value = '';
     autoResize(input);
-
     chatHistory.push({ role: 'user', content: text });
     messageCount++;
     renderBubble('user', text);
@@ -576,7 +506,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     isLoading = true;
     document.getElementById('send-btn').disabled = true;
     showTyping();
-
     try {
       const res = await fetch('/api/sodan', {
         method: 'POST',
@@ -585,15 +514,12 @@ gtag('config', 'G-VVJWY6FQZ9');
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
-
       hideTyping();
       chatHistory.push({ role: 'assistant', content: data.reply });
       renderBubble('ai', data.reply);
-
     } catch (err) {
       hideTyping();
       showToast('うまく繋がれなかった。もう一度試してみて。');
-      // Remove last user message from history on error
       chatHistory.pop();
     } finally {
       isLoading = false;
@@ -606,7 +532,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     document.getElementById('send-btn').disabled = true;
     document.getElementById('end-btn').style.display = 'none';
 
-    // 履歴に保存
     const firstUserMsg = chatHistory.find(m => m.role === 'user');
     const history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
     history.unshift({
@@ -621,15 +546,12 @@ gtag('config', 'G-VVJWY6FQZ9');
     localStorage.setItem('tsg_history', JSON.stringify(history));
 
     document.getElementById('feeling-section').style.display = 'block';
-    document.getElementById('feeling-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
     gtag('event', 'sodan_end', { sodan_mode: currentMode, message_count: messageCount });
   }
 
   function selectFeeling(feeling) {
     gtag('event', 'sodan_feeling', { sodan_mode: currentMode, feeling: feeling });
 
-    // 感情タグを履歴に追記
     const history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
     const latest = history.find(h => h.type === 'sodan' && !h.feeling);
     if (latest) {
@@ -644,27 +566,21 @@ gtag('config', 'G-VVJWY6FQZ9');
       '整理できてきた': '整理できてきたなら嬉しい 🌿\n気持ちに気づけたこと、大事だよ。',
       'まだモヤモヤ': 'まだモヤモヤしてるんだね。\nもう少し話す？'
     };
-
-    // フォローメッセージをAIバブルで表示
     const msg = followMessages[feeling] || '';
-    if (msg) {
-      setTimeout(() => renderBubble('ai', msg), 300);
-    }
+    if (msg) setTimeout(() => renderBubble('ai', msg), 300);
 
     if (feeling === 'まだモヤモヤ') {
-      // 入力欄を再度有効化して続けられるように
       setTimeout(() => {
         document.getElementById('chat-input').disabled = false;
         document.getElementById('send-btn').disabled = false;
         document.getElementById('end-btn').style.display = 'block';
       }, 800);
     } else {
-      // エンドカードを表示
-      setTimeout(() => showEndCard(feeling), 1200);
+      setTimeout(() => showEndCard(), 1200);
     }
   }
 
-  function showEndCard(feeling) {
+  function showEndCard() {
     const chatBody = document.getElementById('chat-body');
     const card = document.createElement('div');
     card.className = 'end-card';
@@ -676,29 +592,24 @@ gtag('config', 'G-VVJWY6FQZ9');
     scrollToBottom();
   }
 
-  // ========== RENDER ==========
   function renderBubble(role, text) {
     const chatBody = document.getElementById('chat-body');
     const wrap = document.createElement('div');
     wrap.className = `bubble-wrap ${role}`;
-
     if (role === 'ai') {
       const name = document.createElement('div');
       name.className = 'bubble-name';
       name.textContent = 'tsunageru';
       wrap.appendChild(name);
     }
-
     const bubble = document.createElement('div');
     bubble.className = `bubble ${role}`;
     bubble.innerHTML = text.replace(/\n/g, '<br>');
     wrap.appendChild(bubble);
-
     chatBody.appendChild(wrap);
     scrollToBottom();
   }
 
-  let typingEl = null;
   function showTyping() {
     const chatBody = document.getElementById('chat-body');
     const wrap = document.createElement('div');
@@ -726,7 +637,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     setTimeout(() => body.scrollTop = body.scrollHeight, 50);
   }
 
-  // ========== UI UTILS ==========
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -741,6 +651,9 @@ gtag('config', 'G-VVJWY6FQZ9');
     messageCount = 0;
     document.getElementById('chat-body').innerHTML = '';
     document.getElementById('feeling-section').style.display = 'none';
+    document.getElementById('chat-input').disabled = false;
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('end-btn').style.display = 'block';
   }
 
   function onKeyDown(e) {
@@ -761,23 +674,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     toast.style.display = 'block';
     setTimeout(() => toast.style.display = 'none', 3000);
   }
-</script>    <div class="bottom-nav">
-      <a href="index.html" class="nav-item">
-        <span class="nav-icon">🏠</span>ホーム
-      </a>
-      <a href="index.html#history" class="nav-item">
-        <span class="nav-icon">🕐</span>履歴
-      </a>
-      <a href="sodan.html" class="nav-item active">
-        <span class="nav-icon">🌱</span>相談する
-      </a>
-      <a href="index.html#howto" class="nav-item">
-        <span class="nav-icon">🌿</span>つかいかた
-      </a>
-      <a href="index.html#settings" class="nav-item">
-        <span class="nav-icon">⚙️</span>設定
-      </a>
-    </div>
-
+</script>
 </body>
 </html>
