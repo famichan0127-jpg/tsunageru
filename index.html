@@ -366,12 +366,12 @@ gtag('config', 'G-VVJWY6FQZ9');
   <div class="mode-section">
     <div class="mode-label">これは誰の話？</div>
     <div style="display:flex;gap:8px;margin-bottom:1rem;">
-      <button class="mode-btn active" id="subject-other" onclick="tsgSetSubject('other', this)"
-        style="flex:1;padding:9px 4px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:13px;color:#888;cursor:pointer;font-family:inherit;transition:all 0.15s;text-align:center;">
+      <button id="subject-other" onclick="tsgSetSubject('other', this)"
+        style="flex:1;padding:9px 4px;border-radius:20px;border:1px solid #e0ddd8;background:#3D5A3E;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s;text-align:center;">
         🙍 相手のこと
       </button>
-      <button class="mode-btn" id="subject-self" onclick="tsgSetSubject('self', this)"
-        style="flex:1;padding:9px 4px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:13px;color:#888;cursor:pointer;font-family:inherit;transition:all 0.15s;text-align:center;">
+      <button id="subject-self" onclick="tsgSetSubject('self', this)"
+        style="flex:1;padding:9px 4px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;color:#888;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.15s;text-align:center;">
         🙋 自分のこと
       </button>
     </div>
@@ -693,8 +693,15 @@ var currentSubject = 'other'; // 'other' or 'self'
 
 function tsgSetSubject(val, btn) {
   currentSubject = val;
-  document.getElementById('subject-other').classList.toggle('active', val === 'other');
-  document.getElementById('subject-self').classList.toggle('active', val === 'self');
+  var other = document.getElementById('subject-other');
+  var self = document.getElementById('subject-self');
+  if (val === 'other') {
+    other.style.background = '#3D5A3E'; other.style.color = '#fff'; other.style.borderColor = '#3D5A3E'; other.style.fontWeight = '500';
+    self.style.background = '#fff'; self.style.color = '#888'; self.style.borderColor = '#e0ddd8'; self.style.fontWeight = 'normal';
+  } else {
+    self.style.background = '#3D5A3E'; self.style.color = '#fff'; self.style.borderColor = '#3D5A3E'; self.style.fontWeight = '500';
+    other.style.background = '#fff'; other.style.color = '#888'; other.style.borderColor = '#e0ddd8'; other.style.fontWeight = 'normal';
+  }
 }
 var modeLabels = {
   default: '🌿 やさしく伝わる',
