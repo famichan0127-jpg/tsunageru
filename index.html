@@ -346,12 +346,24 @@ gtag('config', 'G-VVJWY6FQZ9');
   <div class="input-card" id="partner-card">
     <div class="input-label">誰に伝える？（任意）</div>
     <div id="partner-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"></div>
-    <div style="display:flex;gap:8px;">
-      <input id="partner-input" type="text" placeholder="名前を入力（例：夫、上司）"
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input id="partner-input" type="text" placeholder="名前（例：夫、義母、さやか）"
         style="flex:1;padding:9px 14px;border:1px solid #e0ddd8;border-radius:20px;font-size:13px;font-family:inherit;outline:none;background:#faf8f4;"
-        onkeydown="if(event.key==='Enter'){tsgAddPartner();}" />
-      <button onclick="tsgAddPartner()"
+        onkeydown="if(event.key==='Enter'){tsgShowRelationPicker();}" />
+      <button onclick="tsgShowRelationPicker()"
         style="padding:9px 16px;background:#3D5A3E;color:white;border:none;border-radius:20px;font-size:13px;font-family:inherit;cursor:pointer;">追加</button>
+    </div>
+    <!-- 関係性選択（入力後に表示） -->
+    <div id="relation-picker" style="display:none;">
+      <div style="font-size:11px;color:#888;margin-bottom:6px;">関係性を選んでね</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('partner')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">💑 パートナー</button>
+        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('family')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">👨‍👩‍👧 家族・親族</button>
+        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('friend')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">👫 友人</button>
+        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('work')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">💼 職場・上司</button>
+        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('crush')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">💝 気になる相手</button>
+        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('other')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">👤 その他</button>
+      </div>
     </div>
   </div>
 
@@ -365,7 +377,7 @@ gtag('config', 'G-VVJWY6FQZ9');
     <div class="mode-scroll">
       <button class="mode-btn active" data-mode="default" onclick="tsgSetMode(this)">🌿 やさしく伝わる</button>
       <button class="mode-btn" data-mode="nofight" onclick="tsgSetMode(this)">🕊️ ケンカにならず</button>
-      <button class="mode-btn" data-mode="male" onclick="tsgSetMode(this)">👨 男性脳向け</button>
+      <button class="mode-btn" data-mode="resolve" onclick="tsgSetMode(this)">✅ 解決したい</button>
     </div>
   </div>
   <div class="btn-row">
@@ -685,14 +697,13 @@ gtag('config', 'G-VVJWY6FQZ9');
     <div class="nav-icon">💬</div>
     <div class="nav-label">伝える</div>
   </button>
-  <button class="nav-item" id="nav-history" onclick="tsgNav('history')">
-    <div class="nav-icon">🕐</div>
-    <div class="nav-label">履歴</div>
-  </button>
-  <!-- ★追加：相談するタブ -->
   <button class="nav-item" id="nav-sodan" onclick="location.href='sodan.html'; gtag('event', 'nav_sodan');">
     <div class="nav-icon">🌱</div>
     <div class="nav-label">相談する</div>
+  </button>
+  <button class="nav-item" id="nav-history" onclick="tsgNav('history')">
+    <div class="nav-icon">🕐</div>
+    <div class="nav-label">履歴</div>
   </button>
   <button class="nav-item" id="nav-howto" onclick="tsgNav('howto')">
     <div class="nav-icon">🌿</div>
@@ -708,24 +719,12 @@ gtag('config', 'G-VVJWY6FQZ9');
 
 <script>
 var currentMode = 'default';
-var currentSubject = 'other'; // 'other' or 'self'
+var currentSubject = 'other';
 
-function tsgSetSubject(val, btn) {
-  currentSubject = val;
-  var other = document.getElementById('subject-other');
-  var self = document.getElementById('subject-self');
-  if (val === 'other') {
-    other.style.background = '#3D5A3E'; other.style.color = '#fff'; other.style.borderColor = '#3D5A3E'; other.style.fontWeight = '500';
-    self.style.background = '#fff'; self.style.color = '#888'; self.style.borderColor = '#e0ddd8'; self.style.fontWeight = 'normal';
-  } else {
-    self.style.background = '#3D5A3E'; self.style.color = '#fff'; self.style.borderColor = '#3D5A3E'; self.style.fontWeight = '500';
-    other.style.background = '#fff'; other.style.color = '#888'; other.style.borderColor = '#e0ddd8'; other.style.fontWeight = 'normal';
-  }
-}
 var modeLabels = {
   default: '🌿 やさしく伝わる',
   nofight: '🕊️ ケンカにならず',
-  male: '👨 男性脳向け'
+  resolve: '✅ 解決したい'
 };
 
 function tsgSetMode(btn) {
@@ -1396,17 +1395,65 @@ function tsgSelectStyle(val, silent) {
 
 // ========== 相手管理 ==========
 var currentPartner = null;
+var currentPartnerRelation = null;
+
+var relationLabels = {
+  partner: '💑 パートナー',
+  family: '👨‍👩‍👧 家族・親族',
+  friend: '👫 友人',
+  work: '💼 職場・上司',
+  crush: '💝 気になる相手',
+  other: '👤 その他'
+};
+
+var relationStyle = {
+  partner: 'フレンドリーで親密な口調。敬語不要。',
+  family: '丁寧で敬意のある口調。敬語を使う。',
+  friend: 'カジュアルでフレンドリーな口調。タメ口OK。',
+  work: '丁寧で建設的な口調。敬語を使う。圧を下げる。',
+  crush: '自然で少し緊張感のある口調。丁寧だが堅くない。',
+  other: '自然な口調。'
+};
+
+function tsgShowRelationPicker() {
+  var name = document.getElementById('partner-input').value.trim();
+  if (!name) return;
+  document.getElementById('relation-picker').style.display = 'block';
+}
+
+function tsgAddPartnerWithRelation(relation) {
+  var name = document.getElementById('partner-input').value.trim();
+  if (!name) return;
+
+  var partners = JSON.parse(localStorage.getItem('tsg_partners') || '[]');
+  var existing = partners.find(function(p) { return p.name === name; });
+  if (!existing) {
+    partners.push({ name: name, relation: relation });
+    localStorage.setItem('tsg_partners', JSON.stringify(partners));
+  }
+
+  document.getElementById('partner-input').value = '';
+  document.getElementById('relation-picker').style.display = 'none';
+
+  gtag('event', 'partner_add', { relation: relation });
+  tsgSelectPartnerObj({ name: name, relation: relation }, null);
+  tsgLoadPartners();
+}
 
 function tsgLoadPartners() {
   var partners = JSON.parse(localStorage.getItem('tsg_partners') || '[]');
+  // 古い形式（文字列）を新形式に変換
+  partners = partners.map(function(p) {
+    return typeof p === 'string' ? { name: p, relation: 'other' } : p;
+  });
   var chips = document.getElementById('partner-chips');
   if (!chips) return;
   chips.innerHTML = partners.map(function(p) {
-    return '<button onclick="tsgSelectPartner(\'' + p.replace(/'/g,"\\'") + '\', this)"' +
-      'style="padding:6px 14px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;" ' +
-      'class="partner-chip">' + p + '</button>';
+    var label = p.name;
+    return '<button onclick="tsgSelectPartnerObj(' + JSON.stringify(p).replace(/"/g,'&quot;') + ', this)"' +
+      ' style="padding:6px 14px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;"' +
+      ' class="partner-chip">' + label + '</button>';
   }).join('');
-  // 現在選択中を復元
   if (currentPartner) {
     chips.querySelectorAll('.partner-chip').forEach(function(btn) {
       if (btn.textContent === currentPartner) {
@@ -1418,35 +1465,24 @@ function tsgLoadPartners() {
   }
 }
 
-function tsgAddPartner() {
-  var input = document.getElementById('partner-input');
-  var name = input.value.trim();
-  if (!name) return;
-  var partners = JSON.parse(localStorage.getItem('tsg_partners') || '[]');
-  if (!partners.includes(name)) {
-    partners.push(name);
-    localStorage.setItem('tsg_partners', JSON.stringify(partners));
+function tsgSelectPartnerObj(p, btn) {
+  var name = typeof p === 'string' ? p : p.name;
+  var relation = typeof p === 'string' ? 'other' : p.relation;
+  currentPartner = (currentPartner === name) ? null : name;
+  currentPartnerRelation = currentPartner ? relation : null;
+
+  document.querySelectorAll('.partner-chip').forEach(function(b) {
+    b.style.background = '#fff'; b.style.color = '#888'; b.style.borderColor = '#e0ddd8';
+  });
+  if (currentPartner && btn) {
+    btn.style.background = '#3D5A3E'; btn.style.color = 'white'; btn.style.borderColor = '#3D5A3E';
   }
-  input.value = '';
-  tsgSelectPartner(name, null);
-  tsgLoadPartners();
+  if (currentPartner) gtag('event', 'partner_select', { relation: relation });
 }
 
-function tsgSelectPartner(name, btn) {
-  currentPartner = (currentPartner === name) ? null : name;
-  // 全チップのスタイルをリセット
-  document.querySelectorAll('.partner-chip').forEach(function(b) {
-    b.style.background = '#fff';
-    b.style.color = '#888';
-    b.style.borderColor = '#e0ddd8';
-  });
-  // 選択中をハイライト
-  if (currentPartner && btn) {
-    btn.style.background = '#3D5A3E';
-    btn.style.color = 'white';
-    btn.style.borderColor = '#3D5A3E';
-  }
-}
+// 後方互換用
+function tsgAddPartner() { tsgShowRelationPicker(); }
+function tsgSelectPartner(name, btn) { tsgSelectPartnerObj(name, btn); }
 
 function tsgGetProfileContext() {
   var p = JSON.parse(localStorage.getItem('tsg_profile') || '{}');
@@ -1457,7 +1493,11 @@ function tsgGetProfileContext() {
   if (p.gender && p.gender !== 'other') parts.push('送り手の性別：' + genderMap[p.gender]);
   if (p.style) parts.push('送り手の話し方の好み：' + styleMap[p.style]);
   if (currentPartner) parts.push('受け取り手の名前：' + currentPartner);
-  return parts.length ? parts.join('、') : '';
+  if (currentPartnerRelation && relationStyle[currentPartnerRelation]) {
+    parts.push('受け取り手との関係性：' + (relationLabels[currentPartnerRelation] || ''));
+    parts.push('文体指示：' + relationStyle[currentPartnerRelation]);
+  }
+  return parts.length ? parts.join('\n') : '';
 }
 function tsgToggle() {
   analyticsOn = !analyticsOn;
