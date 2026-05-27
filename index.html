@@ -954,11 +954,32 @@ function tsgRenderHistory() {
   emptyEl.style.display = 'none';
 
   var emotionEmoji = { 'モヤモヤ':'😶', 'イライラ':'😡', '悲しい':'😢', '不安':'😰', '疲れた':'😤', '感謝':'❤️' };
+  var sodanModeLabel = { 'listen': '🫧 ただ聞いてほしい', 'advice': '💡 どうすればいいか知りたい' };
+  var feelingEmoji = { '少し楽になった':'😌', '整理できてきた':'🌿', 'まだモヤモヤ':'🌥' };
 
   listEl.innerHTML = history.map(function(item) {
     var d = new Date(item.date);
     var dateStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
                   d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+
+    // 相談履歴
+    if (item.type === 'sodan') {
+      var modeLabel = sodanModeLabel[item.mode] || '';
+      var feelingStr = item.feeling ? (feelingEmoji[item.feeling] || '') + ' ' + item.feeling : '';
+      return '<div class="history-item">' +
+        '<div class="history-meta">' +
+          '<span class="history-date">' + dateStr + '</span>' +
+          '<span style="font-size:11px;background:#e8f5eb;padding:2px 8px;border-radius:10px;color:#3D5A3E;font-weight:500;">🌱 相談</span>' +
+        '</div>' +
+        '<div class="history-input">' + item.input + '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' +
+          '<span style="font-size:11px;color:#aaa;">' + modeLabel + ' · ' + item.messageCount + '回のやりとり</span>' +
+          (feelingStr ? '<span style="font-size:12px;color:#3D5A3E;">' + feelingStr + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    }
+
+    // 翻訳履歴
     var modeLabel = modeLabels[item.mode] || '';
     var emo = item.emotion || '';
     var emoEmoji = emotionEmoji[emo] || '';
