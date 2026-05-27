@@ -1001,6 +1001,7 @@ function tsgFeeling(btn) {
   if (latest) {
     latest.feelingAfter = label;
     localStorage.setItem('tsg_history', JSON.stringify(history));
+    tsgRenderHistory();
   }
 
   if (!localStorage.getItem('tsg_survey_done')) {
