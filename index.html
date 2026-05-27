@@ -1044,7 +1044,13 @@ function tsgRenderHistory() {
     // 相談履歴
     if (item.type === 'sodan') {
       var modeLabel = sodanModeLabel[item.mode] || '';
-      var feelingStr = item.feeling ? (feelingEmoji[item.feeling] || '') + ' ' + item.feeling : '';
+      var feelingStr = '';
+      if (item.feeling) {
+        var beforeEmoji = '😶';
+        var afterMap = { '少し楽になった': '😌 少し楽になった', '整理できてきた': '🌿 整理できてきた', 'まだモヤモヤ': '🌥 まだモヤモヤ' };
+        var afterStr = afterMap[item.feeling] || item.feeling;
+        feelingStr = '<span style="font-size:11px;background:#f0f7f0;padding:3px 10px;border-radius:10px;color:#3D5A3E;">' + beforeEmoji + ' モヤモヤ → ' + afterStr + '</span>';
+      }
       var chatLog = '';
       if (item.chatHistory && item.chatHistory.length > 0) {
         chatLog = item.chatHistory.map(function(msg) {
@@ -1067,9 +1073,9 @@ function tsgRenderHistory() {
           '</div>' +
         '</div>' +
         '<div class="history-input">' + item.input + '</div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:6px;">' +
           '<span style="font-size:11px;color:#aaa;">' + modeLabel + ' · ' + item.messageCount + '回のやりとり</span>' +
-          (feelingStr ? '<span style="font-size:12px;color:#3D5A3E;">' + feelingStr + '</span>' : '') +
+          (feelingStr ? feelingStr : '') +
         '</div>' +
         (chatLog ? '<div onclick="tsgToggleChatLog(this)" style="margin-top:12px;cursor:pointer;">' +
           '<div style="font-size:11px;color:#3D5A3E;display:flex;align-items:center;gap:4px;margin-bottom:8px;">' +
