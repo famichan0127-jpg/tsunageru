@@ -20,12 +20,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .time { font-size: 13px; color: #888; }
 .screen { display: none; flex: 1; padding: 1rem 1rem 5rem; overflow-y: auto; }
 .screen.active { display: block; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; background: #fff; border-top: 0.5px solid #e0ddd8; display: flex; z-index: 100; padding: 6px 0 10px; }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; background: none; border: none; font-family: inherit; }
-.nav-icon { font-size: 22px; color: #bbb; line-height: 1; }
-.nav-label { font-size: 10px; color: #bbb; }
-.nav-item.active .nav-icon { color: #3D5A3E; }
-.nav-item.active .nav-label { color: #3D5A3E; font-weight: 500; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; background: #F5F2ED; border-top: 1px solid #e0ddd8; display: flex; z-index: 100; padding: 10px 16px 28px; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 10px; color: #888; text-decoration: none; }
+.nav-icon { font-size: 22px; line-height: 1; }
+.nav-label { font-size: 10px; }
+.nav-item.active { color: #3D5A3E; font-weight: 700; }
 .input-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
 .input-label { font-size: 12px; color: #888; margin-bottom: 8px; }
 textarea { width: 100%; border: none; background: transparent; font-size: 15px; color: #2C3E2D; resize: none; outline: none; font-family: inherit; line-height: 1.6; min-height: 100px; }
