@@ -384,7 +384,7 @@ gtag('config', 'G-VVJWY6FQZ9');
       renderBubble('ai', data.reply);
     } catch (err) {
       hideTyping();
-      showToast('うまく繋がれなかった。もう一度試してみて。');
+      showToast('エラー: ' + (err.message || '不明'));
       chatHistory.pop();
     } finally {
       isLoading = false;
