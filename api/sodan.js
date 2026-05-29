@@ -1,573 +1,90 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>tsunageru — お悩み相談</title>
-<link rel="icon" href="icon.png">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VVJWY6FQZ9"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-VVJWY6FQZ9');
-</script>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+module.exports = async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
 
-  :root {
-    --green-dark: #2d4a2d;
-    --green-mid: #4a7c4a;
-    --green-soft: #7aaa6a;
-    --green-pale: #e8f0e0;
-    --green-mist: #f2f5ee;
-    --cream: #faf8f4;
-    --white: #ffffff;
-    --text-main: #2a2a2a;
-    --text-sub: #888;
-    --text-light: #bbb;
-    --orange-pale: #fdf0ea;
-    --border: #e8e4de;
-    --shadow: rgba(80,100,60,0.10);
-    --nav-h: 68px;
+  const { messages, mode = 'listen' } = req.body;
+  if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: '入力が空です' });
+
+  // messagesの最後がuserでない場合は修正
+  const validMessages = messages.filter(m => m.role && m.content);
+  if (validMessages.length === 0) return res.status(400).json({ error: 'メッセージが空です' });
+  // 最後がassistantなら除去
+  while (validMessages.length > 0 && validMessages[validMessages.length-1].role === 'assistant') {
+    validMessages.pop();
   }
 
-  html, body { height: 100%; background: var(--cream); font-family: -apple-system, 'Hiragino Sans', sans-serif; color: var(--text-main); }
+  const modePrompts = {
+    listen: `あなたは「傾聴モード」のAIです。
 
-  /* ===== SCREENS ===== */
-  .screen { display: none; }
-  .screen.active { display: block; }
+【あなたの役割】
+ユーザーの気持ちをただ丁寧に受け取り、共感と問いかけで気持ちの整理を助ける。
+解決策は出さない。アドバイスもしない。ジャッジもしない。
 
-  /* ===== SCREEN 1: エントリー ===== */
-  #screen-entry {
-    height: 100vh;
-    overflow-y: auto;
-    padding-bottom: calc(var(--nav-h) + 20px);
-  }
+【思想ベース】
+・アドラー心理学：「共同体感覚」——相手の課題に土足で踏み込まない。気持ちに寄り添うが、相手の問題を奪わない。
+・カーネギー：「相手に話させる」——質問と傾聴で、ユーザー自身が気づけるように促す。批判しない、非難しない。
 
-  .entry-header { padding: 56px 20px 16px; display: flex; align-items: center; gap: 10px; }
-  .back-btn {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--green-mist); border: none;
-    font-size: 16px; color: var(--green-dark); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .entry-title { font-size: 18px; font-weight: 700; color: var(--green-dark); }
-  .entry-body { padding: 0 16px 40px; display: flex; flex-direction: column; gap: 16px; }
-  .section-label { font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+【会話のルール】
+・1回の返答は3〜5文にとどめる
+・共感の言葉（「そうか」「それはしんどいね」）を自然に入れる
+・1つだけ、やさしい問いかけで終わる
+・「解決しましょう」「こうすればいい」は絶対に言わない
+・敬語は使わない。友達のような自然なトーン
+・絵文字は🌿のみ、多用しない
 
-  .mode-row { display: flex; gap: 10px; }
-  .mode-btn { flex: 1; padding: 16px 10px; border-radius: 16px; border: 2px solid var(--border); background: var(--white); text-align: center; cursor: pointer; transition: all .2s; }
-  .mode-btn.selected { border-color: var(--green-mid); background: var(--green-pale); }
-  .mode-btn .emoji { font-size: 28px; display: block; margin-bottom: 8px; }
-  .mode-btn .label { font-size: 13px; font-weight: 700; color: var(--green-dark); line-height: 1.4; }
-  .mode-btn .sub { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+【返答の流れ】
+1. 気持ちを受け取る（共感）
+2. 少し深掘りする（「〜ってこと？」「どんな感じがした？」）
+3. 次の一言を引き出す問いかけ`,
 
-  .sodan-textarea {
-    width: 100%; background: var(--white); border: 1.5px solid var(--border);
-    border-radius: 16px; padding: 16px; font-size: 15px; font-family: inherit;
-    color: var(--text-main); resize: none; height: 120px; outline: none; line-height: 1.7;
-  }
-  .sodan-textarea:focus { border-color: var(--green-mid); }
-  .sodan-textarea::placeholder { color: var(--text-light); }
-  .char-count { text-align: right; font-size: 11px; color: var(--text-light); margin-top: -8px; }
+    advice: `あなたは、話をちゃんと聞いてくれる頭のいい友達です。
 
-  .btn-start {
-    width: 100%; padding: 16px; background: var(--green-dark); color: white;
-    border: none; border-radius: 16px; font-size: 16px; font-weight: 700;
-    font-family: inherit; cursor: pointer; letter-spacing: .5px; transition: opacity .2s;
-  }
-  .btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
+【絶対にやらないこと】
+・「アドラーの課題の分離とは〜」など思想・理論の名前を出す
+・「---」などの区切り線を使う
+・説教・正論・長い解説
+・「〜すべき」「〜しなければ」
+・一度に3つ以上の提案
 
-  /* ===== SCREEN 2: チャット ===== */
-  /* ポイント: positionをfixedで全部管理 */
-  #screen-chat { display: none; }
-  #screen-chat.active { display: block; }
+【返答のルール】
+・全体で4〜6文以内。短く、でも温かく
+・まず一言だけ共感する（「それはモヤモヤするよね」など）
+・提案は1〜2個だけ、さらっと自然に
+・「〜してみるのもありかも」「〜って伝えてみたらどうかな」のような柔らかい言い方
+・敬語なし。友達トーン
+・絵文字は使わない
 
-  #chat-header {
-    position: fixed; top: 0; left: 0; right: 0;
-    padding: 52px 16px 12px;
-    border-bottom: 1px solid var(--border);
-    background: var(--cream);
-    display: flex; align-items: center; gap: 10px;
-    z-index: 10;
-  }
-  .chat-mode-badge {
-    display: flex; align-items: center; gap: 6px;
-    background: var(--green-pale); border-radius: 20px;
-    padding: 6px 14px; font-size: 13px; font-weight: 700; color: var(--green-dark);
-  }
-  .chat-mode-badge.advice { background: #fef9ea; color: #7a6020; }
+【裏に隠す思想（言葉には出さない）】
+・「自分にできること」だけにフォーカスさせる（アドラー：課題の分離）
+・相手を責めず、関係性を壊さない提案をする（カーネギー：人を動かす）
+・勇気づけ、「やってみようかな」と思えるように終わる`
+  };
 
-  #chat-footer {
-    position: fixed; bottom: var(--nav-h); left: 0; right: 0;
-    background: var(--cream);
-    border-top: 1px solid var(--border);
-    padding: 10px 14px 12px;
-    display: flex; flex-direction: column; gap: 8px;
-    z-index: 10;
-  }
-  .chat-input-row { display: flex; gap: 10px; align-items: flex-end; width: 100%; }
-  .chat-input {
-    flex: 1; min-width: 0;
-    background: var(--white); border: 1.5px solid var(--border);
-    border-radius: 22px; padding: 10px 16px; font-size: 14px; font-family: inherit;
-    color: var(--text-main); outline: none; resize: none; max-height: 100px; line-height: 1.5;
-  }
-  .chat-input:focus { border-color: var(--green-mid); }
-  .send-btn {
-    width: 42px; height: 42px; background: var(--green-dark); border: none;
-    border-radius: 50%; color: white; font-size: 18px; cursor: pointer; flex-shrink: 0;
-  }
-  .send-btn:disabled { opacity: 0.4; }
+  const systemPrompt = modePrompts[mode] || modePrompts.listen;
 
-  #chat-body {
-    position: fixed;
-    top: 110px;
-    bottom: calc(var(--nav-h) + 112px);
-    left: 0;
-    right: 0;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Feeling section - フッターの上に固定 */
-  #feeling-section {
-    position: fixed;
-    bottom: calc(var(--nav-h) + 120px);
-    left: 0; right: 0;
-    background: var(--cream);
-    border-top: 1px solid var(--border);
-    padding: 12px 16px;
-    z-index: 10;
-    display: none;
-  }
-  .feeling-label { font-size: 11px; color: var(--text-sub); margin-bottom: 10px; }
-  .feeling-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-  .chip {
-    padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
-    background: var(--green-mist); color: var(--green-dark); border: 1.5px solid var(--green-pale);
-    cursor: pointer;
-  }
-  .chip.orange { background: var(--orange-pale); color: #c06040; border-color: #f5d0bc; }
-
-  /* Bubbles */
-  .bubble-wrap { display: flex; flex-direction: column; gap: 4px; }
-  .bubble-wrap.ai { align-items: flex-start; }
-  .bubble-wrap.user { align-items: flex-end; }
-  .bubble-name { font-size: 11px; color: var(--text-sub); padding: 0 6px; }
-  .bubble {
-    max-width: 84%; padding: 12px 16px; border-radius: 20px;
-    font-size: 14px; line-height: 1.75; word-break: break-word;
-  }
-  .bubble.ai { background: var(--white); border-bottom-left-radius: 5px; box-shadow: 0 2px 10px var(--shadow); }
-  .bubble.user { background: var(--green-dark); color: white; border-bottom-right-radius: 5px; }
-
-  /* Typing */
-  .typing-wrap { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
-  .typing-bubble {
-    padding: 14px 18px; background: var(--white); border-radius: 20px;
-    border-bottom-left-radius: 5px; box-shadow: 0 2px 10px var(--shadow);
-    display: flex; gap: 5px; align-items: center;
-  }
-  .dot { width: 7px; height: 7px; background: var(--green-soft); border-radius: 50%; animation: bounce 1.2s infinite; }
-  .dot:nth-child(2) { animation-delay: .2s; }
-  .dot:nth-child(3) { animation-delay: .4s; }
-  @keyframes bounce { 0%,60%,100% { transform:translateY(0);opacity:.4; } 30% { transform:translateY(-5px);opacity:1; } }
-
-  /* End card */
-  .end-card { background: var(--white); border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px var(--shadow); }
-  .end-card-label { font-size: 12px; font-weight: 700; color: var(--green-mid); margin-bottom: 10px; }
-
-  /* ===== BOTTOM NAV ===== */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    height: var(--nav-h);
-    display: flex; padding: 10px 16px 28px;
-    border-top: 1px solid var(--border);
-    background: var(--cream);
-    z-index: 20;
-  }
-  .nav-item {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    font-size: 10px; color: var(--text-sub); cursor: pointer; text-decoration: none;
-    background: none; border: none; font-family: inherit;
-  }
-  .nav-item.active { color: var(--green-dark); font-weight: 700; }
-  .nav-icon { font-size: 22px; }
-
-  .toast {
-    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-    background: #e05050; color: white; padding: 10px 20px; border-radius: 20px;
-    font-size: 13px; z-index: 200; display: none;
-  }
-  .category-btn {
-    padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border);
-    background: var(--white); font-size: 12px; color: var(--text-sub);
-    cursor: pointer; font-family: inherit; transition: all .15s;
-  }
-  .category-btn.selected {
-    background: var(--green-pale); border-color: var(--green-mid);
-    color: var(--green-dark); font-weight: 500;
-  }
-</style>
-</head>
-<body>
-
-<!-- ===== SCREEN 1: エントリー ===== -->
-<div id="screen-entry" class="screen active">
-  <div class="entry-header">
-    <button class="back-btn" onclick="location.href='index.html'">←</button>
-    <div class="entry-title">🌿 お悩み相談</div>
-  </div>
-  <div class="entry-body">
-    <div>
-      <div class="section-label">どんなふうに話したい？</div>
-      <div class="mode-row">
-        <div class="mode-btn selected" id="mode-listen" onclick="selectMode('listen')">
-          <span class="emoji">🫧</span>
-          <div class="label">ただ聞いてほしい</div>
-          <div class="sub">解決しなくていい</div>
-        </div>
-        <div class="mode-btn" id="mode-advice" onclick="selectMode('advice')">
-          <span class="emoji">💡</span>
-          <div class="label">どうすればいいか知りたい</div>
-          <div class="sub">アドバイスほしい</div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div class="section-label">今、気になっていることは？</div>
-      <textarea class="sodan-textarea" id="entry-input"
-        placeholder="うまく書けなくても大丈夫。思ってることをそのまま。"
-        maxlength="500" oninput="onEntryInput()"></textarea>
-      <div class="char-count"><span id="char-count">0</span> / 500</div>
-    </div>
-    <div>
-      <div class="section-label">カテゴリー（任意）</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;">
-        <button class="category-btn" onclick="tsgSelectCategory(this, '夫婦・パートナー')">💑 夫婦・パートナー</button>
-        <button class="category-btn" onclick="tsgSelectCategory(this, '仕事・上司')">💼 仕事・上司</button>
-        <button class="category-btn" onclick="tsgSelectCategory(this, '子育て')">👶 子育て</button>
-        <button class="category-btn" onclick="tsgSelectCategory(this, '家族')">🏠 家族</button>
-        <button class="category-btn" onclick="tsgSelectCategory(this, '友人')">👫 友人</button>
-        <button class="category-btn" onclick="tsgSelectCategory(this, '自分自身')">🌱 自分自身</button>
-      </div>
-    </div>
-    <button class="btn-start" id="btn-start" onclick="startChat()" disabled>
-      話しはじめる 🌿
-    </button>
-  </div>
-</div>
-
-<!-- ===== SCREEN 2: チャット ===== -->
-<div id="screen-chat" class="screen">
-  <div id="chat-header">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="chat-mode-badge" id="mode-badge">🫧 ただ聞いてほしい</div>
-  </div>
-
-  <div id="chat-body"></div>
-
-  <div id="feeling-section">
-    <div class="feeling-label">🌿 今の気持ちは？</div>
-    <div class="feeling-chips">
-      <div class="chip" onclick="selectFeeling('少し楽になった')">少し楽になった</div>
-      <div class="chip" onclick="selectFeeling('整理できてきた')">整理できてきた</div>
-      <div class="chip orange" onclick="selectFeeling('まだモヤモヤ')">まだモヤモヤ</div>
-    </div>
-  </div>
-
-  <div id="chat-footer">
-    <div class="chat-input-row">
-      <textarea class="chat-input" id="chat-input" placeholder="続きを話す…" rows="1"
-        onkeydown="onKeyDown(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="send-btn" onclick="sendMessage()">↑</button>
-    </div>
-    <button onclick="endConversation()" id="end-btn"
-      style="width:100%;padding:9px;background:transparent;border:1.5px solid var(--border);border-radius:20px;font-size:13px;color:var(--text-sub);font-family:inherit;cursor:pointer;">
-      今日はここまで 🌿
-    </button>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">💬</span>伝える</a>
-  <a href="sodan.html" class="nav-item active"><span class="nav-icon">🌱</span>相談する</a>
-  <a href="index.html" class="nav-item"><span class="nav-icon">🕐</span>履歴</a>
-  <a href="index.html" class="nav-item"><span class="nav-icon">🌿</span>つかいかた</a>
-  <a href="index.html" class="nav-item"><span class="nav-icon">⚙️</span>設定</a>
-</nav>
-
-<script>
-  let currentMode = 'listen';
-  let currentCategory = '';
-  let chatHistory = [];
-
-  function tsgSelectCategory(btn, cat) {
-    currentCategory = (currentCategory === cat) ? '' : cat;
-    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-    if (currentCategory) btn.classList.add('selected');
-  }
-  let messageCount = 0;
-  let isLoading = false;
-
-  function selectMode(mode) {
-    currentMode = mode;
-    document.getElementById('mode-listen').classList.toggle('selected', mode === 'listen');
-    document.getElementById('mode-advice').classList.toggle('selected', mode === 'advice');
-  }
-
-  function onEntryInput() {
-    const val = document.getElementById('entry-input').value;
-    document.getElementById('char-count').textContent = val.length;
-    document.getElementById('btn-start').disabled = val.trim().length === 0;
-  }
-
-  function startChat() {
-    const input = document.getElementById('entry-input').value.trim();
-    if (!input) return;
-    gtag('event', 'sodan_start', { sodan_mode: currentMode });
-
-    const badge = document.getElementById('mode-badge');
-    if (currentMode === 'advice') {
-      badge.textContent = '💡 どうすればいいか知りたい';
-      badge.classList.add('advice');
-    } else {
-      badge.textContent = '🫧 ただ聞いてほしい';
-      badge.classList.remove('advice');
-    }
-
-    showScreen('screen-chat');
-    chatHistory = [{ role: 'user', content: input }];
-    messageCount = 1;
-    renderBubble('user', input);
-    fetchAIResponse();
-  }
-
-  function sendMessage() {
-    const inputEl = document.getElementById('chat-input');
-    const text = inputEl.value.trim();
-    if (!text || isLoading) return;
-
-    // 先にテキストを取得してからクリア
-    inputEl.value = '';
-    inputEl.style.height = 'auto';
-    inputEl.focus();
-
-    chatHistory.push({ role: 'user', content: text });
-    messageCount++;
-    renderBubble('user', text);
-    fetchAIResponse();
-  }
-
-  async function fetchAIResponse() {
-    isLoading = true;
-    document.getElementById('send-btn').disabled = true;
-    showTyping();
-    try {
-      const res = await fetch('/api/sodan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatHistory, mode: currentMode })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'エラー');
-      hideTyping();
-      chatHistory.push({ role: 'assistant', content: data.reply });
-      renderBubble('ai', data.reply);
-    } catch (err) {
-      hideTyping();
-      showToast('エラー: ' + (err.message || '不明'));
-      chatHistory.pop();
-    } finally {
-      isLoading = false;
-      document.getElementById('send-btn').disabled = false;
-    }
-  }
-
-  function endConversation() {
-    document.getElementById('chat-input').disabled = true;
-    document.getElementById('send-btn').disabled = true;
-    document.getElementById('end-btn').style.display = 'none';
-
-    const firstUserMsg = chatHistory.find(m => m.role === 'user');
-    const history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
-    history.unshift({
-      id: Date.now(), date: new Date().toISOString(),
-      type: 'sodan', mode: currentMode,
-      category: currentCategory,
-      input: firstUserMsg ? firstUserMsg.content : '',
-      messageCount: messageCount,
-      chatHistory: chatHistory
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: validMessages
+      })
     });
-    if (history.length > 50) history.splice(50);
-    localStorage.setItem('tsg_history', JSON.stringify(history));
 
-    document.getElementById('feeling-section').style.display = 'block';
-    setTimeout(adjustChatBody, 50);
-    gtag('event', 'sodan_end', { sodan_mode: currentMode, message_count: messageCount });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'APIエラー');
+
+    const text = data.content[0].text;
+    res.status(200).json({ reply: text });
+
+  } catch (err) {
+    console.error('sodan API error:', err.message);
+    res.status(500).json({ error: err.message, detail: String(err) });
   }
-
-  function selectFeeling(feeling) {
-    gtag('event', 'sodan_feeling', { sodan_mode: currentMode, feeling: feeling });
-
-    const history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
-    const latest = history.find(h => h.type === 'sodan' && !h.feeling);
-    if (latest) {
-      latest.feeling = feeling;
-      localStorage.setItem('tsg_history', JSON.stringify(history));
-    }
-
-    document.getElementById('feeling-section').style.display = 'none';
-
-    const followMessages = {
-      '少し楽になった': '少し楽になったならよかった 🌿\n話してくれてありがとう。',
-      '整理できてきた': '整理できてきたなら嬉しい 🌿\n気持ちに気づけたこと、大事だよ。',
-      'まだモヤモヤ': 'まだモヤモヤしてるんだね。\nもう少し話す？'
-    };
-    const msg = followMessages[feeling] || '';
-    if (msg) setTimeout(() => renderBubble('ai', msg), 300);
-
-    if (feeling === 'まだモヤモヤ') {
-      setTimeout(() => {
-        document.getElementById('chat-input').disabled = false;
-        document.getElementById('send-btn').disabled = false;
-        document.getElementById('end-btn').style.display = 'block';
-      }, 800);
-    } else {
-      setTimeout(() => showEndCard(), 1200);
-    }
-  }
-
-  function showEndCard() {
-    const chatBody = document.getElementById('chat-body');
-    const card = document.createElement('div');
-    card.className = 'end-card';
-    card.innerHTML = `
-      <div class="end-card-label">🌿 今日はここまで</div>
-      <p style="text-align:center;font-size:14px;color:var(--text-main);line-height:1.8;">話してくれてありがとう。<br>またいつでも話しかけてね。</p>
-    `;
-    chatBody.appendChild(card);
-    scrollToBottom();
-  }
-
-  function renderBubble(role, text) {
-    const chatBody = document.getElementById('chat-body');
-    const wrap = document.createElement('div');
-    wrap.className = `bubble-wrap ${role}`;
-    if (role === 'ai') {
-      const name = document.createElement('div');
-      name.className = 'bubble-name';
-      name.textContent = 'tsunageru';
-      wrap.appendChild(name);
-    }
-    const bubble = document.createElement('div');
-    bubble.className = `bubble ${role}`;
-    bubble.innerHTML = text.replace(/\n/g, '<br>');
-    wrap.appendChild(bubble);
-    chatBody.appendChild(wrap);
-    scrollToBottom();
-  }
-
-  function showTyping() {
-    const chatBody = document.getElementById('chat-body');
-    const wrap = document.createElement('div');
-    wrap.className = 'typing-wrap';
-    wrap.id = 'typing-indicator';
-    const name = document.createElement('div');
-    name.className = 'bubble-name';
-    name.textContent = 'tsunageru';
-    const typing = document.createElement('div');
-    typing.className = 'typing-bubble';
-    typing.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-    wrap.appendChild(name);
-    wrap.appendChild(typing);
-    chatBody.appendChild(wrap);
-    scrollToBottom();
-  }
-
-  function hideTyping() {
-    const el = document.getElementById('typing-indicator');
-    if (el) el.remove();
-  }
-
-  function adjustChatBody() {
-    const footer = document.getElementById('chat-footer');
-    const body = document.getElementById('chat-body');
-    if (!footer || !body) return;
-    const navH = 68;
-    const footerH = footer.offsetHeight;
-    body.style.bottom = (navH + footerH) + 'px';
-  }
-
-  function scrollToBottom() {
-    const body = document.getElementById('chat-body');
-    setTimeout(() => { body.scrollTop = body.scrollHeight; }, 100);
-  }
-
-  // キーボード表示時にフッターを動かす
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', function() {
-      const footer = document.getElementById('chat-footer');
-      const feelingSection = document.getElementById('feeling-section');
-      const chatBody = document.getElementById('chat-body');
-      if (!footer) return;
-
-      const viewportBottom = window.innerHeight - window.visualViewport.height;
-      const navH = 68;
-
-      footer.style.bottom = (viewportBottom + navH) + 'px';
-      if (feelingSection.style.display !== 'none') {
-        feelingSection.style.bottom = (viewportBottom + navH + 112) + 'px';
-      }
-      const footerH = footer.offsetHeight;
-      chatBody.style.bottom = (viewportBottom + navH + footerH) + 'px';
-
-      scrollToBottom();
-    });
-  }
-
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    window.scrollTo(0, 0);
-    if (id === 'screen-chat') setTimeout(adjustChatBody, 50);
-  }
-
-  function goBack() {
-    if (chatHistory.length > 0 && !confirm('相談を終了しますか？')) return;
-    showScreen('screen-entry');
-    chatHistory = [];
-    messageCount = 0;
-    document.getElementById('chat-body').innerHTML = '';
-    document.getElementById('feeling-section').style.display = 'none';
-    document.getElementById('chat-input').disabled = false;
-    document.getElementById('send-btn').disabled = false;
-    document.getElementById('end-btn').style.display = 'block';
-  }
-
-  function onKeyDown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  }
-
-  function autoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-  }
-
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.style.display = 'block';
-    setTimeout(() => toast.style.display = 'none', 3000);
-  }
-</script>
-</body>
-</html>
+}
