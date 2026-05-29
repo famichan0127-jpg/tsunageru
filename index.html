@@ -314,8 +314,6 @@ gtag('config', 'G-VVJWY6FQZ9');
     <div class="demo-area" id="demoArea">
       <div class="demo-label">こんなふうに使うよ</div>
       <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo(); gtag('event', 'demo_play');">▶ デモを見る</button>
-
-      <!-- 伝えるデモ -->
       <div id="tutorialDemoPhone" style="display:none">
         <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;text-align:center;">💬 伝えるモード</div>
         <div class="demo-phone">
@@ -347,12 +345,9 @@ gtag('config', 'G-VVJWY6FQZ9');
           </div>
         </div>
       </div>
-
-      <!-- 相談デモ（伝えるデモ完了後に表示） -->
       <div id="tutorialDemoSodan" style="display:none;margin-top:12px;">
         <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;text-align:center;">🌱 お悩み相談モード</div>
         <div class="demo-phone">
-          <!-- モード選択 -->
           <div id="demoSodanModes" style="display:flex;gap:6px;margin-bottom:8px;">
             <div id="demoSodanModeA" style="flex:1;padding:10px 6px;border-radius:12px;border:2px solid #e0ddd8;background:#fff;text-align:center;font-size:11px;color:#888;">
               <div style="font-size:18px;margin-bottom:3px;">🫧</div>聞いてほしい
@@ -361,15 +356,12 @@ gtag('config', 'G-VVJWY6FQZ9');
               <div style="font-size:18px;margin-bottom:3px;">💡</div>どうすればいい
             </div>
           </div>
-          <!-- 入力 -->
           <div class="demo-input-card" style="margin-bottom:8px;">
             <div class="demo-input-label">今、気になっていることは？</div>
             <div class="demo-input-text" id="demoSodanText"></div>
             <div class="demo-cursor" id="demoSodanCursor" style="display:none;">|</div>
           </div>
-          <!-- 送信ボタン -->
           <div class="demo-btn-main" id="demoSodanBtn" style="display:none;">話しはじめる 🌿</div>
-          <!-- AI返答 -->
           <div id="demoSodanReply" style="display:none;" class="demo-result">
             <div class="demo-result-label green"><span class="demo-result-dot green"></span>tsunageru</div>
             <div class="demo-result-body" id="demoSodanReplyText"></div>
@@ -390,7 +382,6 @@ gtag('config', 'G-VVJWY6FQZ9');
 <!-- ホーム画面 -->
 <div id="screen-home" class="screen active">
 
-  <!-- お悩み相談バナー（小さめ） -->
   <div onclick="location.href='sodan.html'; gtag('event', 'sodan_banner_tap');"
     style="background:#f0f7f0;border:1px solid #b5d9bc;border-radius:10px;padding:9px 14px;margin-bottom:1rem;display:flex;align-items:center;gap:8px;cursor:pointer;">
     <span style="font-size:16px;">🌱</span>
@@ -409,7 +400,6 @@ gtag('config', 'G-VVJWY6FQZ9');
       <button onclick="tsgShowRelationPicker()"
         style="padding:9px 16px;background:#3D5A3E;color:white;border:none;border-radius:20px;font-size:13px;font-family:inherit;cursor:pointer;">追加</button>
     </div>
-    <!-- 関係性選択（入力後に表示） -->
     <div id="relation-picker" style="display:none;">
       <div style="font-size:11px;color:#888;margin-bottom:6px;">関係性を選んでね</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;">
@@ -494,8 +484,6 @@ gtag('config', 'G-VVJWY6FQZ9');
 
 <!-- 履歴画面 -->
 <div id="screen-history" class="screen">
-
-  <!-- 週次振り返りカード -->
   <div id="weeklyReview" style="background:#fff;border-radius:16px;border:0.5px solid #e0ddd8;margin-bottom:1rem;overflow:hidden;">
     <div onclick="tsgToggleWeekly()" style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;">
       <div style="display:flex;align-items:center;gap:8px;">
@@ -508,14 +496,11 @@ gtag('config', 'G-VVJWY6FQZ9');
       <span id="weeklyChevron" style="color:#ccc;font-size:16px;">›</span>
     </div>
     <div id="weeklyContent" style="display:none;padding:0 16px 16px;">
-      <!-- カレンダー -->
       <div style="margin-bottom:14px;">
         <div style="font-size:11px;color:#aaa;margin-bottom:8px;">今週の気持ち</div>
         <div id="weeklyCalendar" style="display:flex;gap:4px;"></div>
       </div>
-      <!-- 集計 -->
       <div id="weeklySummary" style="font-size:12px;color:#666;line-height:1.8;margin-bottom:14px;background:#f5f2ed;padding:10px 12px;border-radius:10px;"></div>
-      <!-- AIの言葉 -->
       <div id="weeklyAI" style="border-top:0.5px solid #e0ddd8;padding-top:12px;">
         <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;">tsunageruより 🌿</div>
         <div id="weeklyAIText" style="font-size:13px;color:#444;line-height:1.8;"></div>
@@ -526,7 +511,6 @@ gtag('config', 'G-VVJWY6FQZ9');
       </div>
     </div>
   </div>
-
   <div id="historyEmpty" class="coming-soon">
     <div class="coming-soon-icon">🕐</div>
     <div class="coming-soon-title">まだ履歴がありません</div>
@@ -614,8 +598,8 @@ gtag('config', 'G-VVJWY6FQZ9');
       <div class="trans-text">相手を責める言葉を避けて、穏やかに伝えます。言い合いになりそうなときに。</div>
     </div>
     <div class="trans-row">
-      <div class="trans-badge green">👨 男性脳向け</div>
-      <div class="trans-text">結論を先に、何をしてほしいかを明確に伝えます。論理的なパートナーに。</div>
+      <div class="trans-badge green">✅ 解決したい</div>
+      <div class="trans-text">結論を先に、何をしてほしいかを明確に伝えます。具体的に動いてほしいときに。</div>
     </div>
   </div>
   <div class="howto-section">
@@ -679,7 +663,6 @@ gtag('config', 'G-VVJWY6FQZ9');
 
 <!-- 設定画面 -->
 <div id="screen-settings" class="screen">
-  <div class="settings-section-label">プライバシー</div>
   <div class="settings-section-label">あなたのプロフィール</div>
   <div class="settings-section">
     <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
@@ -719,8 +702,6 @@ gtag('config', 'G-VVJWY6FQZ9');
   <div class="settings-section" id="surveySection">
     <div style="padding:16px;">
       <div style="font-size:12px;color:#888;margin-bottom:16px;">1分で終わります。率直な声が次の開発に活かせます！</div>
-
-      <!-- Q1: 使いやすさ -->
       <div style="margin-bottom:16px;">
         <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">操作しやすかったですか？</div>
         <div style="display:flex;gap:6px;" id="sq1">
@@ -732,8 +713,6 @@ gtag('config', 'G-VVJWY6FQZ9');
         </div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:#bbb;margin-top:4px;padding:0 2px;"><span>使いにくい</span><span>使いやすい</span></div>
       </div>
-
-      <!-- Q2: 翻訳精度 -->
       <div style="margin-bottom:16px;">
         <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">翻訳された文章は気持ちに近かったですか？</div>
         <div style="display:flex;gap:6px;" id="sq2">
@@ -745,8 +724,6 @@ gtag('config', 'G-VVJWY6FQZ9');
         </div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:#bbb;margin-top:4px;padding:0 2px;"><span>全然違う</span><span>ぴったり</span></div>
       </div>
-
-      <!-- Q3: 継続利用 -->
       <div style="margin-bottom:16px;">
         <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">また使いたいと思いますか？</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;" id="sq3">
@@ -756,8 +733,6 @@ gtag('config', 'G-VVJWY6FQZ9');
           <button class="sq-btn sq-wide" onclick="tsgSurveyQ('sq3','あまりつかわない',this)">あまり使わない</button>
         </div>
       </div>
-
-      <!-- Q4: NPS -->
       <div style="margin-bottom:16px;">
         <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">友達に勧めたいですか？</div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;" id="sq4">
@@ -774,14 +749,11 @@ gtag('config', 'G-VVJWY6FQZ9');
         </div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:#bbb;margin-top:4px;padding:0 2px;"><span>勧めない</span><span>ぜひ勧める</span></div>
       </div>
-
-      <!-- Q5: 自由記述 -->
       <div style="margin-bottom:16px;">
         <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">改善してほしいことや感想があれば</div>
         <textarea id="sq5text" placeholder="なんでも書いてね🌿" maxlength="500"
           style="width:100%;padding:10px 12px;border:1px solid #e0ddd8;border-radius:10px;font-size:13px;font-family:inherit;resize:none;height:80px;outline:none;background:#faf8f4;"></textarea>
       </div>
-
       <button onclick="tsgSubmitSurvey()" id="sqSubmitBtn"
         style="width:100%;padding:12px;background:#3D5A3E;color:white;border:none;border-radius:12px;font-size:14px;font-family:inherit;cursor:pointer;">
         送る 🌿
@@ -843,7 +815,7 @@ gtag('config', 'G-VVJWY6FQZ9');
         <div class="settings-icon gray">ℹ️</div>
         <div><div class="settings-title">バージョン</div></div>
       </div>
-      <span class="settings-value">1.4.0</span>
+      <span class="settings-value">1.5.0</span>
     </div>
   </div>
 </div>
@@ -892,15 +864,11 @@ function tsgSetMode(btn) {
 }
 
 function tsgShowPWAPrompt() {
-  // すでにPWAとして起動してたら表示しない
   if (window.matchMedia('(display-mode: standalone)').matches) return;
-
   var ua = navigator.userAgent;
   var isIOS = /iphone|ipad|ipod/i.test(ua);
   var isAndroid = /android/i.test(ua);
-
-  if (!isIOS && !isAndroid) return; // PCは表示しない
-
+  if (!isIOS && !isAndroid) return;
   document.getElementById('pwa-ios').style.display = isIOS ? 'block' : 'none';
   document.getElementById('pwa-android').style.display = isAndroid ? 'block' : 'none';
   document.getElementById('pwaModal').classList.remove('hidden');
@@ -917,7 +885,6 @@ function tsgTutorialClose() {
   document.getElementById('tutorialModal').classList.add('hidden');
   localStorage.setItem('tsg_tutorial_done', '1');
   gtag('event', 'tutorial_agree');
-  // ホーム画面追加を促す（初回のみ）
   if (!localStorage.getItem('tsg_pwa_prompted')) {
     setTimeout(function() { tsgShowPWAPrompt(); }, 500);
   }
@@ -987,7 +954,6 @@ function tsgStartTutorialDemo() {
     btnCopy: 'demoBtnCopy', feeling: 'demoFeeling',
     feelingBtn1: 'demoFeelingBtn1', feelingMsg: 'demoFeelingMsg'
   }, function() {
-    // 伝えるデモ完了 → 相談デモへ
     setTimeout(function() { tsgRunSodanDemo(); }, 1200);
   });
 }
@@ -996,25 +962,18 @@ function tsgRunSodanDemo() {
   var sodanEl = document.getElementById('tutorialDemoSodan');
   sodanEl.style.display = 'block';
   sodanEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
   var modeA = document.getElementById('demoSodanModeA');
-  var modeB = document.getElementById('demoSodanModeB');
   var textEl = document.getElementById('demoSodanText');
   var cursorEl = document.getElementById('demoSodanCursor');
   var btnEl = document.getElementById('demoSodanBtn');
   var replyEl = document.getElementById('demoSodanReply');
   var replyTextEl = document.getElementById('demoSodanReplyText');
-
   var sodanText = '夫の日記を読んじゃってモヤモヤしてる';
   var replyText = 'それはモヤモヤするよね。\n読んじゃったこと自体に気まずさがあるのかな、それとも内容が気になってる感じ？';
-
-  // ① モードAをハイライト
   setTimeout(function() {
     modeA.style.borderColor = '#3D5A3E';
     modeA.style.background = '#e8f5eb';
     modeA.style.color = '#3D5A3E';
-
-    // ② テキスト入力アニメ
     setTimeout(function() {
       cursorEl.style.display = 'inline';
       var i = 0;
@@ -1024,8 +983,6 @@ function tsgRunSodanDemo() {
         if (i >= sodanText.length) {
           clearInterval(typing);
           cursorEl.style.display = 'none';
-
-          // ③ ボタン表示→クリック
           setTimeout(function() {
             btnEl.style.display = 'block';
             setTimeout(function() {
@@ -1033,8 +990,6 @@ function tsgRunSodanDemo() {
               setTimeout(function() {
                 btnEl.style.opacity = '1';
                 btnEl.textContent = '話を聞いています...';
-
-                // ④ AI返答を1文字ずつ表示
                 setTimeout(function() {
                   btnEl.style.display = 'none';
                   replyEl.style.display = 'block';
@@ -1043,9 +998,7 @@ function tsgRunSodanDemo() {
                   var replyTyping = setInterval(function() {
                     replyTextEl.textContent += replyText[j];
                     j++;
-                    if (j >= replyText.length) {
-                      clearInterval(replyTyping);
-                    }
+                    if (j >= replyText.length) clearInterval(replyTyping);
                   }, 40);
                 }, 1800);
               }, 600);
@@ -1228,7 +1181,6 @@ function tsgFeeling(btn) {
   setTimeout(function() { msgEl.classList.add('show'); }, 10);
   gtag('event', 'feeling_selected', { feeling_label: label });
 
-  // 直近の翻訳履歴に feelingAfter を追記（上書きOK）
   var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
   var latest = history.find(function(h) { return h.type !== 'sodan'; });
   if (latest) {
@@ -1255,17 +1207,15 @@ function tsgToggleWeekly() {
 function tsgRenderWeekly() {
   var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
   var now = new Date();
-  var dayOfWeek = now.getDay(); // 0=日
+  var dayOfWeek = now.getDay();
   var weekStart = new Date(now);
   weekStart.setDate(now.getDate() - dayOfWeek);
   weekStart.setHours(0,0,0,0);
 
-  // 今週のデータを抽出
   var weekData = history.filter(function(item) {
     return new Date(item.date) >= weekStart;
   });
 
-  // カレンダー生成
   var dayLabels = ['日','月','火','水','木','金','土'];
   var calEl = document.getElementById('weeklyCalendar');
   var calHtml = '';
@@ -1294,7 +1244,6 @@ function tsgRenderWeekly() {
   }
   calEl.innerHTML = calHtml;
 
-  // 集計
   var total = weekData.length;
   var feelings = {};
   weekData.forEach(function(item) {
@@ -1315,7 +1264,6 @@ function tsgRenderWeekly() {
     document.getElementById('weeklySubtitle').textContent = '今週 ' + total + '回の記録あり';
   }
 
-  // AIの言葉（開くたびに生成）
   tsgGenerateWeeklyAI(weekData, feelings, total);
 }
 
@@ -1377,14 +1325,12 @@ function tsgRenderHistory() {
 
   var emotionEmoji = { 'モヤモヤ':'😶', 'イライラ':'😡', '悲しい':'😢', '不安':'😰', '疲れた':'😤', '感謝':'❤️' };
   var sodanModeLabel = { 'listen': '🫧 ただ聞いてほしい', 'advice': '💡 どうすればいいか知りたい' };
-  var feelingEmoji = { '少し楽になった':'😌', '整理できてきた':'🌿', 'まだモヤモヤ':'🌥' };
 
   listEl.innerHTML = history.map(function(item) {
     var d = new Date(item.date);
     var dateStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
                   d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
 
-    // 相談履歴
     if (item.type === 'sodan') {
       var modeLabel = sodanModeLabel[item.mode] || '';
       var feelingStr = '';
@@ -1407,7 +1353,6 @@ function tsgRenderHistory() {
         }).join('');
       }
       return '<div class="history-item" style="border-left:3px solid #3D5A3E;padding-left:14px;">' +
-        // 1行目：日時 + カテゴリー
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
           '<span class="history-date">' + dateStr + '</span>' +
           '<div style="display:flex;gap:6px;align-items:center;">' +
@@ -1415,13 +1360,9 @@ function tsgRenderHistory() {
             '<span style="font-size:11px;background:#e8f5eb;padding:2px 8px;border-radius:10px;color:#3D5A3E;font-weight:500;">🌱 相談</span>' +
           '</div>' +
         '</div>' +
-        // 気持ち変化
         feelingStr +
-        // 入力内容
         '<div class="history-input" style="margin-top:8px;">' + item.input + '</div>' +
-        // やりとり数（小さく）
         '<div style="font-size:11px;color:#bbb;margin-top:4px;">' + modeLabel + ' · ' + item.messageCount + '回のやりとり</div>' +
-        // 展開
         (chatLog ? '<div onclick="tsgToggleChatLog(this)" style="margin-top:10px;cursor:pointer;">' +
           '<div style="font-size:11px;color:#3D5A3E;"><span class="toggle-label">▶ やりとりを見る</span></div>' +
           '<div class="chat-log" style="display:none;margin-top:10px;">' + chatLog + '</div>' +
@@ -1429,7 +1370,6 @@ function tsgRenderHistory() {
       '</div>';
     }
 
-    // 翻訳履歴
     var modeLabel = modeLabels[item.mode] || '';
     var emo = item.emotion || '';
     var emoEmoji = emotionEmoji[emo] || '';
@@ -1452,18 +1392,13 @@ function tsgRenderHistory() {
       '</div>';
 
     return '<div class="history-item" style="border-left:3px solid #e07840;padding-left:14px;">' +
-      // 1行目：日時 + 相手
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
         '<span class="history-date">' + dateStr + '</span>' +
         (item.partner ? '<span style="font-size:11px;background:#fdf0e6;padding:2px 8px;border-radius:10px;color:#c8622a;">→ ' + item.partner + '</span>' : '') +
       '</div>' +
-      // 2行目：気持ち変化
       (changeStr ? '<div style="margin-bottom:4px;">' + changeStr + '</div>' : '') +
-      // 3行目：モード（小さく）
       '<div style="font-size:11px;color:#bbb;margin-bottom:6px;">' + modeLabel + '</div>' +
-      // 入力内容
       '<div class="history-input">' + item.input + '</div>' +
-      // 展開
       '<div onclick="tsgToggleChatLog(this)" style="margin-top:8px;cursor:pointer;">' +
         '<div style="font-size:11px;color:#c8622a;"><span class="toggle-label">▶ 翻訳を見る</span></div>' +
         '<div class="chat-log" style="display:none;">' + translationDetail + '</div>' +
@@ -1645,11 +1580,27 @@ function tsgAddPartnerWithRelation(relation) {
 }
 
 function tsgLoadPartners() {
-  var partners = JSON.parse(localStorage.getItem('tsg_partners') || '[]');
-  // 古い形式（文字列）を新形式に変換
-  partners = partners.map(function(p) {
+  var defaultPartners = [
+    { name: '夫', relation: 'partner' },
+    { name: '妻', relation: 'partner' },
+    { name: '母', relation: 'family' },
+    { name: '義母', relation: 'family' },
+    { name: '上司', relation: 'work' },
+    { name: '同僚', relation: 'work' },
+    { name: '友だち', relation: 'friend' },
+    { name: '気になる人', relation: 'crush' },
+    { name: '部下', relation: 'work' },
+  ];
+  var saved = JSON.parse(localStorage.getItem('tsg_partners') || '[]');
+  saved = saved.map(function(p) {
     return typeof p === 'string' ? { name: p, relation: 'other' } : p;
   });
+  // デフォルトと保存済みをマージ（重複除去）
+  var savedNames = saved.map(function(p) { return p.name; });
+  var partners = defaultPartners.filter(function(p) {
+    return !savedNames.includes(p.name);
+  }).concat(saved);
+
   var chips = document.getElementById('partner-chips');
   if (!chips) return;
   chips.innerHTML = partners.map(function(p) {
@@ -1684,7 +1635,6 @@ function tsgSelectPartnerObj(p, btn) {
   if (currentPartner) gtag('event', 'partner_select', { relation: relation });
 }
 
-// 後方互換用
 function tsgAddPartner() { tsgShowRelationPicker(); }
 function tsgSelectPartner(name, btn) { tsgSelectPartnerObj(name, btn); }
 
@@ -1703,6 +1653,7 @@ function tsgGetProfileContext() {
   }
   return parts.length ? parts.join('\n') : '';
 }
+
 // ========== 設定画面アンケート ==========
 var surveyAnswers = {};
 
@@ -1718,7 +1669,6 @@ async function tsgSubmitSurvey() {
   var btn = document.getElementById('sqSubmitBtn');
   var text = document.getElementById('sq5text').value.trim();
 
-  // GAにイベント送信
   gtag('event', 'survey_settings', {
     usability: surveyAnswers['sq1'] || '',
     translation_quality: surveyAnswers['sq2'] || '',
@@ -1726,7 +1676,6 @@ async function tsgSubmitSurvey() {
     nps: surveyAnswers['sq4'] || ''
   });
 
-  // Googleフォームに自由記述だけ送信
   var formId = '1FAIpQLSf9movHVPs56MrQ6v_5h4Jagg40PgghzxYq_J8tByUuiHJgCA';
   var body = new URLSearchParams();
   if (surveyAnswers['sq1']) body.append('entry.118815548', surveyAnswers['sq1']);
