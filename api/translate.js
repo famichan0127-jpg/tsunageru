@@ -1,1761 +1,199 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>夫に気持ちが伝わらない…モヤモヤを言葉にするアプリ | tsunageru</title>
-<meta name="description" content="「うまく言えない」「また喧嘩になりそう」そんな気持ちをLINEで送れる言葉に変換。言いたいことをそのまま入力するだけでOK。夫婦・カップルのコミュニケーションを楽にする無料Webアプリ。">
-<meta property="og:title" content="夫に気持ちが伝わらない…モヤモヤを言葉にするアプリ | tsunageru">
-<meta property="og:description" content="「うまく言えない」「また喧嘩になりそう」そんな気持ちをLINEで送れる言葉に変換。言いたいことをそのまま入力するだけでOK。">
-<meta property="og:url" content="https://tsunageru.vercel.app">
-<meta property="og:type" content="website">
-<link rel="apple-touch-icon" href="/icon.png">
-<link rel="icon" href="/icon.png">
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #F5F2ED; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; }
-.app { width: 100%; max-width: 440px; min-height: 100vh; position: relative; display: flex; flex-direction: column; }
-.header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1rem 0.5rem; }
-.logo { font-size: 22px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; }
-.time { font-size: 13px; color: #888; }
-.screen { display: none; flex: 1; padding: 1rem 1rem 5rem; overflow-y: auto; }
-.screen.active { display: block; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; background: #F5F2ED; border-top: 1px solid #e0ddd8; display: flex; z-index: 100; padding: 10px 16px 28px; }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 10px; color: #888; text-decoration: none; }
-.nav-icon { font-size: 22px; line-height: 1; }
-.nav-label { font-size: 10px; }
-.nav-item.active { color: #3D5A3E; font-weight: 700; }
-.input-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
-.input-label { font-size: 12px; color: #888; margin-bottom: 8px; }
-textarea { width: 100%; border: none; background: transparent; font-size: 15px; color: #2C3E2D; resize: none; outline: none; font-family: inherit; line-height: 1.6; min-height: 100px; }
-textarea::placeholder { color: #bbb; }
-.mode-section { margin-bottom: 1rem; }
-.mode-label { font-size: 11px; color: #888; margin-bottom: 8px; padding-left: 2px; }
-.mode-scroll {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-.mode-btn {
-  padding: 9px 4px;
-  border-radius: 20px;
-  border: 1px solid #e0ddd8;
-  background: #fff;
-  font-size: 12px;
-  color: #888;
-  cursor: pointer;
-  font-family: inherit;
-  white-space: nowrap;
-  text-align: center;
-  transition: all 0.15s;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.mode-btn.active { background: #3D5A3E; border-color: #3D5A3E; color: #fff; font-weight: 500; }
-.mode-btn:not(.active):hover { border-color: #3D5A3E; color: #3D5A3E; }
-.btn-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
-.btn-main { flex: 1; padding: 14px; background: #3D5A3E; color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; font-family: inherit; }
-.btn-main:hover { background: #2C3E2D; }
-.btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-clear { padding: 14px 18px; background: transparent; color: #888; border: 0.5px solid #ddd; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: inherit; }
-.divider { display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; }
-.divider-line { flex: 1; height: 0.5px; background: #ddd; }
-.divider-text { font-size: 12px; color: #888; white-space: nowrap; }
-.mode-badge { display: inline-block; font-size: 10px; color: #aaa; background: #f5f2ed; padding: 2px 8px; border-radius: 10px; margin-bottom: 10px; }
-.result-card { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 1.25rem; margin-bottom: 1rem; }
-.result-card.green { border-color: #b5d9bc; }
-.result-card.orange { border-color: #f5c4a0; }
-.result-label { font-size: 12px; margin-bottom: 10px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
-.result-label.green { color: #3D5A3E; }
-.result-label.orange { color: #c8622a; }
-.result-dot { width: 8px; height: 8px; border-radius: 50%; }
-.result-dot.green { background: #3D5A3E; }
-.result-dot.orange { background: #e07840; }
-.result-text { font-size: 15px; color: #2C3E2D; line-height: 1.7; margin-bottom: 12px; white-space: pre-wrap; }
-.result-hint { font-size: 12px; color: #888; background: #f5f2ed; padding: 8px 12px; border-radius: 8px; line-height: 1.5; margin-bottom: 12px; }
-.btn-copy { width: 100%; padding: 11px; background: transparent; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: inherit; }
-.btn-copy.green { border: 0.5px solid #3D5A3E; color: #3D5A3E; }
-.btn-copy.green:hover, .btn-copy.green.copied { background: #C8D9C0; }
-.btn-copy.orange { border: 0.5px solid #f5c4a0; color: #c8622a; background: #fdf3ec; }
-.btn-copy.orange:hover, .btn-copy.orange.copied { background: #f5c4a0; }
-.loading { text-align: center; padding: 2rem; color: #888; font-size: 14px; }
-#loadingMsg { transition: opacity 0.3s ease; }
-@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
-.error { color: #D85A30; font-size: 13px; padding: 10px 14px; background: #FAECE7; border-radius: 10px; margin-bottom: 1rem; }
-.btn-retry { margin-top: 10px; width: 100%; padding: 10px; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(50,45,38,0.5); display: flex; align-items: flex-start; justify-content: center; z-index: 200; padding: 1rem; overflow-y: auto; }
-.modal-overlay.hidden { display: none; }
-.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px 20px; margin: auto; }
-.modal-icon { text-align: center; font-size: 32px; margin-bottom: 8px; }
-.modal-title { text-align: center; font-size: 16px; font-weight: 500; color: #333; margin-bottom: 4px; }
-.modal-sub { text-align: center; font-size: 12px; color: #999; margin-bottom: 20px; line-height: 1.6; }
-.modal-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
-.modal-item-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.modal-item-icon.green { background: #e8f5eb; }
-.modal-item-icon.orange { background: #fdf0e6; }
-.modal-item-icon.gray { background: #f2f0ec; }
-.modal-item-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
-.modal-item-sub { font-size: 11px; color: #888; line-height: 1.6; }
-.modal-divider { border: none; border-top: 0.5px solid #eee; margin: 16px 0; }
-.modal-note { font-size: 11px; color: #aaa; text-align: center; line-height: 1.6; margin-bottom: 16px; }
-.modal-note a { color: #3D5A3E; }
-.btn-agree { width: 100%; background: #3D5A3E; color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
-.btn-detail { width: 100%; background: transparent; color: #888; border: none; font-size: 12px; cursor: pointer; font-family: inherit; padding: 4px; }
-.demo-area { margin-bottom: 16px; }
-.demo-label { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 8px; }
-.demo-phone { background: #f5f2ed; border-radius: 12px; padding: 12px; }
-.demo-input-card { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border: 0.5px solid #e0ddd8; min-height: 64px; }
-.demo-input-label { font-size: 10px; color: #aaa; margin-bottom: 4px; }
-.demo-input-text { font-size: 12px; color: #2C3E2D; line-height: 1.6; display: inline; }
-.demo-cursor { display: inline-block; font-size: 12px; color: #3D5A3E; animation: blink 0.8s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-.demo-btn-main { background: #3D5A3E; color: #fff; border-radius: 10px; padding: 10px; font-size: 13px; text-align: center; margin-bottom: 8px; transition: opacity 0.2s; }
-.demo-btn-main.active { opacity: 0.7; }
-.demo-result { background: #fff; border-radius: 10px; padding: 10px 12px; border: 0.5px solid #b5d9bc; margin-bottom: 8px; animation: fadeIn 0.4s ease; }
-.demo-result.orange { border-color: #f5c4a0; }
-.demo-result-label { font-size: 10px; font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
-.demo-result-label.green { color: #3D5A3E; }
-.demo-result-label.orange { color: #c8622a; }
-.demo-result-dot { width: 6px; height: 6px; border-radius: 50%; }
-.demo-result-dot.green { background: #3D5A3E; }
-.demo-result-dot.orange { background: #e07840; }
-.demo-result-body { font-size: 11px; color: #2C3E2D; line-height: 1.6; margin-bottom: 8px; }
-.demo-btn-copy { background: #fff; border: 0.5px solid #3D5A3E; color: #3D5A3E; border-radius: 8px; padding: 7px; font-size: 11px; text-align: center; transition: background 0.3s; margin-bottom: 4px; }
-.demo-btn-copy.copied { background: #C8D9C0; }
-.demo-btn-copy.orange { border-color: #f5c4a0; color: #c8622a; background: #fdf3ec; }
-.demo-feeling { background: #fff; border-radius: 10px; padding: 10px 12px; border: 0.5px solid #e0ddd8; animation: fadeIn 0.4s ease; }
-.demo-feeling-title { font-size: 10px; font-weight: 500; color: #444; margin-bottom: 8px; }
-.demo-feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-.demo-feeling-btn { background: #fafaf8; border: 1px solid #e8e5de; border-radius: 8px; padding: 8px 4px; text-align: center; font-size: 10px; color: #555; }
-.demo-feeling-btn.selected { background: #eef5ee; border-color: #3D5A3E; }
-.demo-feeling-msg { background: #f0f7f0; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #3D5A3E; line-height: 1.6; animation: fadeIn 0.3s ease; }
-.demo-play-btn { width: 100%; background: #f5f2ec; color: #3D5A3E; border: 1px solid #b5d9bc; border-radius: 10px; padding: 10px; font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
-.feeling-card { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
-.feeling-title { font-size: 13px; font-weight: 500; color: #444; margin-bottom: 2px; }
-.feeling-sub { font-size: 11px; color: #aaa; margin-bottom: 14px; }
-.feeling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.feeling-btn { background: #fafaf8; border: 1px solid #e8e5de; border-radius: 12px; padding: 14px 8px; text-align: center; cursor: pointer; font-family: inherit; transition: background 0.15s; }
-.feeling-btn:hover { background: #eef5ee; }
-.feeling-btn.selected { background: #eef5ee; border-color: #3D5A3E; }
-.feeling-emoji { font-size: 24px; margin-bottom: 4px; }
-.feeling-label { font-size: 12px; color: #555; line-height: 1.4; }
-.feeling-message { margin-top: 12px; padding: 12px 14px; background: #f0f7f0; border-radius: 12px; font-size: 13px; color: #3D5A3E; line-height: 1.7; display: none; animation: fadeIn 0.3s ease; }
-.feeling-message.show { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-.coming-soon { text-align: center; padding: 4rem 2rem; color: #aaa; }
-.coming-soon-icon { font-size: 40px; margin-bottom: 1rem; }
-.coming-soon-title { font-size: 16px; font-weight: 500; color: #888; margin-bottom: 6px; }
-.coming-soon-sub { font-size: 13px; line-height: 1.7; }
-.history-item { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 1.25rem; margin-bottom: 1rem; }
-.history-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.history-date { font-size: 11px; color: #aaa; }
-.history-input { font-size: 13px; color: #888; margin-bottom: 12px; padding: 8px 12px; background: #f5f2ed; border-radius: 8px; line-height: 1.6; }
-.history-label { font-size: 11px; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
-.history-label.green { color: #3D5A3E; }
-.history-label.orange { color: #c8622a; }
-.history-label-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-.history-label-dot.green { background: #3D5A3E; }
-.history-label-dot.orange { background: #e07840; }
-.history-text { font-size: 14px; color: #2C3E2D; line-height: 1.7; margin-bottom: 10px; white-space: pre-wrap; }
-.history-divider { height: 0.5px; background: #f0ede6; margin: 12px 0; }
-.howto-section { background: #fff; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; border: 0.5px solid #e0ddd8; }
-.howto-section-label { font-size: 10px; font-weight: 500; color: #3D5A3E; letter-spacing: 0.05em; margin-bottom: 6px; }
-.howto-section-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 10px; }
-.howto-body { font-size: 13px; color: #666; line-height: 1.8; }
-.step-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
-.step-row:last-child { margin-bottom: 0; }
-.step-num { width: 26px; height: 26px; border-radius: 50%; background: #3D5A3E; color: #fff; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-.step-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
-.step-sub { font-size: 12px; color: #888; line-height: 1.6; }
-.step-arrow { text-align: center; color: #ccc; font-size: 14px; margin: 2px 0 10px 13px; }
-.trans-row { display: flex; gap: 10px; margin-bottom: 10px; }
-.trans-row:last-child { margin-bottom: 0; }
-.trans-badge { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; align-self: flex-start; margin-top: 1px; }
-.trans-badge.green { background: #e8f5eb; color: #3D5A3E; }
-.trans-badge.orange { background: #fdf0e6; color: #c8622a; }
-.trans-text { font-size: 12px; color: #666; line-height: 1.7; }
-.faq-item { margin-bottom: 14px; }
-.faq-item:last-child { margin-bottom: 0; }
-.faq-q { font-size: 12px; font-weight: 500; color: #3D5A3E; margin-bottom: 4px; display: flex; gap: 6px; }
-.faq-a { font-size: 12px; color: #666; line-height: 1.7; padding-left: 18px; }
-.settings-section-label { font-size: 11px; font-weight: 500; color: #3D5A3E; margin: 0 4px 6px; letter-spacing: 0.05em; }
-.settings-section { background: #fff; border-radius: 16px; margin-bottom: 16px; border: 0.5px solid #e0ddd8; overflow: hidden; }
-.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 0.5px solid #f0ede6; }
-.settings-row:last-child { border-bottom: none; }
-.settings-row.disabled { opacity: 0.4; }
-.settings-row-left { display: flex; align-items: center; gap: 10px; }
-.settings-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.settings-icon.green { background: #e8f5eb; }
-.settings-icon.gray { background: #f2f0ec; }
-.settings-icon.orange { background: #fdf0e6; }
-.settings-title { font-size: 13px; color: #333; }
-.settings-sub { font-size: 11px; color: #aaa; margin-top: 1px; }
-.settings-value { font-size: 12px; color: #aaa; }
-.badge-soon { background: #f2f0ec; color: #aaa; font-size: 10px; padding: 3px 8px; border-radius: 20px; }
-.chevron { color: #ccc; font-size: 16px; }
-.toggle { width: 44px; height: 26px; border-radius: 13px; background: #3D5A3E; position: relative; cursor: pointer; flex-shrink: 0; border: none; }
-.toggle-knob { width: 20px; height: 20px; border-radius: 50%; background: #fff; position: absolute; top: 3px; right: 3px; transition: right 0.2s; }
-.toggle.off { background: #ccc; }
-.toggle.off .toggle-knob { right: auto; left: 3px; }
-.sq-btn {
-  width: 36px; height: 36px; border-radius: 8px;
-  border: 1px solid #e0ddd8; background: #fff;
-  font-size: 13px; color: #888; cursor: pointer;
-  font-family: inherit; transition: all 0.15s;
-}
-.sq-btn.selected { background: #3D5A3E; border-color: #3D5A3E; color: #fff; font-weight: 500; }
-.sq-wide { width: auto; padding: 7px 14px; }
-.profile-select-btn {
-  flex: 1; padding: 8px 4px; border-radius: 20px;
-  border: 1px solid #e0ddd8; background: #fff;
-  font-size: 12px; color: #888; cursor: pointer;
-  font-family: inherit; transition: all 0.15s; text-align: center;
-}
-.profile-select-btn.active {
-  background: #3D5A3E; border-color: #3D5A3E; color: #fff; font-weight: 500;
-}
-</style>
+module.exports = async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VVJWY6FQZ9"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-VVJWY6FQZ9');
-</script>
-</head>
-<body>
-<div class="app">
+  const { userInput, mode = 'default', profile = '', partner = '' } = req.body;
+  if (!userInput) return res.status(400).json({ error: '入力が空です' });
 
-<!-- PWAホーム画面追加モーダル -->
-<div class="modal-overlay hidden" id="pwaModal">
-  <div class="modal" style="text-align:center;">
-    <div style="font-size:40px;margin-bottom:8px;">📱</div>
-    <div class="modal-title">ホーム画面に追加しよう</div>
-    <div class="modal-sub" style="margin-bottom:16px;">アプリとして使うと、こんないいことがあるよ</div>
-    <div style="text-align:left;margin-bottom:16px;display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;align-items:center;gap:10px;background:#f0f7f0;padding:10px 14px;border-radius:12px;">
-        <span style="font-size:20px;">⚡️</span>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:#3D5A3E;">伝えたい瞬間にすぐ開ける</div>
-          <div style="font-size:11px;color:#888;margin-top:2px;">URLを打たなくてもアイコン1タップ</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;background:#f0f7f0;padding:10px 14px;border-radius:12px;">
-        <span style="font-size:20px;">🌿</span>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:#3D5A3E;">週1で気持ちの振り返りが届く</div>
-          <div style="font-size:11px;color:#888;margin-top:2px;">今週どんな気持ちだったか確認できる</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;background:#f0f7f0;padding:10px 14px;border-radius:12px;">
-        <span style="font-size:20px;">📖</span>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:#3D5A3E;">履歴がずっと残る</div>
-          <div style="font-size:11px;color:#888;margin-top:2px;">過去の気持ちや翻訳をいつでも振り返れる</div>
-        </div>
-      </div>
-    </div>
-    <div id="pwa-ios" style="display:none;background:#f5f2ed;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">
-      <div style="font-size:12px;font-weight:500;color:#3D5A3E;margin-bottom:8px;">iPhoneの追加方法</div>
-      <div style="font-size:13px;color:#555;line-height:1.8;">
-        ① 下の共有ボタン <span style="font-size:16px;">⬆️</span> をタップ<br>
-        ② 「ホーム画面に追加」を選ぶ<br>
-        ③ 右上の「追加」をタップ
-      </div>
-    </div>
-    <div id="pwa-android" style="display:none;background:#f5f2ed;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">
-      <div style="font-size:12px;font-weight:500;color:#3D5A3E;margin-bottom:8px;">Androidの追加方法</div>
-      <div style="font-size:13px;color:#555;line-height:1.8;">
-        ① 右上のメニュー <span style="font-size:16px;">⋮</span> をタップ<br>
-        ② 「ホーム画面に追加」を選ぶ
-      </div>
-    </div>
-    <button class="btn-agree" onclick="tsgClosePWAPrompt(true)">追加方法を確認した！</button>
-    <button class="btn-detail" onclick="tsgClosePWAPrompt(false)">今はいい</button>
-  </div>
-</div>
-
-<div class="modal-overlay hidden" id="tutorialModal">
-  <div class="modal">
-    <div class="modal-icon">🌿</div>
-    <div class="modal-title">はじめる前に</div>
-    <div class="modal-sub">tsunageruについて<br>少しだけ説明させてください</div>
-    <div class="modal-item">
-      <div class="modal-item-icon green">📱</div>
-      <div>
-        <div class="modal-item-title">文章はスマホの中にだけ保存</div>
-        <div class="modal-item-sub">入力した内容や翻訳結果は、外部サーバーには送信されません。あなたの端末の中だけに残ります。</div>
-      </div>
-    </div>
-    <div class="modal-item">
-      <div class="modal-item-icon orange">📊</div>
-      <div>
-        <div class="modal-item-title">気持ちの選択は匿名で活用</div>
-        <div class="modal-item-sub">「今の気持ち」などのボタン操作は、サービス改善のために匿名で計測されます。</div>
-      </div>
-    </div>
-    <div class="modal-item">
-      <div class="modal-item-icon gray">⚙️</div>
-      <div>
-        <div class="modal-item-title">いつでも変更・削除できます</div>
-        <div class="modal-item-sub">設定からデータの削除や、計測のオフが可能です。</div>
-      </div>
-    </div>
-    <div class="modal-item">
-      <div class="modal-item-icon green">🌱</div>
-      <div>
-        <div class="modal-item-title">お悩み相談モードも使えます</div>
-        <div class="modal-item-sub">「ただ聞いてほしい」「どうすればいいか知りたい」の2種類。気持ちが整理できたら、そのまま伝える機能へつなげられます。</div>
-      </div>
-    </div>
-    <hr class="modal-divider">
-    <div class="modal-note">詳しくは「つかいかた」をご覧ください。</div>
-    <div class="demo-area" id="demoArea">
-      <div class="demo-label">こんなふうに使うよ</div>
-      <button class="demo-play-btn" id="tutorialPlayBtn" onclick="tsgStartTutorialDemo(); gtag('event', 'demo_play');">▶ デモを見る</button>
-
-      <!-- 伝えるデモ -->
-      <div id="tutorialDemoPhone" style="display:none">
-        <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;text-align:center;">💬 伝えるモード</div>
-        <div class="demo-phone">
-          <div class="demo-input-card">
-            <div class="demo-input-label">送りたい気持ち</div>
-            <div class="demo-input-text" id="demoText"></div>
-            <div class="demo-cursor" id="demoCursor">|</div>
-          </div>
-          <div class="demo-btn-main" id="demoBtnMain">言葉にしてみる</div>
-          <div id="demoResultGreen" style="display:none" class="demo-result">
-            <div class="demo-result-label green"><span class="demo-result-dot green"></span>伝える翻訳</div>
-            <div class="demo-result-body">最近ちょっと疲れてて、自分の時間が欲しいな。また元気になれると思うんだ。</div>
-            <div class="demo-btn-copy green" id="demoBtnCopy">この文章を送る</div>
-          </div>
-          <div id="demoResultOrange" style="display:none" class="demo-result orange">
-            <div class="demo-result-label orange"><span class="demo-result-dot orange"></span>解決翻訳</div>
-            <div class="demo-result-body">心に余裕がなくて、近いうちに1日だけ自分の時間をもらえたら嬉しいな。</div>
-            <div class="demo-btn-copy orange">この文章を送る</div>
-          </div>
-          <div id="demoFeeling" style="display:none" class="demo-feeling">
-            <div class="demo-feeling-title">💚 今の気持ちに近いのは？</div>
-            <div class="demo-feeling-grid">
-              <div class="demo-feeling-btn" id="demoFeelingBtn1">😌 少し落ち着いた</div>
-              <div class="demo-feeling-btn">🌿 気持ちを整理できた</div>
-              <div class="demo-feeling-btn">🩷 伝えやすくなった</div>
-              <div class="demo-feeling-btn">🌥 まだモヤモヤする</div>
-            </div>
-            <div class="demo-feeling-msg" id="demoFeelingMsg" style="display:none">よかったです 🌿 気持ちを整理するだけでも十分です。</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 相談デモ（伝えるデモ完了後に表示） -->
-      <div id="tutorialDemoSodan" style="display:none;margin-top:12px;">
-        <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;text-align:center;">🌱 お悩み相談モード</div>
-        <div class="demo-phone">
-          <!-- モード選択 -->
-          <div id="demoSodanModes" style="display:flex;gap:6px;margin-bottom:8px;">
-            <div id="demoSodanModeA" style="flex:1;padding:10px 6px;border-radius:12px;border:2px solid #e0ddd8;background:#fff;text-align:center;font-size:11px;color:#888;">
-              <div style="font-size:18px;margin-bottom:3px;">🫧</div>聞いてほしい
-            </div>
-            <div id="demoSodanModeB" style="flex:1;padding:10px 6px;border-radius:12px;border:2px solid #e0ddd8;background:#fff;text-align:center;font-size:11px;color:#888;">
-              <div style="font-size:18px;margin-bottom:3px;">💡</div>どうすればいい
-            </div>
-          </div>
-          <!-- 入力 -->
-          <div class="demo-input-card" style="margin-bottom:8px;">
-            <div class="demo-input-label">今、気になっていることは？</div>
-            <div class="demo-input-text" id="demoSodanText"></div>
-            <div class="demo-cursor" id="demoSodanCursor" style="display:none;">|</div>
-          </div>
-          <!-- 送信ボタン -->
-          <div class="demo-btn-main" id="demoSodanBtn" style="display:none;">話しはじめる 🌿</div>
-          <!-- AI返答 -->
-          <div id="demoSodanReply" style="display:none;" class="demo-result">
-            <div class="demo-result-label green"><span class="demo-result-dot green"></span>tsunageru</div>
-            <div class="demo-result-body" id="demoSodanReplyText"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button class="btn-agree" id="btnAgree" onclick="tsgTutorialClose()">わかった、はじめる</button>
-    <button class="btn-detail" id="btnDetail" onclick="tsgTutorialHowto()">くわしく読む</button>
-  </div>
-</div>
-
-<div class="header">
-  <div class="logo">tsunageru 🌿</div>
-  <div class="time" id="clock"></div>
-</div>
-
-<!-- ホーム画面 -->
-<div id="screen-home" class="screen active">
-
-  <!-- お悩み相談バナー（小さめ） -->
-  <div onclick="location.href='sodan.html'; gtag('event', 'sodan_banner_tap');"
-    style="background:#f0f7f0;border:1px solid #b5d9bc;border-radius:10px;padding:9px 14px;margin-bottom:1rem;display:flex;align-items:center;gap:8px;cursor:pointer;">
-    <span style="font-size:16px;">🌱</span>
-    <span style="font-size:12px;color:#3D5A3E;font-weight:500;">お悩み相談モード</span>
-    <span style="margin-left:auto;color:#b5d9bc;font-size:14px;">›</span>
-  </div>
-
-  <!-- 相手選択 -->
-  <div class="input-card" id="partner-card">
-    <div class="input-label">誰に伝える？（任意）</div>
-    <div id="partner-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"></div>
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
-      <input id="partner-input" type="text" placeholder="名前（例：夫、義母、さやか）"
-        style="flex:1;padding:9px 14px;border:1px solid #e0ddd8;border-radius:20px;font-size:13px;font-family:inherit;outline:none;background:#faf8f4;"
-        onkeydown="if(event.key==='Enter'){tsgShowRelationPicker();}" />
-      <button onclick="tsgShowRelationPicker()"
-        style="padding:9px 16px;background:#3D5A3E;color:white;border:none;border-radius:20px;font-size:13px;font-family:inherit;cursor:pointer;">追加</button>
-    </div>
-    <!-- 関係性選択（入力後に表示） -->
-    <div id="relation-picker" style="display:none;">
-      <div style="font-size:11px;color:#888;margin-bottom:6px;">関係性を選んでね</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('partner')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">💑 パートナー</button>
-        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('family')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">👨‍👩‍👧 家族・親族</button>
-        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('friend')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">👫 友人</button>
-        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('work')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">💼 職場・上司</button>
-        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('crush')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">💝 気になる相手</button>
-        <button class="relation-btn" onclick="tsgAddPartnerWithRelation('other')" style="padding:6px 12px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;">👤 その他</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="input-card">
-    <div class="input-label">送りたい気持ち</div>
-    <textarea id="userInput" maxlength="500" oninput="tsgCount()" placeholder="伝えたいことをそのまま書いてね。うまく言えなくても大丈夫。&#10;例：なんでいつも私ばっかり家事してるの？"></textarea>
-    <div style="text-align:right; font-size:11px; color:#bbb; margin-top:4px;"><span id="charCount">0</span> / 500</div>
-  </div>
-  <div class="mode-section">
-    <div class="mode-label">伝え方を選ぶ</div>
-    <div class="mode-scroll">
-      <button class="mode-btn active" data-mode="default" onclick="tsgSetMode(this)">🌿 やさしく伝わる</button>
-      <button class="mode-btn" data-mode="nofight" onclick="tsgSetMode(this)">🕊️ ケンカにならず</button>
-      <button class="mode-btn" data-mode="resolve" onclick="tsgSetMode(this)">✅ 解決したい</button>
-    </div>
-  </div>
-  <div class="btn-row">
-    <button class="btn-main" id="mainBtn" onclick="tsgRun()">言葉にしてみる</button>
-    <button class="btn-clear" onclick="tsgClear(); gtag('event', 'clear_tap');">クリア</button>
-  </div>
-  <div id="errorMsg" style="display:none" class="error">
-    <div>いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿</div>
-    <button class="btn-retry" onclick="tsgRun(); gtag('event', 'retry_tap');">もう一度試す</button>
-  </div>
-  <div id="loading" style="display:none" class="loading">
-    <span id="loadingMsg">気持ち、受け取ったよ 🌿</span>
-  </div>
-  <div id="results" style="display:none">
-    <div class="divider">
-      <div class="divider-line"></div>
-      <div class="divider-text">こんなふうに伝えられるかも 🌿</div>
-      <div class="divider-line"></div>
-    </div>
-    <div class="result-card green">
-      <div class="result-label green"><span class="result-dot green"></span>伝える翻訳</div>
-      <div class="mode-badge" id="softModeBadge"></div>
-      <div class="result-text" id="softResult"></div>
-      <div class="result-hint" id="softHint"></div>
-      <button class="btn-copy green" onclick="tsgCopy('softResult', this)">この文章を送る</button>
-    </div>
-    <div class="result-card orange">
-      <div class="result-label orange"><span class="result-dot orange"></span>解決翻訳</div>
-      <div class="result-text" id="solveResult"></div>
-      <div class="result-hint" id="solveHint"></div>
-      <button class="btn-copy orange" onclick="tsgCopy('solveResult', this)">この文章を送る</button>
-    </div>
-    <div class="feeling-card">
-      <div class="feeling-title">💚 今の気持ちに近いのは？</div>
-      <div class="feeling-sub">選ぶだけでも、気持ちの整理になります 🌿</div>
-      <div class="feeling-grid">
-        <button class="feeling-btn" onclick="tsgFeeling(this)">
-          <div class="feeling-emoji">😌</div>
-          <div class="feeling-label">少し落ち着いた</div>
-        </button>
-        <button class="feeling-btn" onclick="tsgFeeling(this)">
-          <div class="feeling-emoji">🌿</div>
-          <div class="feeling-label">気持ちを整理できた</div>
-        </button>
-        <button class="feeling-btn" onclick="tsgFeeling(this)">
-          <div class="feeling-emoji">🩷</div>
-          <div class="feeling-label">伝えやすくなった</div>
-        </button>
-        <button class="feeling-btn" onclick="tsgFeeling(this)">
-          <div class="feeling-emoji">🌥</div>
-          <div class="feeling-label">まだモヤモヤする</div>
-        </button>
-      </div>
-      <div class="feeling-message" id="feelingMessage"></div>
-    </div>
-  </div>
-</div>
-
-<!-- 履歴画面 -->
-<div id="screen-history" class="screen">
-
-  <!-- 週次振り返りカード -->
-  <div id="weeklyReview" style="background:#fff;border-radius:16px;border:0.5px solid #e0ddd8;margin-bottom:1rem;overflow:hidden;">
-    <div onclick="tsgToggleWeekly()" style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:16px;">🌿</span>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:#3D5A3E;">今週の振り返り</div>
-          <div style="font-size:11px;color:#aaa;" id="weeklySubtitle">タップで開く</div>
-        </div>
-      </div>
-      <span id="weeklyChevron" style="color:#ccc;font-size:16px;">›</span>
-    </div>
-    <div id="weeklyContent" style="display:none;padding:0 16px 16px;">
-      <!-- カレンダー -->
-      <div style="margin-bottom:14px;">
-        <div style="font-size:11px;color:#aaa;margin-bottom:8px;">今週の気持ち</div>
-        <div id="weeklyCalendar" style="display:flex;gap:4px;"></div>
-      </div>
-      <!-- 集計 -->
-      <div id="weeklySummary" style="font-size:12px;color:#666;line-height:1.8;margin-bottom:14px;background:#f5f2ed;padding:10px 12px;border-radius:10px;"></div>
-      <!-- AIの言葉 -->
-      <div id="weeklyAI" style="border-top:0.5px solid #e0ddd8;padding-top:12px;">
-        <div style="font-size:11px;color:#3D5A3E;font-weight:500;margin-bottom:6px;">tsunageruより 🌿</div>
-        <div id="weeklyAIText" style="font-size:13px;color:#444;line-height:1.8;"></div>
-        <button onclick="tsgRefreshWeeklyAI()" id="weeklyRefreshBtn"
-          style="margin-top:10px;padding:7px 14px;background:#f5f2ed;border:0.5px solid #b5d9bc;border-radius:20px;font-size:12px;color:#3D5A3E;cursor:pointer;font-family:inherit;">
-          別の言葉を見る
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="historyEmpty" class="coming-soon">
-    <div class="coming-soon-icon">🕐</div>
-    <div class="coming-soon-title">まだ履歴がありません</div>
-    <div class="coming-soon-sub">翻訳すると、ここに記録されます 🌿</div>
-  </div>
-  <div id="historyList"></div>
-</div>
-
-<!-- つかいかた画面 -->
-<div id="screen-howto" class="screen">
-  <div class="howto-section">
-    <div class="howto-section-label">ABOUT</div>
-    <div class="howto-section-title">tsunageruってなに？</div>
-    <div class="howto-body">伝えたいのに言葉にできない気持ちを、相手に伝わりやすい言葉に変えるアプリです。怒りもモヤモヤも、感謝も謝りたい気持ちも。うまく言葉にできなくても大丈夫。そのまま入力するだけでOKです。</div>
-  </div>
-  <div class="howto-section">
-    <div class="howto-section-label">STEP 0</div>
-    <div class="howto-section-title">まずホーム画面に追加しよう 📱</div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-      <div style="display:flex;align-items:center;gap:10px;background:#f0f7f0;padding:10px 14px;border-radius:12px;">
-        <span style="font-size:20px;">⚡️</span>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:#3D5A3E;">伝えたい瞬間にすぐ開ける</div>
-          <div style="font-size:11px;color:#888;margin-top:2px;">URLを打たなくてもアイコン1タップ</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;background:#f0f7f0;padding:10px 14px;border-radius:12px;">
-        <span style="font-size:20px;">🌿</span>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:#3D5A3E;">週1で気持ちの振り返りが届く</div>
-          <div style="font-size:11px;color:#888;margin-top:2px;">今週どんな気持ちだったか確認できる</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;background:#f0f7f0;padding:10px 14px;border-radius:12px;">
-        <span style="font-size:20px;">📖</span>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:#3D5A3E;">履歴がずっと残る</div>
-          <div style="font-size:11px;color:#888;margin-top:2px;">過去の気持ちや翻訳をいつでも振り返れる</div>
-        </div>
-      </div>
-    </div>
-    <div class="howto-body">
-      <strong>iPhoneの場合</strong><br>
-      Safariで開く → 下の共有ボタン（四角に矢印）→「ホーム画面に追加」<br><br>
-      <strong>Androidの場合</strong><br>
-      Chromeで開く → 右上のメニュー（︙）→「ホーム画面に追加」
-    </div>
-  </div>
-  <div class="howto-section">
-    <div class="howto-section-label">HOW TO USE</div>
-    <div class="howto-section-title">使い方は3ステップ</div>
-    <div class="step-row">
-      <div class="step-num">1</div>
-      <div>
-        <div class="step-title">気持ちを入力する</div>
-        <div class="step-sub">うまく言えなくてOK。伝えたいことをそのまま書いてみてください。</div>
-      </div>
-    </div>
-    <div class="step-arrow">↓</div>
-    <div class="step-row">
-      <div class="step-num">2</div>
-      <div>
-        <div class="step-title">伝え方を選んで翻訳する</div>
-        <div class="step-sub">モードから今の状況に合うものを選んでください。</div>
-      </div>
-    </div>
-    <div class="step-arrow">↓</div>
-    <div class="step-row">
-      <div class="step-num">3</div>
-      <div>
-        <div class="step-title">そのまま送る</div>
-        <div class="step-sub">「この文章を送る」を押してコピーし、LINEやメッセージで送れます。</div>
-      </div>
-    </div>
-  </div>
-  <div class="howto-section">
-    <div class="howto-section-label">MODES</div>
-    <div class="howto-section-title">伝え方モード</div>
-    <div class="trans-row">
-      <div class="trans-badge green">🌿 やさしく伝わる</div>
-      <div class="trans-text">感情をやわらかく、相手が受け取りやすい言葉で伝えます。迷ったらこれ。</div>
-    </div>
-    <div class="trans-row">
-      <div class="trans-badge green">🕊️ ケンカにならず</div>
-      <div class="trans-text">相手を責める言葉を避けて、穏やかに伝えます。言い合いになりそうなときに。</div>
-    </div>
-    <div class="trans-row">
-      <div class="trans-badge green">👨 男性脳向け</div>
-      <div class="trans-text">結論を先に、何をしてほしいかを明確に伝えます。論理的なパートナーに。</div>
-    </div>
-  </div>
-  <div class="howto-section">
-    <div class="howto-section-label">CONSULTATION</div>
-    <div class="howto-section-title">お悩み相談モード 🌱</div>
-    <div class="howto-body" style="margin-bottom:12px;">伝える前に、まず気持ちを整理したいときに使えます。AIが話を聞いて、自分の気持ちに気づくお手伝いをします。</div>
-    <div class="trans-row">
-      <div class="trans-badge green">🫧 ただ聞いてほしい</div>
-      <div class="trans-text">解決しなくていい。ただ話を聞いてもらいたいときに。共感と問いかけで気持ちを整理します。</div>
-    </div>
-    <div class="trans-row">
-      <div class="trans-badge green">💡 どうすればいいか知りたい</div>
-      <div class="trans-text">具体的なアドバイスがほしいときに。アドラー心理学・カーネギーの考え方をベースに提案します。</div>
-    </div>
-    <div style="margin-top:12px;padding:10px 12px;background:#f0f7f0;border-radius:10px;font-size:12px;color:#3D5A3E;line-height:1.7;">
-      💬 気持ちが整理できたら、そのまま「伝える」機能へつなげられます。
-    </div>
-  </div>
-  <div class="howto-section">
-    <div class="howto-section-label">TRANSLATION</div>
-    <div class="howto-section-title">2種類の翻訳の違い</div>
-    <div class="trans-row">
-      <div class="trans-badge green">伝える翻訳</div>
-      <div class="trans-text">今の気持ちをやさしく言い換えます。まず気持ちを受け取ってほしいときに。</div>
-    </div>
-    <div class="trans-row">
-      <div class="trans-badge orange">解決翻訳</div>
-      <div class="trans-text">気持ちとお願いをセットで伝えます。具体的に動いてほしいときに。</div>
-    </div>
-  </div>
-  <div class="howto-section">
-    <div class="howto-section-label">FEELING CHECK</div>
-    <div class="howto-section-title">今の気持ち選択について</div>
-    <div class="howto-body">翻訳後に表示される4択は、送る・送らないに関係なく選べます。自分の気持ちを確認するためのものです。</div>
-  </div>
-  <div class="howto-section">
-    <div class="howto-section-title">よくある質問</div>
-    <div class="faq-item">
-      <div class="faq-q"><span>Q.</span>入力した内容は誰かに見られますか？</div>
-      <div class="faq-a">いいえ。入力した文章や翻訳結果は外部に送信されず、あなたのスマホの中にだけ保存されます。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q"><span>Q.</span>翻訳はAIがやってるの？</div>
-      <div class="faq-a">はい。AIがあなたの気持ちを読み取って、伝わりやすい言葉に変えています。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q"><span>Q.</span>履歴はどこで見られますか？</div>
-      <div class="faq-a">下のメニューの「履歴」から確認できます。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q"><span>Q.</span>うまく翻訳されなかったときは？</div>
-      <div class="faq-a">モードを変えてもう一度試してみてください。「ケンカにならず」は特に穏やかな表現になります。</div>
-    </div>
-  </div>
-  <div class="howto-section">
-    <div class="howto-section-label">WHY</div>
-    <div class="howto-section-title">tsunageruをつくった理由</div>
-    <div class="howto-body">夫に腹が立ちすぎて眠れない夜がありました。<br><br>言いたいことはある。でも、どう伝えればいいかわからない。キレられるんじゃないか、拒絶されるんじゃないかって思うと、なかなか言葉にできない。<br><br>重要なのは、相手に伝わるかどうか。でも、伝わる言葉に変えるのって、本当に難しい。<br><br>そこで思いついたのが翻訳こんにゃく。伝えたい気持ちをそのまま入れると、AIが伝わる言葉に変えてくれるアプリ。アドラーやカーネギーが残した知恵をAIに学習させて、あなたの気持ちを届けます。</div>
-  </div>
-</div>
-
-<!-- 設定画面 -->
-<div id="screen-settings" class="screen">
-  <div class="settings-section-label">プライバシー</div>
-  <div class="settings-section-label">あなたのプロフィール</div>
-  <div class="settings-section">
-    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
-      <div class="settings-row-left">
-        <div class="settings-icon green">👤</div>
-        <div><div class="settings-title">ニックネーム</div></div>
-      </div>
-      <input id="profile-name" type="text" placeholder="例：さくら"
-        style="width:100%;padding:10px 14px;border:1px solid #e0ddd8;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#faf8f4;"
-        oninput="tsgSaveProfile()" />
-    </div>
-    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
-      <div class="settings-row-left">
-        <div class="settings-icon green">🙋</div>
-        <div><div class="settings-title">性別</div></div>
-      </div>
-      <div style="display:flex;gap:8px;width:100%;">
-        <button class="profile-select-btn" id="gender-female" onclick="tsgSelectGender('female')">女性</button>
-        <button class="profile-select-btn" id="gender-male" onclick="tsgSelectGender('male')">男性</button>
-        <button class="profile-select-btn" id="gender-other" onclick="tsgSelectGender('other')">答えない</button>
-      </div>
-    </div>
-    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
-      <div class="settings-row-left">
-        <div class="settings-icon green">💬</div>
-        <div><div class="settings-title">話し方の好み</div></div>
-      </div>
-      <div style="display:flex;gap:8px;width:100%;">
-        <button class="profile-select-btn" id="style-soft" onclick="tsgSelectStyle('soft')">やわらかめ</button>
-        <button class="profile-select-btn" id="style-normal" onclick="tsgSelectStyle('normal')">ふつう</button>
-        <button class="profile-select-btn" id="style-direct" onclick="tsgSelectStyle('direct')">ストレートに</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="settings-section-label">使った感想を聞かせて 🌿</div>
-  <div class="settings-section" id="surveySection">
-    <div style="padding:16px;">
-      <div style="font-size:12px;color:#888;margin-bottom:16px;">1分で終わります。率直な声が次の開発に活かせます！</div>
-
-      <!-- Q1: 使いやすさ -->
-      <div style="margin-bottom:16px;">
-        <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">操作しやすかったですか？</div>
-        <div style="display:flex;gap:6px;" id="sq1">
-          <button class="sq-btn" onclick="tsgSurveyQ('sq1',1,this)">1</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq1',2,this)">2</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq1',3,this)">3</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq1',4,this)">4</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq1',5,this)">5</button>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#bbb;margin-top:4px;padding:0 2px;"><span>使いにくい</span><span>使いやすい</span></div>
-      </div>
-
-      <!-- Q2: 翻訳精度 -->
-      <div style="margin-bottom:16px;">
-        <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">翻訳された文章は気持ちに近かったですか？</div>
-        <div style="display:flex;gap:6px;" id="sq2">
-          <button class="sq-btn" onclick="tsgSurveyQ('sq2',1,this)">1</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq2',2,this)">2</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq2',3,this)">3</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq2',4,this)">4</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq2',5,this)">5</button>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#bbb;margin-top:4px;padding:0 2px;"><span>全然違う</span><span>ぴったり</span></div>
-      </div>
-
-      <!-- Q3: 継続利用 -->
-      <div style="margin-bottom:16px;">
-        <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">また使いたいと思いますか？</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;" id="sq3">
-          <button class="sq-btn sq-wide" onclick="tsgSurveyQ('sq3','ぜひ使う',this)">ぜひ使う</button>
-          <button class="sq-btn sq-wide" onclick="tsgSurveyQ('sq3','たぶん使う',this)">たぶん使う</button>
-          <button class="sq-btn sq-wide" onclick="tsgSurveyQ('sq3','わからない',this)">わからない</button>
-          <button class="sq-btn sq-wide" onclick="tsgSurveyQ('sq3','あまりつかわない',this)">あまり使わない</button>
-        </div>
-      </div>
-
-      <!-- Q4: NPS -->
-      <div style="margin-bottom:16px;">
-        <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">友達に勧めたいですか？</div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;" id="sq4">
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',1,this)">1</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',2,this)">2</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',3,this)">3</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',4,this)">4</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',5,this)">5</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',6,this)">6</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',7,this)">7</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',8,this)">8</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',9,this)">9</button>
-          <button class="sq-btn" onclick="tsgSurveyQ('sq4',10,this)">10</button>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#bbb;margin-top:4px;padding:0 2px;"><span>勧めない</span><span>ぜひ勧める</span></div>
-      </div>
-
-      <!-- Q5: 自由記述 -->
-      <div style="margin-bottom:16px;">
-        <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:8px;">改善してほしいことや感想があれば</div>
-        <textarea id="sq5text" placeholder="なんでも書いてね🌿" maxlength="500"
-          style="width:100%;padding:10px 12px;border:1px solid #e0ddd8;border-radius:10px;font-size:13px;font-family:inherit;resize:none;height:80px;outline:none;background:#faf8f4;"></textarea>
-      </div>
-
-      <button onclick="tsgSubmitSurvey()" id="sqSubmitBtn"
-        style="width:100%;padding:12px;background:#3D5A3E;color:white;border:none;border-radius:12px;font-size:14px;font-family:inherit;cursor:pointer;">
-        送る 🌿
-      </button>
-      <div id="sqThanks" style="display:none;text-align:center;padding:16px 0;">
-        <div style="font-size:24px;margin-bottom:8px;">🌿</div>
-        <div style="font-size:15px;font-weight:500;color:#2C3E2D;">ありがとうございます！</div>
-        <div style="font-size:12px;color:#aaa;margin-top:4px;">あなたの声が次の開発に活かされます</div>
-      </div>
-    </div>
-  </div>
-  <div class="settings-section-label">プライバシー</div>
-  <div class="settings-section">
-    <div class="settings-row">
-      <div class="settings-row-left">
-        <div class="settings-icon green">📊</div>
-        <div>
-          <div class="settings-title">効果測定への参加</div>
-          <div class="settings-sub">気持ちの選択を匿名で活用</div>
-        </div>
-      </div>
-      <button class="toggle" id="analyticsToggle" onclick="tsgToggle()"><div class="toggle-knob"></div></button>
-    </div>
-    <div class="settings-row" onclick="tsgDeleteHistory()" style="cursor:pointer;">
-      <div class="settings-row-left">
-        <div class="settings-icon gray">🗑️</div>
-        <div>
-          <div class="settings-title">データをすべて削除</div>
-          <div class="settings-sub">履歴データの削除</div>
-        </div>
-      </div>
-      <span class="chevron">›</span>
-    </div>
-  </div>
-  <div class="settings-section-label">通知</div>
-  <div class="settings-section">
-    <div class="settings-row disabled">
-      <div class="settings-row-left">
-        <div class="settings-icon gray">🔔</div>
-        <div>
-          <div class="settings-title">通知設定</div>
-          <div class="settings-sub">リマインダーなど</div>
-        </div>
-      </div>
-      <span class="badge-soon">準備中</span>
-    </div>
-  </div>
-  <div class="settings-section-label">アプリについて</div>
-  <div class="settings-section">
-    <div class="settings-row" onclick="gtag('event', 'inquiry_tap'); window.open('https://forms.gle/aKwysRoBBgFpT4U2A', '_blank')" style="cursor:pointer;">
-      <div class="settings-row-left">
-        <div class="settings-icon gray">✉️</div>
-        <div><div class="settings-title">お問い合わせ</div></div>
-      </div>
-      <span class="chevron">›</span>
-    </div>
-    <div class="settings-row">
-      <div class="settings-row-left">
-        <div class="settings-icon gray">ℹ️</div>
-        <div><div class="settings-title">バージョン</div></div>
-      </div>
-      <span class="settings-value">1.4.0</span>
-    </div>
-  </div>
-</div>
-
-<!-- ボトムナビ -->
-<nav class="bottom-nav">
-  <button class="nav-item active" id="nav-home" onclick="tsgNav('home')">
-    <div class="nav-icon">💬</div>
-    <div class="nav-label">伝える</div>
-  </button>
-  <button class="nav-item" id="nav-sodan" onclick="location.href='sodan.html'; gtag('event', 'nav_sodan');">
-    <div class="nav-icon">🌱</div>
-    <div class="nav-label">相談する</div>
-  </button>
-  <button class="nav-item" id="nav-history" onclick="tsgNav('history')">
-    <div class="nav-icon">🕐</div>
-    <div class="nav-label">履歴</div>
-  </button>
-  <button class="nav-item" id="nav-howto" onclick="tsgNav('howto')">
-    <div class="nav-icon">🌿</div>
-    <div class="nav-label">つかいかた</div>
-  </button>
-  <button class="nav-item" id="nav-settings" onclick="tsgNav('settings')">
-    <div class="nav-icon">⚙️</div>
-    <div class="nav-label">設定</div>
-  </button>
-</nav>
-
-</div>
-
-<script>
-var currentMode = 'default';
-var currentSubject = 'other';
-
-var modeLabels = {
-  default: '🌿 やさしく伝わる',
-  nofight: '🕊️ ケンカにならず',
-  resolve: '✅ 解決したい'
-};
-
-function tsgSetMode(btn) {
-  document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-  currentMode = btn.dataset.mode;
-  gtag('event', 'mode_select', { mode: currentMode });
-}
-
-function tsgShowPWAPrompt() {
-  // すでにPWAとして起動してたら表示しない
-  if (window.matchMedia('(display-mode: standalone)').matches) return;
-
-  var ua = navigator.userAgent;
-  var isIOS = /iphone|ipad|ipod/i.test(ua);
-  var isAndroid = /android/i.test(ua);
-
-  if (!isIOS && !isAndroid) return; // PCは表示しない
-
-  document.getElementById('pwa-ios').style.display = isIOS ? 'block' : 'none';
-  document.getElementById('pwa-android').style.display = isAndroid ? 'block' : 'none';
-  document.getElementById('pwaModal').classList.remove('hidden');
-  gtag('event', 'pwa_prompt_shown', { platform: isIOS ? 'ios' : 'android' });
-}
-
-function tsgClosePWAPrompt(accepted) {
-  document.getElementById('pwaModal').classList.add('hidden');
-  localStorage.setItem('tsg_pwa_prompted', '1');
-  gtag('event', 'pwa_prompt_response', { accepted: accepted ? 'yes' : 'no' });
-}
-
-function tsgTutorialClose() {
-  document.getElementById('tutorialModal').classList.add('hidden');
-  localStorage.setItem('tsg_tutorial_done', '1');
-  gtag('event', 'tutorial_agree');
-  // ホーム画面追加を促す（初回のみ）
-  if (!localStorage.getItem('tsg_pwa_prompted')) {
-    setTimeout(function() { tsgShowPWAPrompt(); }, 500);
-  }
-}
-
-function tsgTutorialHowto() {
-  document.getElementById('tutorialModal').classList.add('hidden');
-  localStorage.setItem('tsg_tutorial_done', '1');
-  tsgNav('howto');
-  gtag('event', 'tutorial_howto');
-}
-
-function tsgRunDemoIn(ids, onComplete) {
-  var text = 'なんでいつも私ばっかり家事してるの？';
-  var textEl = document.getElementById(ids.text);
-  var cursorEl = document.getElementById(ids.cursor);
-  var btnMain = document.getElementById(ids.btnMain);
-  var resultGreen = document.getElementById(ids.resultGreen);
-  var resultOrange = document.getElementById(ids.resultOrange);
-  var btnCopy = document.getElementById(ids.btnCopy);
-  var feelingEl = document.getElementById(ids.feeling);
-  var feelingBtn1 = document.getElementById(ids.feelingBtn1);
-  var feelingMsg = document.getElementById(ids.feelingMsg);
-  var i = 0;
-  var typing = setInterval(function() {
-    textEl.textContent += text[i];
-    i++;
-    if (i >= text.length) {
-      clearInterval(typing);
-      cursorEl.style.display = 'none';
-      setTimeout(function() {
-        btnMain.classList.add('active');
-        setTimeout(function() {
-          btnMain.classList.remove('active');
-          btnMain.textContent = '整えています...';
-          setTimeout(function() {
-            btnMain.textContent = '言葉にしてみる';
-            resultGreen.style.display = 'block';
-            setTimeout(function() {
-              resultOrange.style.display = 'block';
-              setTimeout(function() {
-                btnCopy.classList.add('copied');
-                btnCopy.textContent = 'コピーしました！';
-                setTimeout(function() {
-                  feelingEl.style.display = 'block';
-                  setTimeout(function() {
-                    feelingBtn1.classList.add('selected');
-                    feelingMsg.style.display = 'block';
-                    setTimeout(function() { if (onComplete) onComplete(); }, 2000);
-                  }, 2500);
-                }, 2000);
-              }, 2500);
-            }, 2500);
-          }, 3000);
-        }, 800);
-      }, 1000);
+  const modeStyles = {
+    default: {
+      label: 'やさしく伝わる',
+      instruction: '感情をやわらかく、相手が受け取りやすい言葉で伝える。責めず、でも本音は残す。'
+    },
+    nofight: {
+      label: 'ケンカにならず',
+      instruction: '相手を責める言葉を徹底的に避ける。「あなたが〜」ではなく「私が〜」を主語にする。穏やかで、相手が防御態勢にならない言葉を選ぶ。'
+    },
+    resolve: {
+      label: '解決したい',
+      instruction: '結論を先に、理由を後にする。感情より状況・事実・お願いの順で伝える。何をしてほしいかを明確にする。長い感情説明は省く。'
     }
-  }, 200);
-}
+  };
 
-function tsgStartTutorialDemo() {
-  document.getElementById('tutorialPlayBtn').style.display = 'none';
-  document.getElementById('tutorialDemoPhone').style.display = 'block';
-  tsgRunDemoIn({
-    text: 'demoText', cursor: 'demoCursor', btnMain: 'demoBtnMain',
-    resultGreen: 'demoResultGreen', resultOrange: 'demoResultOrange',
-    btnCopy: 'demoBtnCopy', feeling: 'demoFeeling',
-    feelingBtn1: 'demoFeelingBtn1', feelingMsg: 'demoFeelingMsg'
-  }, function() {
-    // 伝えるデモ完了 → 相談デモへ
-    setTimeout(function() { tsgRunSodanDemo(); }, 1200);
-  });
-}
+  const selectedMode = modeStyles[mode] || modeStyles.default;
 
-function tsgRunSodanDemo() {
-  var sodanEl = document.getElementById('tutorialDemoSodan');
-  sodanEl.style.display = 'block';
-  sodanEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  const prompt = `あなたは「感情LINE翻訳者」です。
 
-  var modeA = document.getElementById('demoSodanModeA');
-  var modeB = document.getElementById('demoSodanModeB');
-  var textEl = document.getElementById('demoSodanText');
-  var cursorEl = document.getElementById('demoSodanCursor');
-  var btnEl = document.getElementById('demoSodanBtn');
-  var replyEl = document.getElementById('demoSodanReply');
-  var replyTextEl = document.getElementById('demoSodanReplyText');
+【翻訳前に必ず行う主語判定】
+ユーザーの入力を読んで、まず「誰の話か」を判定してから翻訳すること。
 
-  var sodanText = '夫の日記を読んじゃってモヤモヤしてる';
-  var replyText = 'それはモヤモヤするよね。\n読んじゃったこと自体に気まずさがあるのかな、それとも内容が気になってる感じ？';
+・相手への不満・指摘パターン：「なんで〜できないの」「〜してくれない」「〜するのやめて」「〜が嫌」「〜してほしい」
+→ 相手の行動に対する気持ちとして翻訳する。絶対に自分の反省・自己批判に書き換えない。
 
-  // ① モードAをハイライト
-  setTimeout(function() {
-    modeA.style.borderColor = '#3D5A3E';
-    modeA.style.background = '#e8f5eb';
-    modeA.style.color = '#3D5A3E';
+・自分の気持ち・悩みパターン：「私が〜」「自分が〜できない」「うまく言えない」「〜してしまう」
+→ 自分の感情や状況を相手に伝える翻訳をする。
 
-    // ② テキスト入力アニメ
-    setTimeout(function() {
-      cursorEl.style.display = 'inline';
-      var i = 0;
-      var typing = setInterval(function() {
-        textEl.textContent += sodanText[i];
-        i++;
-        if (i >= sodanText.length) {
-          clearInterval(typing);
-          cursorEl.style.display = 'none';
+ユーザーが入力した気持ちを、そのまま相手に送れる自然なLINE文へ変換してください。
 
-          // ③ ボタン表示→クリック
-          setTimeout(function() {
-            btnEl.style.display = 'block';
-            setTimeout(function() {
-              btnEl.style.opacity = '0.7';
-              setTimeout(function() {
-                btnEl.style.opacity = '1';
-                btnEl.textContent = '話を聞いています...';
+【翻訳モード】
+${selectedMode.label}
+${selectedMode.instruction}
 
-                // ④ AI返答を1文字ずつ表示
-                setTimeout(function() {
-                  btnEl.style.display = 'none';
-                  replyEl.style.display = 'block';
-                  replyTextEl.textContent = '';
-                  var j = 0;
-                  var replyTyping = setInterval(function() {
-                    replyTextEl.textContent += replyText[j];
-                    j++;
-                    if (j >= replyText.length) {
-                      clearInterval(replyTyping);
-                    }
-                  }, 40);
-                }, 1800);
-              }, 600);
-            }, 800);
-          }, 600);
-        }
-      }, 120);
-    }, 800);
-  }, 600);
-}
+【あなたの役割】
+・感情翻訳者であり、カウンセラーではない
+・ユーザーへの返答ではなく、ユーザーが相手に送るLINE文を作る
+・ユーザーの気持ちを整理して「伝わる形」に変換することだけが仕事
 
-if (!localStorage.getItem('tsg_tutorial_done')) {
-  document.getElementById('tutorialModal').classList.remove('hidden');
-}
+【絶対にやらないこと】
+・「頑張ってるね」「疲れてるんじゃないかな」などユーザーへの励まし
+・感情分析・解説・説教・アドバイス・正論
+・AI視点の感想・コメント・心理分析
+・綺麗にまとめすぎること
+・「また気持ちを切り替えて〜」のような前向きな締め
+・完璧に整いすぎた文章
+・文頭を「ね、」「ねえ、」で始める
+・カギ括弧（「」）や二重カギ括弧（『』）を使う
+・入力の主語・主体を勝手に変えること（例：相手の行動を指摘している文を、自分の反省に書き換えるのは厳禁）
+・「なんで〜できないの？」という相手への疑問や不満を、「自分が〜してしまった」という自己反省に変換しない
 
-function tsgCount() {
-  var len = document.getElementById('userInput').value.length;
-  var el = document.getElementById('charCount');
-  el.textContent = len;
-  el.style.color = len >= 450 ? '#D85A30' : '#bbb';
-}
+【文章の長さ・形式】
+・スマホLINEで実際に送りやすい長さにする
+・1文を短くする（1文に詰め込まない）
+・改行を使って3〜4行以内にまとめる
 
-function updateClock() {
-  var now = new Date();
-  document.getElementById('clock').textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
-}
-updateClock();
-setInterval(updateClock, 60000);
+【人間っぽい文章を作る】
+・少し不完全でいい、余白があっていい
+・「かも」「なんだよね」「ちょっと」など本音っぽい言葉を使う
+・綺麗な結論で終わらない
+・相手が返信しやすい終わり方にする
 
-function tsgNav(screen) {
-  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  document.getElementById('screen-' + screen).classList.add('active');
-  document.getElementById('nav-' + screen).classList.add('active');
-  window.scrollTo(0, 0);
-  gtag('event', 'nav_tap', { screen_name: screen });
-}
+【主語・主体の判定（超重要）】
+ユーザーの入力を読む前に、まず「誰の行動・言動について話しているか」を判定すること。
 
-function tsgClear() {
-  document.getElementById('userInput').value = '';
-  document.getElementById('charCount').textContent = '0';
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('errorMsg').style.display = 'none';
-  document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
-  document.getElementById('feelingMessage').classList.remove('show');
-  var surveyCard = document.getElementById('surveyCard');
-  if (surveyCard) surveyCard.remove();
-}
+パターンA：相手への不満・指摘
+例：「なんで〜できないの」「〜するのやめてほしい」「〜するのが嫌」「〜してくれない」
+→ 相手の行動に対するユーザーの不満として翻訳する。自分の反省に書き換えない。
 
-async function tsgRun() {
-  var userInput = document.getElementById('userInput').value.trim();
-  var errorEl = document.getElementById('errorMsg');
-  errorEl.style.display = 'none';
-  if (!userInput) {
-    errorEl.innerHTML = '気持ちを入力してください。';
-    errorEl.style.display = 'block';
-    return;
-  }
-  document.getElementById('mainBtn').disabled = true;
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('results').style.display = 'none';
-  document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
-  document.getElementById('feelingMessage').classList.remove('show');
-  var surveyCard = document.getElementById('surveyCard');
-  if (surveyCard) surveyCard.remove();
+パターンB：自分の悩み・反省
+例：「私が〜してしまう」「自分が〜できない」「うまく言えない」
+→ 自分の気持ちや状況として翻訳する。
 
-  gtag('event', 'translate_start', { mode: currentMode });
+【判定の例】
+入力：「なんで子どもにあんなきつい言い方しかできないの？」
+→ パターンA。相手（夫など）が子どもにきつい言い方をしていることへの不満。
+→ NG：「子どもに対してきつい言い方をしてしまっていて…」（自分の反省にしてはいけない）
+→ OK：「子どもへの言い方が気になってて、もう少し優しくしてほしいんだよね」
+ユーザーの入力から、最も近い感情タグを1つだけ選ぶ：
+- "モヤモヤ"：もやもや・すっきりしない・なんとなく不満
+- "イライラ"：怒り・不満・腹立ち
+- "悲しい"：悲しみ・寂しさ・涙
+- "不安"：心配・怖い・どうしよう
+- "疲れた"：疲労・しんどい・つらい
+- "感謝"：ありがとう・嬉しい・助かった
 
-  var loadingMessages = ['気持ち、受け取ったよ 🌿', '言葉を探してるよ...', 'もう少しだけ待ってね 🌱'];
-  var msgIdx = 0;
-  var msgEl = document.getElementById('loadingMsg');
-  msgEl.textContent = loadingMessages[0];
-  var msgTimer = setInterval(function() {
-    msgIdx = (msgIdx + 1) % loadingMessages.length;
-    msgEl.style.opacity = '0';
-    setTimeout(function() {
-      msgEl.textContent = loadingMessages[msgIdx];
-      msgEl.style.opacity = '1';
-    }, 300);
-  }, 2500);
+【翻訳例（defaultモード）】
+入力：「アプリ開発が楽しくて会社員の仕事に集中できない」
+
+伝える翻訳：
+最近アプリ開発が楽しくて、気持ちがそっちに向いちゃってるんだよね。
+会社の仕事もあるのに、うまく切り替えられなくて、ちょっと葛藤してる。
+
+解決翻訳：
+最近アプリ開発に熱中してて、仕事との両立がしんどくなってきた。
+少し相談したいから、時間もらえたら嬉しい。
+
+【2種類の翻訳】
+「伝える翻訳」：選択したモードで、気持ちを伝える。相手に受け取ってもらうことを優先。
+「解決翻訳」：選択したモードで、気持ち＋具体的なお願いをセットで伝える。相手が動きやすい形に。
+
+【翻訳の考え方ベース】
+アドラー心理学・カーネギーの人間関係論・NVC（非暴力コミュニケーション）
+
+${profile ? `【⚠️ 最重要：相手・口調の指定】
+${profile}
+
+上記の「文体指示」は絶対に守ること。
+・「文体指示：丁寧で建設的な口調。敬語を使う。」→ 翻訳文は必ず敬語（です・ます調）にする
+・「文体指示：フレンドリーで親密な口調。敬語不要。」→ タメ口にする
+・「文体指示：カジュアルでフレンドリーな口調。タメ口OK。」→ タメ口にする
+翻訳文の中で相手の名前や「あなた」は使わず自然な形にすること。
+
+【絶対にやらないこと（口調共通）】
+・謝罪から始めない（「申し訳ありません」「すみません」など）
+・過剰敬語にしない（「お気に召さない」「いかがでしょうか」「お手数ですが」など時代劇・ビジネスメール的な表現は禁止）
+・ユーザーが相手の行動に疑問・不満を持っているのに、自分が悪いかのような文章にしない
+・敬語でも「です・ます」程度の自然な丁寧さにとどめる
+
+【敬語の正しいイメージ】
+✅ 「最近、なんか怒ってるように感じて…何があったか教えてもらえますか？」
+✅ 「怒っているみたいで、理由がわからなくてモヤモヤしています。教えてもらえますか？」
+❌ 「お気に召さないことがございましたら申し訳ございません」（過剰すぎ・禁止）
+❌ 「お怒りのご様子ですが…」（時代劇・禁止）` : ''}
+
+---
+
+【ユーザーが入力した気持ち】
+${userInput}
+
+以下のJSON形式のみで返してください。余計な文字・解説・コメントは一切不要：
+{"soft":"伝える翻訳のテキスト","soft_hint":"伝わりやすい理由20文字以内","solve":"解決翻訳のテキスト","solve_hint":"効果的な理由20文字以内","emotion":"モヤモヤ|イライラ|悲しい|不安|疲れた|感謝のいずれか1つ"}`;
 
   try {
-    var response = await fetch('/api/translate', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userInput: userInput, mode: currentMode, profile: tsgGetProfileContext(), partner: currentPartner })
-    });
-    var parsed = await response.json();
-    if (!response.ok) throw new Error(parsed.error || 'エラーが発生しました');
-
-    document.getElementById('softResult').textContent = parsed.soft;
-    document.getElementById('softHint').textContent = parsed.soft_hint;
-    document.getElementById('solveResult').textContent = parsed.solve;
-    document.getElementById('solveHint').textContent = parsed.solve_hint;
-
-    var badge = document.getElementById('softModeBadge');
-    badge.textContent = modeLabels[currentMode] || '';
-    badge.style.display = currentMode !== 'default' ? 'inline-block' : 'none';
-
-    document.getElementById('results').style.display = 'block';
-    gtag('event', 'translate_success', {
-      mode: currentMode,
-      emotion: parsed.emotion || '',
-      has_partner: currentPartner ? 'yes' : 'no',
-      relation: currentPartnerRelation || 'none',
-      input_length: userInput.length
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }]
+      })
     });
 
-    var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
-    history.unshift({
-      id: Date.now(),
-      date: new Date().toISOString(),
-      input: userInput,
-      mode: currentMode,
-      partner: currentPartner || '',
-      soft: parsed.soft,
-      solve: parsed.solve,
-      emotion: parsed.emotion || 'モヤモヤ'
-    });
-    if (history.length > 50) history = history.slice(0, 50);
-    localStorage.setItem('tsg_history', JSON.stringify(history));
-    tsgRenderHistory();
+    const data = await response.json();
 
-  } catch(err) {
-    var errMsg = 'いまAIが混み合っているようです。しばらく待ってから、もう一度試してみてね 🌿';
-    var errType = 'unknown';
+    if (!response.ok) {
+      const errType = data.error?.type || 'api_error';
+      const errMsg = data.error?.message || 'APIエラー';
+      // レート制限は特別扱い
+      if (response.status === 429) {
+        return res.status(429).json({ error: 'rate_limit', message: 'しばらくしてから再試行してください' });
+      }
+      throw new Error(`${errType}: ${errMsg}`);
+    }
+
+    const text = data.content[0].text;
+
+    // JSON抽出：AIが余計な文字を返しても対処
+    let parsed;
     try {
-      var errData = JSON.parse(err.message);
-      errType = errData.error || 'unknown';
-      if (errType === 'timeout') errMsg = '少し時間がかかりすぎました。もう一度試してみてね 🌿';
-      if (errType === 'rate_limit') errMsg = 'ただいま混み合っています。少し待ってから試してみてね 🌿';
-    } catch(e) { errType = err.message || 'unknown'; }
-
-    errorEl.innerHTML = errMsg + '<br><button class="btn-retry" onclick="tsgRun(); gtag(\'event\', \'retry_tap\');">もう一度試す</button>';
-    errorEl.style.display = 'block';
-    gtag('event', 'translate_error', {
-      error_message: errType,
-      mode: currentMode,
-      has_partner: currentPartner ? 'yes' : 'no',
-      relation: currentPartnerRelation || 'none',
-      input_length: userInput.length
-    });
-  } finally {
-    clearInterval(msgTimer);
-    document.getElementById('mainBtn').disabled = false;
-    document.getElementById('loading').style.display = 'none';
-  }
-}
-
-function tsgCopy(id, btn) {
-  var text = document.getElementById(id).textContent;
-  var type = id === 'softResult' ? '伝える翻訳' : '解決翻訳';
-  navigator.clipboard.writeText(text).then(function() {
-    btn.textContent = 'コピーしました！';
-    btn.classList.add('copied');
-    gtag('event', 'copy_text', { translation_type: type, mode: currentMode });
-    setTimeout(function() {
-      btn.textContent = 'この文章を送る';
-      btn.classList.remove('copied');
-    }, 2000);
-  });
-}
-
-var feelingMessages = {
-  '😌': 'よかったです 🌿\n気持ちを整理するだけでも十分です。',
-  '🌿': '素敵です ✨\n自分の気持ちに気づけたことが大切です。',
-  '🩷': 'いい一歩です 🩷\n無理のないペースで大丈夫です。',
-  '🌥': '無理に結論を出さなくても大丈夫 🌙\nいつでも味方です。'
-};
-
-function tsgFeeling(btn) {
-  document.querySelectorAll('.feeling-btn').forEach(function(b) { b.classList.remove('selected'); });
-  btn.classList.add('selected');
-  var emoji = btn.querySelector('.feeling-emoji').textContent.trim();
-  var label = btn.querySelector('.feeling-label').textContent.trim();
-  var msg = feelingMessages[emoji] || '';
-  var msgEl = document.getElementById('feelingMessage');
-  msgEl.textContent = msg;
-  msgEl.classList.remove('show');
-  setTimeout(function() { msgEl.classList.add('show'); }, 10);
-  gtag('event', 'feeling_selected', { feeling_label: label });
-
-  // 直近の翻訳履歴に feelingAfter を追記（上書きOK）
-  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
-  var latest = history.find(function(h) { return h.type !== 'sodan'; });
-  if (latest) {
-    latest.feelingAfter = label;
-    localStorage.setItem('tsg_history', JSON.stringify(history));
-    tsgRenderHistory();
-  }
-
-  if (!localStorage.getItem('tsg_survey_done')) {
-    setTimeout(function() { tsgShowSurvey(); }, 600);
-  }
-}
-
-// ========== 週次振り返り ==========
-var weeklyOpen = false;
-
-function tsgToggleWeekly() {
-  weeklyOpen = !weeklyOpen;
-  document.getElementById('weeklyContent').style.display = weeklyOpen ? 'block' : 'none';
-  document.getElementById('weeklyChevron').textContent = weeklyOpen ? '∨' : '›';
-  if (weeklyOpen) tsgRenderWeekly();
-}
-
-function tsgRenderWeekly() {
-  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
-  var now = new Date();
-  var dayOfWeek = now.getDay(); // 0=日
-  var weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - dayOfWeek);
-  weekStart.setHours(0,0,0,0);
-
-  // 今週のデータを抽出
-  var weekData = history.filter(function(item) {
-    return new Date(item.date) >= weekStart;
-  });
-
-  // カレンダー生成
-  var dayLabels = ['日','月','火','水','木','金','土'];
-  var calEl = document.getElementById('weeklyCalendar');
-  var calHtml = '';
-  for (var i = 0; i < 7; i++) {
-    var d = new Date(weekStart);
-    d.setDate(weekStart.getDate() + i);
-    var dateStr = d.toDateString();
-    var dayItems = weekData.filter(function(item) {
-      return new Date(item.date).toDateString() === dateStr;
-    });
-    var emoji = '　';
-    if (dayItems.length > 0) {
-      var last = dayItems[dayItems.length - 1];
-      if (last.feelingAfter) {
-        var emoMap = { '少し落ち着いた':'😌', '気持ちを整理できた':'🌿', '伝えやすくなった':'🩷', 'まだモヤモヤする':'🌥', '少し楽になった':'😌', '整理できてきた':'🌿', 'まだモヤモヤ':'🌥' };
-        emoji = emoMap[last.feelingAfter] || '📝';
+      const clean = text.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch (parseErr) {
+      // JSONが見つからない場合はテキストからJSONを抽出
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
       } else {
-        emoji = last.type === 'sodan' ? '💬' : '📝';
+        throw new Error('json_parse_error: AIの返答形式が不正でした');
       }
     }
-    var isToday = d.toDateString() === now.toDateString();
-    calHtml += '<div style="flex:1;text-align:center;">' +
-      '<div style="font-size:10px;color:' + (isToday ? '#3D5A3E' : '#aaa') + ';font-weight:' + (isToday ? '700' : 'normal') + ';margin-bottom:4px;">' + dayLabels[i] + '</div>' +
-      '<div style="font-size:20px;height:28px;">' + emoji + '</div>' +
-    '</div>';
-  }
-  calEl.innerHTML = calHtml;
 
-  // 集計
-  var total = weekData.length;
-  var feelings = {};
-  weekData.forEach(function(item) {
-    var f = item.feelingAfter || item.feeling || '';
-    if (f) feelings[f] = (feelings[f] || 0) + 1;
-  });
-  var feelingText = Object.keys(feelings).map(function(k) {
-    return k + ' ' + feelings[k] + '回';
-  }).join('・');
-
-  var summaryEl = document.getElementById('weeklySummary');
-  if (total === 0) {
-    summaryEl.textContent = '今週はまだ記録がありません。';
-    document.getElementById('weeklySubtitle').textContent = '今週の記録はまだなし';
-  } else {
-    summaryEl.innerHTML = '今週は <strong>' + total + '回</strong> 気持ちを言葉にしました。' +
-      (feelingText ? '<br>' + feelingText : '');
-    document.getElementById('weeklySubtitle').textContent = '今週 ' + total + '回の記録あり';
-  }
-
-  // AIの言葉（開くたびに生成）
-  tsgGenerateWeeklyAI(weekData, feelings, total);
-}
-
-function tsgRefreshWeeklyAI() {
-  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
-  var now = new Date();
-  var dayOfWeek = now.getDay();
-  var weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - dayOfWeek);
-  weekStart.setHours(0,0,0,0);
-  var weekData = history.filter(function(item) { return new Date(item.date) >= weekStart; });
-  var feelings = {};
-  weekData.forEach(function(item) {
-    var f = item.feelingAfter || item.feeling || '';
-    if (f) feelings[f] = (feelings[f] || 0) + 1;
-  });
-  document.getElementById('weeklyAIText').textContent = '';
-  tsgGenerateWeeklyAI(weekData, feelings, weekData.length);
-}
-
-async function tsgGenerateWeeklyAI(weekData, feelings, total) {
-  var textEl = document.getElementById('weeklyAIText');
-  var btn = document.getElementById('weeklyRefreshBtn');
-  textEl.textContent = '考えています... 🌿';
-  if (btn) btn.disabled = true;
-
-  var feelingSummary = Object.keys(feelings).map(function(k) { return k + ' ' + feelings[k] + '回'; }).join('、');
-  var context = total === 0
-    ? '今週はまだ記録がない'
-    : '今週' + total + '回気持ちを言葉にした。感情の記録：' + (feelingSummary || 'なし');
-
-  try {
-    var res = await fetch('/api/weekly', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ context: context })
-    });
-    var data = await res.json();
-    textEl.textContent = data.message || '気持ちを言葉にしようとするだけで、十分なことだよ 🌿';
-  } catch(e) {
-    textEl.textContent = '気持ちを言葉にしようとするだけで、十分なことだよ 🌿';
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
-
-function tsgRenderHistory() {
-  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
-  var emptyEl = document.getElementById('historyEmpty');
-  var listEl = document.getElementById('historyList');
-  if (!listEl) return;
-
-  if (history.length === 0) {
-    emptyEl.style.display = 'block';
-    listEl.innerHTML = '';
-    return;
-  }
-  emptyEl.style.display = 'none';
-
-  var emotionEmoji = { 'モヤモヤ':'😶', 'イライラ':'😡', '悲しい':'😢', '不安':'😰', '疲れた':'😤', '感謝':'❤️' };
-  var sodanModeLabel = { 'listen': '🫧 ただ聞いてほしい', 'advice': '💡 どうすればいいか知りたい' };
-  var feelingEmoji = { '少し楽になった':'😌', '整理できてきた':'🌿', 'まだモヤモヤ':'🌥' };
-
-  listEl.innerHTML = history.map(function(item) {
-    var d = new Date(item.date);
-    var dateStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
-                  d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
-
-    // 相談履歴
-    if (item.type === 'sodan') {
-      var modeLabel = sodanModeLabel[item.mode] || '';
-      var feelingStr = '';
-      if (item.feeling) {
-        var afterMap = { '少し楽になった': '😌 少し楽になった', '整理できてきた': '🌿 整理できてきた', 'まだモヤモヤ': '🌥 まだモヤモヤ' };
-        feelingStr = '<div style="margin-top:6px;">' +
-          '<span style="font-size:12px;background:#f0f7f0;padding:3px 10px;border-radius:10px;color:#3D5A3E;">😶 モヤモヤ → ' + (afterMap[item.feeling] || item.feeling) + '</span>' +
-        '</div>';
-      }
-      var chatLog = '';
-      if (item.chatHistory && item.chatHistory.length > 0) {
-        chatLog = item.chatHistory.map(function(msg) {
-          var isUser = msg.role === 'user';
-          return '<div style="display:flex;flex-direction:column;align-items:' + (isUser ? 'flex-end' : 'flex-start') + ';gap:2px;margin-bottom:10px;">' +
-            (!isUser ? '<div style="font-size:10px;color:#aaa;padding:0 6px;">tsunageru</div>' : '') +
-            '<div style="max-width:84%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.7;word-break:break-word;' +
-              (isUser ? 'background:#2d4a2d;color:white;border-bottom-right-radius:4px;' : 'background:#f5f2ed;color:#2a2a2a;border-bottom-left-radius:4px;') + '">' +
-              msg.content.replace(/\n/g, '<br>') +
-            '</div></div>';
-        }).join('');
-      }
-      return '<div class="history-item" style="border-left:3px solid #3D5A3E;padding-left:14px;">' +
-        // 1行目：日時 + カテゴリー
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-          '<span class="history-date">' + dateStr + '</span>' +
-          '<div style="display:flex;gap:6px;align-items:center;">' +
-            (item.category ? '<span style="font-size:11px;background:#f0f7f0;padding:2px 8px;border-radius:10px;color:#3D5A3E;">' + item.category + '</span>' : '') +
-            '<span style="font-size:11px;background:#e8f5eb;padding:2px 8px;border-radius:10px;color:#3D5A3E;font-weight:500;">🌱 相談</span>' +
-          '</div>' +
-        '</div>' +
-        // 気持ち変化
-        feelingStr +
-        // 入力内容
-        '<div class="history-input" style="margin-top:8px;">' + item.input + '</div>' +
-        // やりとり数（小さく）
-        '<div style="font-size:11px;color:#bbb;margin-top:4px;">' + modeLabel + ' · ' + item.messageCount + '回のやりとり</div>' +
-        // 展開
-        (chatLog ? '<div onclick="tsgToggleChatLog(this)" style="margin-top:10px;cursor:pointer;">' +
-          '<div style="font-size:11px;color:#3D5A3E;"><span class="toggle-label">▶ やりとりを見る</span></div>' +
-          '<div class="chat-log" style="display:none;margin-top:10px;">' + chatLog + '</div>' +
-        '</div>' : '') +
-      '</div>';
+    // 必須フィールドチェック
+    if (!parsed.soft || !parsed.solve) {
+      throw new Error('missing_fields: 翻訳結果が不完全でした');
     }
 
-    // 翻訳履歴
-    var modeLabel = modeLabels[item.mode] || '';
-    var emo = item.emotion || '';
-    var emoEmoji = emotionEmoji[emo] || '';
-    var feelingAfter = item.feelingAfter || '';
-    var feelingAfterEmoji = { '少し落ち着いた':'😌', '気持ちを整理できた':'🌿', '伝えやすくなった':'🩷', 'まだモヤモヤする':'🌥' };
-    var afterEmoji = feelingAfterEmoji[feelingAfter] || '';
-    var changeStr = (emo && feelingAfter)
-      ? '<span style="font-size:12px;background:#f0f7f0;padding:3px 10px;border-radius:10px;color:#3D5A3E;">' + emoEmoji + ' ' + emo + ' → ' + afterEmoji + ' ' + feelingAfter + '</span>'
-      : (emo ? '<span style="font-size:12px;background:#f5f2ed;padding:3px 10px;border-radius:10px;color:#888;">' + emoEmoji + ' ' + emo + '</span>' : '');
+    res.status(200).json(parsed);
 
-    var translationDetail =
-      '<div style="margin-top:12px;">' +
-        '<div class="history-label green"><span class="history-label-dot green"></span>伝える翻訳</div>' +
-        '<div class="history-text">' + item.soft + '</div>' +
-        '<button class="btn-copy green" onclick="tsgCopyHistory(' + item.id + ', \'soft\', this);">この文章を送る</button>' +
-        '<div class="history-divider"></div>' +
-        '<div class="history-label orange"><span class="history-label-dot orange"></span>解決翻訳</div>' +
-        '<div class="history-text">' + item.solve + '</div>' +
-        '<button class="btn-copy orange" onclick="tsgCopyHistory(' + item.id + ', \'solve\', this);">この文章を送る</button>' +
-      '</div>';
-
-    return '<div class="history-item" style="border-left:3px solid #e07840;padding-left:14px;">' +
-      // 1行目：日時 + 相手
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-        '<span class="history-date">' + dateStr + '</span>' +
-        (item.partner ? '<span style="font-size:11px;background:#fdf0e6;padding:2px 8px;border-radius:10px;color:#c8622a;">→ ' + item.partner + '</span>' : '') +
-      '</div>' +
-      // 2行目：気持ち変化
-      (changeStr ? '<div style="margin-bottom:4px;">' + changeStr + '</div>' : '') +
-      // 3行目：モード（小さく）
-      '<div style="font-size:11px;color:#bbb;margin-bottom:6px;">' + modeLabel + '</div>' +
-      // 入力内容
-      '<div class="history-input">' + item.input + '</div>' +
-      // 展開
-      '<div onclick="tsgToggleChatLog(this)" style="margin-top:8px;cursor:pointer;">' +
-        '<div style="font-size:11px;color:#c8622a;"><span class="toggle-label">▶ 翻訳を見る</span></div>' +
-        '<div class="chat-log" style="display:none;">' + translationDetail + '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function tsgToggleChatLog(el) {
-  var log = el.querySelector('.chat-log');
-  var label = el.querySelector('.toggle-label');
-  var isOpen = log.style.display !== 'none';
-  log.style.display = isOpen ? 'none' : 'block';
-  label.textContent = isOpen ? '▶ やりとりを見る' : '▼ 閉じる';
-}
-
-function tsgCopyHistory(id, type, btn) {
-  var history = JSON.parse(localStorage.getItem('tsg_history') || '[]');
-  var item = history.find(function(h) { return h.id == id; });
-  if (!item) return;
-  navigator.clipboard.writeText(item[type]).then(function() {
-    btn.textContent = 'コピーしました！';
-    btn.classList.add('copied');
-    setTimeout(function() {
-      btn.textContent = 'この文章を送る';
-      btn.classList.remove('copied');
-    }, 2000);
-  });
-}
-
-function tsgDeleteHistory() {
-  if (!confirm('すべての履歴を削除しますか？')) return;
-  localStorage.removeItem('tsg_history');
-  tsgRenderHistory();
-  gtag('event', 'history_deleted');
-}
-
-function tsgShowSurvey() {
-  if (document.getElementById('surveyCard')) return;
-  var card = document.createElement('div');
-  card.id = 'surveyCard';
-  card.className = 'feeling-card';
-  card.style.animation = 'fadeIn 0.35s ease';
-  var options = ['このまま送りたい！','少し手直しすれば送れそう','ニュアンスが少し違った','送るにはまだハードルが高い'];
-  var optsHtml = options.map(function(v) {
-    var safeV = v.replace(/'/g, "\\'");
-    return '<button onclick="tsgSurveySelect(this,\'' + safeV + '\')" style="padding:12px 16px;border:0.5px solid #e0ddd8;border-radius:10px;font-size:14px;color:#2C3E2D;cursor:pointer;background:#fff;text-align:left;font-family:inherit;transition:all 0.15s;position:relative;overflow:hidden;">' +
-      v + '<span class="survey-check" style="position:absolute;right:14px;top:50%;transform:translateY(-50%) scale(0);transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);color:#5cb87a;font-size:16px;">✓</span>' +
-    '</button>';
-  }).join('');
-  card.innerHTML =
-    '<div style="font-size:13px;color:#aaa;margin-bottom:1rem;display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">🌿</span>ひとつだけ聞かせてください</div>' +
-    '<div style="font-size:15px;font-weight:500;color:#2C3E2D;margin-bottom:1rem;line-height:1.5;">翻訳された文章を見て、どう感じましたか？</div>' +
-    '<div id="surveyOpts" style="display:flex;flex-direction:column;gap:8px;">' + optsHtml + '</div>' +
-    '<div id="surveyThanks" style="display:none;text-align:center;padding:1rem 0;animation:fadeIn 0.35s ease;">' +
-      '<div style="font-size:24px;margin-bottom:8px;">🌿</div>' +
-      '<div style="font-size:15px;font-weight:500;color:#2C3E2D;margin-bottom:4px;">ありがとうございます</div>' +
-      '<div style="font-size:13px;color:#aaa;">あなたの声が次の機能になります</div>' +
-    '</div>';
-  var feelingCard = document.querySelector('.feeling-card');
-  feelingCard.parentNode.insertBefore(card, feelingCard.nextSibling);
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function tsgSurveySelect(btn, value) {
-  var opts = document.querySelectorAll('#surveyOpts button');
-  opts.forEach(function(o) {
-    o.style.opacity = o === btn ? '1' : '0.35';
-    o.style.pointerEvents = 'none';
-  });
-  btn.style.background = '#f0faf3';
-  btn.style.borderColor = '#5cb87a';
-  btn.style.color = '#2d6e42';
-  btn.querySelector('.survey-check').style.transform = 'translateY(-50%) scale(1)';
-  setTimeout(function() {
-    var optsEl = document.getElementById('surveyOpts');
-    optsEl.style.transition = 'opacity 0.3s';
-    optsEl.style.opacity = '0';
-    setTimeout(function() {
-      optsEl.style.display = 'none';
-      document.getElementById('surveyThanks').style.display = 'block';
-    }, 300);
-  }, 500);
-  localStorage.setItem('tsg_survey_done', '1');
-  gtag('event', 'survey_answer', { answer: value });
-  var formId = '1FAIpQLSdCe-I1NGCxI_2Sbac_ZGNaP44NoXPynNai6hFmHpYHjEw9qQ';
-  var body = new URLSearchParams();
-  body.append('entry.2122053896', value);
-  fetch('https://docs.google.com/forms/u/0/d/e/' + formId + '/formResponse', {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString()
-  });
-}
-
-var analyticsOn = true;
-
-// ========== プロフィール ==========
-function tsgLoadProfile() {
-  var p = JSON.parse(localStorage.getItem('tsg_profile') || '{}');
-  if (p.name) document.getElementById('profile-name').value = p.name;
-  if (p.gender) tsgSelectGender(p.gender, true);
-  if (p.style) tsgSelectStyle(p.style, true);
-}
-
-function tsgSaveProfile() {
-  var p = JSON.parse(localStorage.getItem('tsg_profile') || '{}');
-  p.name = document.getElementById('profile-name').value;
-  localStorage.setItem('tsg_profile', JSON.stringify(p));
-}
-
-function tsgSelectGender(val, silent) {
-  ['female','male','other'].forEach(function(v) {
-    var el = document.getElementById('gender-' + v);
-    if (el) el.classList.toggle('active', v === val);
-  });
-  var p = JSON.parse(localStorage.getItem('tsg_profile') || '{}');
-  p.gender = val;
-  localStorage.setItem('tsg_profile', JSON.stringify(p));
-  if (!silent) gtag('event', 'profile_gender', { value: val });
-}
-
-function tsgSelectStyle(val, silent) {
-  ['soft','normal','direct'].forEach(function(v) {
-    var el = document.getElementById('style-' + v);
-    if (el) el.classList.toggle('active', v === val);
-  });
-  var p = JSON.parse(localStorage.getItem('tsg_profile') || '{}');
-  p.style = val;
-  localStorage.setItem('tsg_profile', JSON.stringify(p));
-  if (!silent) gtag('event', 'profile_style', { value: val });
-}
-
-// ========== 相手管理 ==========
-var currentPartner = null;
-var currentPartnerRelation = null;
-
-var relationLabels = {
-  partner: '💑 パートナー',
-  family: '👨‍👩‍👧 家族・親族',
-  friend: '👫 友人',
-  work: '💼 職場・上司',
-  crush: '💝 気になる相手',
-  other: '👤 その他'
-};
-
-var relationStyle = {
-  partner: 'タメ口。長年一緒にいる相手への自然な言葉。例：「最近ちょっと疲れてて」「なんかモヤモヤしてるんだよね」',
-  family: '「です・ます」を使う普通の丁寧語。でも堅くない。例：「最近怒ってるみたいで、何があったか教えてもらえますか？」「ちょっと気になってて、聞いてもいいですか？」。「〜らっしゃる」「お〜いただく」などの過剰敬語は使わない。',
-  friend: 'タメ口。カジュアルに。例：「なんかあった？」「最近元気なさそうで気になってたんだけど」',
-  work: '「です・ます」の丁寧語。ビジネスメール的な堅さは不要。例：「少し確認したいことがあって」「教えてもらえますか？」。「お気に召す」「いかがでしょうか」などは使わない。',
-  crush: '丁寧だけど自然。少し緊張感がある感じ。例：「最近どうしたの？」「ちょっと気になってて」',
-  other: '自然な口調。'
-};
-
-function tsgShowRelationPicker() {
-  var name = document.getElementById('partner-input').value.trim();
-  if (!name) return;
-  document.getElementById('relation-picker').style.display = 'block';
-}
-
-function tsgAddPartnerWithRelation(relation) {
-  var name = document.getElementById('partner-input').value.trim();
-  if (!name) return;
-
-  var partners = JSON.parse(localStorage.getItem('tsg_partners') || '[]');
-  var existing = partners.find(function(p) { return p.name === name; });
-  if (!existing) {
-    partners.push({ name: name, relation: relation });
-    localStorage.setItem('tsg_partners', JSON.stringify(partners));
-  }
-
-  document.getElementById('partner-input').value = '';
-  document.getElementById('relation-picker').style.display = 'none';
-
-  gtag('event', 'partner_add', { relation: relation });
-  tsgSelectPartnerObj({ name: name, relation: relation }, null);
-  tsgLoadPartners();
-}
-
-function tsgLoadPartners() {
-  var partners = JSON.parse(localStorage.getItem('tsg_partners') || '[]');
-  // 古い形式（文字列）を新形式に変換
-  partners = partners.map(function(p) {
-    return typeof p === 'string' ? { name: p, relation: 'other' } : p;
-  });
-  var chips = document.getElementById('partner-chips');
-  if (!chips) return;
-  chips.innerHTML = partners.map(function(p) {
-    var label = p.name;
-    return '<button onclick="tsgSelectPartnerObj(' + JSON.stringify(p).replace(/"/g,'&quot;') + ', this)"' +
-      ' style="padding:6px 14px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;font-size:12px;color:#888;cursor:pointer;font-family:inherit;"' +
-      ' class="partner-chip">' + label + '</button>';
-  }).join('');
-  if (currentPartner) {
-    chips.querySelectorAll('.partner-chip').forEach(function(btn) {
-      if (btn.textContent === currentPartner) {
-        btn.style.background = '#3D5A3E';
-        btn.style.color = 'white';
-        btn.style.borderColor = '#3D5A3E';
-      }
+  } catch (err) {
+    const isTimeout = err.name === 'AbortError';
+    const errorType = isTimeout ? 'timeout' : (err.message.split(':')[0] || 'unknown');
+    res.status(500).json({
+      error: errorType,
+      message: isTimeout ? 'タイムアウトしました' : err.message
     });
   }
 }
-
-function tsgSelectPartnerObj(p, btn) {
-  var name = typeof p === 'string' ? p : p.name;
-  var relation = typeof p === 'string' ? 'other' : p.relation;
-  currentPartner = (currentPartner === name) ? null : name;
-  currentPartnerRelation = currentPartner ? relation : null;
-
-  document.querySelectorAll('.partner-chip').forEach(function(b) {
-    b.style.background = '#fff'; b.style.color = '#888'; b.style.borderColor = '#e0ddd8';
-  });
-  if (currentPartner && btn) {
-    btn.style.background = '#3D5A3E'; btn.style.color = 'white'; btn.style.borderColor = '#3D5A3E';
-  }
-  if (currentPartner) gtag('event', 'partner_select', { relation: relation });
-}
-
-// 後方互換用
-function tsgAddPartner() { tsgShowRelationPicker(); }
-function tsgSelectPartner(name, btn) { tsgSelectPartnerObj(name, btn); }
-
-function tsgGetProfileContext() {
-  var p = JSON.parse(localStorage.getItem('tsg_profile') || '{}');
-  var genderMap = { female: '女性', male: '男性', other: '' };
-  var styleMap = { soft: 'やわらかめ', normal: 'ふつう', direct: 'ストレートに' };
-  var parts = [];
-  if (p.name) parts.push('送り手の名前：' + p.name);
-  if (p.gender && p.gender !== 'other') parts.push('送り手の性別：' + genderMap[p.gender]);
-  if (p.style) parts.push('送り手の話し方の好み：' + styleMap[p.style]);
-  if (currentPartner) parts.push('受け取り手の名前：' + currentPartner);
-  if (currentPartnerRelation && relationStyle[currentPartnerRelation]) {
-    parts.push('受け取り手との関係性：' + (relationLabels[currentPartnerRelation] || ''));
-    parts.push('文体指示：' + relationStyle[currentPartnerRelation]);
-  }
-  return parts.length ? parts.join('\n') : '';
-}
-// ========== 設定画面アンケート ==========
-var surveyAnswers = {};
-
-function tsgSurveyQ(qId, value, btn) {
-  surveyAnswers[qId] = value;
-  document.querySelectorAll('#' + qId + ' .sq-btn').forEach(function(b) {
-    b.classList.remove('selected');
-  });
-  btn.classList.add('selected');
-}
-
-async function tsgSubmitSurvey() {
-  var btn = document.getElementById('sqSubmitBtn');
-  var text = document.getElementById('sq5text').value.trim();
-
-  // GAにイベント送信
-  gtag('event', 'survey_settings', {
-    usability: surveyAnswers['sq1'] || '',
-    translation_quality: surveyAnswers['sq2'] || '',
-    retention: surveyAnswers['sq3'] || '',
-    nps: surveyAnswers['sq4'] || ''
-  });
-
-  // Googleフォームに自由記述だけ送信
-  var formId = '1FAIpQLSf9movHVPs56MrQ6v_5h4Jagg40PgghzxYq_J8tByUuiHJgCA';
-  var body = new URLSearchParams();
-  if (surveyAnswers['sq1']) body.append('entry.118815548', surveyAnswers['sq1']);
-  if (surveyAnswers['sq2']) body.append('entry.874502199', surveyAnswers['sq2']);
-  if (surveyAnswers['sq3']) body.append('entry.2026789799', surveyAnswers['sq3']);
-  if (surveyAnswers['sq4']) body.append('entry.818095374', surveyAnswers['sq4']);
-  if (text) body.append('entry.239194044', text);
-
-  fetch('https://docs.google.com/forms/u/0/d/e/' + formId + '/formResponse', {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString()
-  });
-
-  btn.style.display = 'none';
-  document.getElementById('sqThanks').style.display = 'block';
-  localStorage.setItem('tsg_survey_settings_done', '1');
-}
-
-function tsgToggle() {
-  analyticsOn = !analyticsOn;
-  var toggle = document.getElementById('analyticsToggle');
-  if (analyticsOn) { toggle.classList.remove('off'); } else { toggle.classList.add('off'); }
-  gtag('event', 'analytics_toggle', { enabled: analyticsOn });
-}
-
-tsgRenderHistory();
-tsgLoadProfile();
-tsgLoadPartners();
-</script>
-</body>
-</html>
