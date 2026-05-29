@@ -146,7 +146,7 @@ ${userInput}
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-haiku-4-5',
         max_tokens: 1024,
         messages: [{ role: 'user', content: prompt }]
       })
@@ -157,7 +157,6 @@ ${userInput}
     if (!response.ok) {
       const errType = data.error?.type || 'api_error';
       const errMsg = data.error?.message || 'APIエラー';
-      // レート制限は特別扱い
       if (response.status === 429) {
         return res.status(429).json({ error: 'rate_limit', message: 'しばらくしてから再試行してください' });
       }
@@ -166,13 +165,11 @@ ${userInput}
 
     const text = data.content[0].text;
 
-    // JSON抽出：AIが余計な文字を返しても対処
     let parsed;
     try {
       const clean = text.replace(/```json|```/g, '').trim();
       parsed = JSON.parse(clean);
     } catch (parseErr) {
-      // JSONが見つからない場合はテキストからJSONを抽出
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         parsed = JSON.parse(jsonMatch[0]);
@@ -181,7 +178,6 @@ ${userInput}
       }
     }
 
-    // 必須フィールドチェック
     if (!parsed.soft || !parsed.solve) {
       throw new Error('missing_fields: 翻訳結果が不完全でした');
     }
